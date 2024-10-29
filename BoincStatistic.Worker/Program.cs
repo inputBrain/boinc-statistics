@@ -1,13 +1,10 @@
 using System;
 using BoincStatistic.Database;
-using BoincStatistic.Database.BoincProjectStats;
 using BoincStatistic.Worker;
 using Microsoft.EntityFrameworkCore;
-// using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(
