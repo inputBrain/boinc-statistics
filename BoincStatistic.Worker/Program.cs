@@ -25,20 +25,10 @@ IHost host = Host.CreateDefaultBuilder(args)
             (
                hostContext.Configuration.GetConnectionString("PostgreSqlConnection")
             ));
-            //
-            // services.AddHttpClient<IBaseParser, BaseParser>();
-            //
-            // services.AddSingleton<IGateioParser, GateioParser>();
-            //
-            // services.AddHostedService<BoincStatsService>();
+
+            services.AddHostedService<BoincStatsService>();
             services.AddHostedService<BoincProjectStatsService>();
-            //
-            // services.AddSingleton<IUseCaseContainer>(
-            //     sp => Factory.Create(
-            //         sp.GetRequiredService<ILoggerFactory>(),
-            //         sp.GetRequiredService<IGateioParser>()
-            //     )
-            // );
+
         })
     .Build();
 
