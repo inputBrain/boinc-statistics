@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-@model BoincStatsViewModel
+@model BoincProjectStatsViewModel
 
 <div class="row">
     <div class="col-md-3">
@@ -12,29 +12,19 @@
             <table class="table table-hover" id="newsTable">
                 <thead>
                 <tr>
-                    <th>Rank</th>
-                    <th>Country</th>
+                    <th>Project Name</th>
                     <th>Total Credit</th>
-                    <th>Credit Day</th>
-                    <th>Credit Week</th>
-                    <th>Credit Month</th>
-                    <th>Average Credit</th>
-                    <th>Credit User</th>
+                    <th>Project Category</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var item in Model.BoincStats)
+                @foreach (var item in Model.ProjectStats)
                 {
                 <tr>
-                    <td>@item.Rank</td>
-                    <td>@item.CountryName</td>
+                    <td>@item.ProjectName</td>
                     <td>@item.TotalCredit</td>
-                    <td>@item.CreditDay</td>
-                    <td>@item.CreditWeek</td>
-                    <td>@item.CreditMonth</td>
-                    <td>@item.CreditAvarage</td>
-                    <td>@item.CreditUser</td>
+                    <td>@item.ProjectCategory</td>
                     <td>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-sm btn-outline-info">Info</button>

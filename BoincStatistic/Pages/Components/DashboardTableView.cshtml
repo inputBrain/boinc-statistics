@@ -1,0 +1,46 @@
+﻿@model List<BoincStatistic.Database.BoincStats.BoincStatsModel>
+
+<div class="container mt-5">
+    <table class="table table-hover" id="newsTable">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Rank</th>
+            <th>Country</th>
+            <th>Average Credit</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Rank</td>
+                <td>@item.CountryName</td>
+                <td>@item.CreditAvarage</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-info">Info</button>
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <nav aria-label="...">
+        <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item active" aria-current="page">
+                <span class="page-link">2</span>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>

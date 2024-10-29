@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace BoincStatistic.Database.BoincProjectStats;
@@ -22,5 +25,22 @@ public class BoincProjectStatsRepo : AbstractRepository<BoincProjectStatsModel>,
         }
 
         return result;
+    }
+    
+    
+        
+    public async Task<int> CountAsync()
+    {
+        return await DbModel.CountAsync();
+    }
+
+    
+    public async Task<List<BoincProjectStatsModel>> GetPaginatedAsync(int pageNumber, int pageSize)
+    {
+        return await DbModel
+            .OrderBy(b => b.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
     }
 }

@@ -59,7 +59,7 @@ public partial class BoincProjectStatsService : BackgroundService
             Console.WriteLine($"Processing page with offset: {apiModel.ProjectUrl}");
 
             var html = await Client.GetStringAsync(apiModel.ProjectUrl, cancellationToken);
-            await Task.Delay(15_000, cancellationToken);
+            await Task.Delay(5_000, cancellationToken);
 
             htmlDocument.LoadHtml(html);
 

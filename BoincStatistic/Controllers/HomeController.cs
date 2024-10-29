@@ -19,11 +19,21 @@ public class HomeController : Controller
     }
 
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 25)
     {
-        var collection = await _boincStatsRepository.ListAllAsync();
         
-        return View();
+        var totalRecords = await _boincStatsRepository.CountAsync();
+        var boincStats = await _boincStatsRepository.GetPaginatedAsync(pageNumber, pageSize);
+        
+        var model = new BoincStatsViewModel
+        {
+            BoincStats = boincStats,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalRecords = totalRecords
+        };
+
+        return View(model);
     }
 
 

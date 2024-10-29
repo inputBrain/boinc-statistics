@@ -41,4 +41,21 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
     {
         return await DbModel.OrderBy(x => x.Rank).ToListAsync();
     }
+    
+    
+    public async Task<int> CountAsync()
+    {
+        return await DbModel.CountAsync();
+    }
+
+    
+    public async Task<List<BoincStatsModel>> GetPaginatedAsync(int pageNumber, int pageSize)
+    {
+        return await DbModel
+            .OrderBy(b => b.Id)
+            .Where(x => x.Rank == "1" || x.CountryName == "Ukraine" || x.CountryName == "Russian Federation")
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
 }

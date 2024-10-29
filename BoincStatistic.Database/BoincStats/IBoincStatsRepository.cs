@@ -16,4 +16,8 @@ public interface IBoincStatsRepository
         string creditUser
     );
     public Task<List<BoincStatsModel>> ListAllAsync();
+    
+    Task<int> CountAsync();
+    
+    Task<List<BoincStatsModel>> GetPaginatedAsync(int pageNumber, int pageSize);
 }

@@ -1,4 +1,5 @@
-﻿using BoincStatistic.Database.BoincStats;
+﻿using BoincStatistic.Database.BoincProjectStats;
+using BoincStatistic.Database.BoincStats;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -9,6 +10,7 @@ public class PostgreSqlContext : DbContext
     public readonly IDatabaseFacade Db;
 
     public DbSet<BoincStatsModel> BoincStats { get; set; }
+    public DbSet<BoincProjectStatsModel> ProjectStats { get; set; }
 
 
     public PostgreSqlContext(DbContextOptions<PostgreSqlContext> options, ILoggerFactory loggerFactory) : base(options)

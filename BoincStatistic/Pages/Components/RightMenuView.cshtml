@@ -1,0 +1,22 @@
+﻿<div class="d-flex flex-column flex-shrink-0 bg-light h-100 w-75" style="width: 200px;">
+  <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+    <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+    <span class="fs-4">BOINC Stats</span>
+  </a>
+  <hr>
+  <ul class="nav nav-pills flex-column mb-auto">
+    <li class="nav-item">
+      <a href="@Url.Action("Index", "Home")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+        <svg class="bi me-2" width="16" height="16"><use xlink:href="#employee-icon"></use></svg>
+        All Stats
+      </a>
+    </li>
+    <li>
+      <a href="@Url.Action("Index", "ProjectStats")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectStats" ? "active" : "")">
+        <svg class="bi me-2" width="16" height="16"><use xlink:href="#employee-icon"></use></svg>
+        Project Stats
+      </a>
+    </li>
+  </ul>
+  <hr>
+</div>

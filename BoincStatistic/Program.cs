@@ -1,4 +1,5 @@
 using BoincStatistic.Database;
+using BoincStatistic.Database.BoincProjectStats;
 using BoincStatistic.Database.BoincStats;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,7 @@ builder.Services.AddDbContext<PostgreSqlContext>(
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IBoincStatsRepository, BoincStatsRepository>();
+builder.Services.AddScoped<IBoincProjectStatsRepo, BoincProjectStatsRepo>();
 
 var app = builder.Build();
 
