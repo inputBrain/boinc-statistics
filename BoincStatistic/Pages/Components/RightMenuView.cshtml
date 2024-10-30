@@ -17,6 +17,12 @@
         Project Stats
       </a>
     </li>
+    <li>
+      <a href="@Url.Action("Index", "ProjectWeight")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectWeight" ? "active" : "")">
+        <svg class="bi me-2" width="16" height="16"><use xlink:href="#employee-icon"></use></svg>
+        Project Weight
+      </a>
+    </li>
   </ul>
   <hr>
 </div>

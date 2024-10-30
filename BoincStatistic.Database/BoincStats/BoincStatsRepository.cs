@@ -37,9 +37,27 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
     }
 
 
+    public async Task<BoincStatsModel> GetOneCountryStatsByCountryName(string country)
+    {
+        var model = await DbModel.FirstOrDefaultAsync(x => x.CountryName == country);
+        if (model == null)
+        {
+            throw new Exception("Country stats is not found");
+        }
+
+        return model;
+    }
+    
+        
+    public async Task<BoincStatsModel> GetOneByRank(string rank)
+    {
+        return await DbModel.FirstOrDefaultAsync(x => x.Rank == rank);
+    }
+    
+
     public async Task<List<BoincStatsModel>> ListAllAsync()
     {
-        return await DbModel.OrderBy(x => x.Rank).ToListAsync();
+        return await DbModel.OrderBy(x => x.Id).ToListAsync();
     }
     
     
@@ -48,6 +66,18 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
         return await DbModel.CountAsync();
     }
 
+    
+    public async Task<List<BoincStatsModel>> GetThreeCountryAsync()
+    {
+        return await DbModel
+            .OrderBy(b => b.Id)
+            .Where(x => x.Rank == "1" || x.CountryName == "Ukraine" || x.CountryName == "Russian Federation")
+            .ToListAsync();
+    }
+    
+
+
+    
     
     public async Task<List<BoincStatsModel>> GetPaginatedAsync(int pageNumber, int pageSize)
     {

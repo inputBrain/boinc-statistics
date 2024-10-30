@@ -7,12 +7,12 @@ namespace BoincStatistic.Controllers;
 
 public class ProjectStatsController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<ProjectStatsController> _logger;
 
     private readonly IBoincProjectStatsRepo _boincProjectStatsRepo;
 
 
-    public ProjectStatsController(ILogger<HomeController> logger, IBoincProjectStatsRepo boincProjectStatsRepo)
+    public ProjectStatsController(ILogger<ProjectStatsController> logger, IBoincProjectStatsRepo boincProjectStatsRepo)
     {
         _logger = logger;
         _boincProjectStatsRepo = boincProjectStatsRepo;
