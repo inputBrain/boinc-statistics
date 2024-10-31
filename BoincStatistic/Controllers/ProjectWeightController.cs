@@ -43,28 +43,30 @@ private readonly ILogger<ProjectWeightController> _logger;
 
         foreach (var project in projectList)
         {
-            var firstCountry = await _statsRepository.GetOneByRank("1", project.Id);
-            var ukraineStats = await _statsRepository.GetOneCountryStatsByCountryName("Ukraine", project.Id);
-            var russiaStats = await _statsRepository.GetOneCountryStatsByCountryName("Russian Federation", project.Id);
-
+            var firstCountry = project.DetailedStatistics.FirstOrDefault(x => x.Rank == "1");
+            var ukraineStats = project.DetailedStatistics.FirstOrDefault(x => x.CountryName == "Ukraine");
+            var russiaStats = project.DetailedStatistics.FirstOrDefault(x => x.CountryName == "Russian Federation");
+            
+            if (ukraineStats == null || russiaStats == null || firstCountry == null)
+            {
+                continue;
+            }
+            
             var uaCredit = double.Parse(ukraineStats.TotalCredit.Replace(",", ""));
             var ruCredit = double.Parse(russiaStats.TotalCredit.Replace(",", ""));
             var totalCredit = double.Parse(project.TotalCredit.Replace(",", ""));
-
-            // UA weight и RU weight
+            
             var uaWeight = Math.Round((uaCredit / totalCredit) * 100, 2);
             var ruWeight = Math.Round((ruCredit / totalCredit) * 100, 2);
+            
+            var creditDifference = Math.Abs(uaCredit - ruCredit);
 
-            // Credit difference с абсолютным значением
-            var creditDifference = Math.Abs(ruWeight - uaWeight);
-
-            // Credits per hour
             var creditsPerHour = _creditsPerHourDictionary.TryGetValue(project.ProjectName, out var value) ? value : 1000;
 
-            // TaskHours, Years и MWt/h (CPU)
             var taskHours = Math.Round(creditDifference / creditsPerHour, 0);
-            var years = Math.Round(taskHours / 8760, 2);
+            var yearsDifference = Math.Round(taskHours / 8760, 2);
             var mwthCpu = Math.Round(taskHours * 7 / 1000000, 2);
+            
 
             // Days To Win
             var uaAverage = double.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
@@ -81,9 +83,13 @@ private readonly ILogger<ProjectWeightController> _logger;
                 RuWeight = ruWeight,
                 CreditDifference = creditDifference,
                 TaskHours = taskHours,
-                Years = years,
+                YearsDifference = yearsDifference,
                 MWtPerHourCpu = mwthCpu,
-                DaysToWin = daysToWin
+                DaysToWin = daysToWin,
+                CreditUA = ukraineStats.TotalCredit,
+                CreditRU = russiaStats.TotalCredit,
+                AvarageRU = russiaStats.CreditAvarage,
+                AvarageUA = ukraineStats.CreditAvarage
             });
         }
 

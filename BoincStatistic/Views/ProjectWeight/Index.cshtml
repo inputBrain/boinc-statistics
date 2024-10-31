@@ -9,11 +9,14 @@
             <table class="table table-hover" id="newsTable">
                 <thead>
                 <tr>
-                    <th>Project Name</th>
-                    <th>Total Credit</th>
+                    <th>Project</th>
+                    <th>UA Credit</th>
+                    <th>RU Credit</th>
                     <th>UA Weight (%)</th>
                     <th>RU Weight (%)</th>
                     <th>Credit Difference</th>
+                    <th>UA Average</th>
+                    <th>RU Average</th>
                     <th>Task Hours</th>
                     <th>Years</th>
                     <th>MWt/h (CPU)</th>
@@ -25,12 +28,15 @@
                 {
                     <tr>
                         <td>@project.ProjectName</td>
-                        <td>@project.TotalCredit</td>
+                        <td>@project.CreditUA</td>
+                        <td>@project.CreditRU</td>
                         <td>@project.UaWeight</td>
                         <td>@project.RuWeight</td>
                         <td>@project.CreditDifference</td>
+                        <td>@project.AvarageUA</td>
+                        <td>@project.AvarageRU</td>
                         <td>@project.TaskHours</td>
-                        <td>@project.Years</td>
+                        <td>@project.YearsDifference</td>
                         <td>@project.MWtPerHourCpu</td>
                         @if (project.DaysToWin > 0)
                         {
@@ -38,7 +44,7 @@
                         }
                         else
                         {
-                            <td>N/A</td>
+                            <td>0</td>
                         }
                     </tr>
                 }

@@ -49,12 +49,13 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
         return model;
     }
     
-        
+    
     public async Task<BoincStatsModel> GetOneByRank(string rank, int projectId)
     {
-        return await DbModel
-            .Where(x => x.ProjectId == projectId)
-            .FirstOrDefaultAsync(x => x.Rank == rank);
+        var model =  await DbModel
+                                .Where(x => x.Rank == rank && x.ProjectId == projectId)
+                                .FirstOrDefaultAsync();
+        return model;
     }
     
 
