@@ -208,7 +208,7 @@ public partial class BoincStatsService : BackgroundService
                     ProjectUrl = "https://www.boincstats.com/stats/15/project/detail/",
                     CountryStatsUrl = "https://www.boincstats.com/stats/15/country/list",
                     ProjectName = "World Community Grid",
-                    Category = ""
+                    Category = "Umbrella project"
                 },
                 new()
                 {
@@ -251,6 +251,13 @@ public partial class BoincStatsService : BackgroundService
                     CountryStatsUrl = "https://www.boincstats.com/stats/11/country/list",
                     ProjectName = "PrimeGrid",
                     Category = "Mathematics"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/3/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/3/country/list",
+                    ProjectName = "LTH",
+                    Category = "Physics"
                 },
             };
 
