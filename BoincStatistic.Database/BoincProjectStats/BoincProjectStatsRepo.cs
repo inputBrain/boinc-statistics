@@ -61,6 +61,13 @@ public class BoincProjectStatsRepo : AbstractRepository<BoincProjectStatsModel>,
 
     public async Task<List<BoincProjectStatsModel>> ListAll()
     {
-       return await DbModel.Include(x => x.DetailedStatistics).AsSplitQuery().ToListAsync();
+        var projectList = await DbModel
+            .Include(x => x.DetailedStatistics)
+            .AsSplitQuery()
+            .ToListAsync();
+
+        return projectList
+            .OrderBy(p => p.ProjectName == "Total without ASIC" ? 1 : 0)
+            .ToList();
     }
 }

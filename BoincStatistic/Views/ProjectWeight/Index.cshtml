@@ -19,7 +19,8 @@
                     <th>RU Average</th>
                     <th>Task Hours</th>
                     <th>Years</th>
-                    <th>MWt/h (CPU)</th>
+                    <th>MWt/h</th>
+                    <th>Devices to Overcome</th>
                     <th>Days To Win</th>
                 </tr>
                 </thead>
@@ -38,6 +39,7 @@
                         <td>@project.TaskHours</td>
                         <td>@project.YearsDifference</td>
                         <td>@project.MWtPerHourCpu</td>
+                        <td>@project.DevicesToOvercome</td>
                         @if (project.DaysToWin > 0)
                         {
                             <td>@project.DaysToWin</td>

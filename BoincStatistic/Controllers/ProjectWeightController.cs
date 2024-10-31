@@ -7,9 +7,8 @@ namespace BoincStatistic.Controllers;
 
 public class ProjectWeightController : Controller
 {
-private readonly ILogger<ProjectWeightController> _logger;
+    private readonly ILogger<ProjectWeightController> _logger;
     private readonly IBoincProjectStatsRepo _projectStatsRepo;
-    private readonly IBoincStatsRepository _statsRepository;
 
     private readonly Dictionary<string, double> _creditsPerHourDictionary = new()
     {
@@ -24,15 +23,15 @@ private readonly ILogger<ProjectWeightController> _logger;
         { "Yoyo", 40 },
         { "Amicable Numbers", 55000 },
         { "Einstein", 22500 },
+        { "Total without ASIC", 22500 },
         { "Moo wraper", 45000 },
         { "PrimeGrid", 25000 }
     };
 
-    public ProjectWeightController(ILogger<ProjectWeightController> logger, IBoincProjectStatsRepo projectStatsRepo, IBoincStatsRepository statsRepository)
+    public ProjectWeightController(ILogger<ProjectWeightController> logger, IBoincProjectStatsRepo projectStatsRepo)
     {
         _logger = logger;
         _projectStatsRepo = projectStatsRepo;
-        _statsRepository = statsRepository;
     }
 
     public async Task<IActionResult> Index()
@@ -61,40 +60,41 @@ private readonly ILogger<ProjectWeightController> _logger;
             
             var creditDifference = Math.Abs(uaCredit - ruCredit);
 
-            var creditsPerHour = _creditsPerHourDictionary.TryGetValue(project.ProjectName, out var value) ? value : 1000;
+            var creditsPerHour = _creditsPerHourDictionary.TryGetValue(project.ProjectName, out var value) ? value : 25000;
 
             var taskHours = Math.Round(creditDifference / creditsPerHour, 0);
             var yearsDifference = Math.Round(taskHours / 8760, 2);
             var mwthCpu = Math.Round(taskHours * 7 / 1000000, 2);
             
 
-            // Days To Win
             var uaAverage = double.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
             var ruAverage = double.Parse(russiaStats.CreditAvarage.Replace(",", ""));
             var daysToWin = creditDifference > 0 && uaAverage > ruAverage 
                 ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 
                 : 0;
+            
+
+            var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
+
 
             projectOverviewList.Add(new ProjectWeightViewModel
             {
                 ProjectName = project.ProjectName,
-                TotalCredit = totalCredit,
                 UaWeight = uaWeight,
                 RuWeight = ruWeight,
                 CreditDifference = creditDifference,
-                TaskHours = taskHours,
-                YearsDifference = yearsDifference,
-                MWtPerHourCpu = mwthCpu,
-                DaysToWin = daysToWin,
                 CreditUA = ukraineStats.TotalCredit,
                 CreditRU = russiaStats.TotalCredit,
                 AvarageRU = russiaStats.CreditAvarage,
-                AvarageUA = ukraineStats.CreditAvarage
+                AvarageUA = ukraineStats.CreditAvarage,
+                TaskHours = taskHours,
+                YearsDifference = yearsDifference,
+                MWtPerHourCpu = mwthCpu,
+                DevicesToOvercome = devicesToOvercome,
+                DaysToWin = daysToWin
             });
         }
 
         return View(projectOverviewList);
     }
-
-
 }
