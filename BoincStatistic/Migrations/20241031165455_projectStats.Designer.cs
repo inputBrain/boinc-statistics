@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BoincStatistic.Migrations
 {
     [DbContext(typeof(PostgreSqlContext))]
-    [Migration("20241029112753_boincStats")]
-    partial class boincStats
+    [Migration("20241031165455_projectStats")]
+    partial class projectStats
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,7 +24,7 @@ namespace BoincStatistic.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("BoincStatistic.Database.BoincStats.BoincStatsModel", b =>
+            modelBuilder.Entity("BoincStatistic.Database.BoincProjectStats.BoincProjectStatsModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -32,25 +32,10 @@ namespace BoincStatistic.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CountryName")
+                    b.Property<string>("ProjectCategory")
                         .HasColumnType("text");
 
-                    b.Property<string>("CreditAvarage")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CreditDay")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CreditMonth")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CreditUser")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CreditWeek")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Rank")
+                    b.Property<string>("ProjectName")
                         .HasColumnType("text");
 
                     b.Property<string>("TotalCredit")
@@ -58,7 +43,7 @@ namespace BoincStatistic.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BoincStats");
+                    b.ToTable("ProjectStats");
                 });
 #pragma warning restore 612, 618
         }

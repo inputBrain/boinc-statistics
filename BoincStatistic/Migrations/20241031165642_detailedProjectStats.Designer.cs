@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BoincStatistic.Migrations
 {
     [DbContext(typeof(PostgreSqlContext))]
-    [Migration("20241030124716_updatedRelations")]
-    partial class updatedRelations
+    [Migration("20241031165642_detailedProjectStats")]
+    partial class detailedProjectStats
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -83,17 +83,16 @@ namespace BoincStatistic.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectId")
-                        .IsUnique();
+                    b.HasIndex("ProjectId");
 
-                    b.ToTable("BoincStats");
+                    b.ToTable("DetailedProjectStats");
                 });
 
             modelBuilder.Entity("BoincStatistic.Database.BoincStats.BoincStatsModel", b =>
                 {
                     b.HasOne("BoincStatistic.Database.BoincProjectStats.BoincProjectStatsModel", "ProjectModel")
-                        .WithOne("DetailedStatistic")
-                        .HasForeignKey("BoincStatistic.Database.BoincStats.BoincStatsModel", "ProjectId")
+                        .WithMany("DetailedStatistics")
+                        .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -102,7 +101,7 @@ namespace BoincStatistic.Migrations
 
             modelBuilder.Entity("BoincStatistic.Database.BoincProjectStats.BoincProjectStatsModel", b =>
                 {
-                    b.Navigation("DetailedStatistic");
+                    b.Navigation("DetailedStatistics");
                 });
 #pragma warning restore 612, 618
         }

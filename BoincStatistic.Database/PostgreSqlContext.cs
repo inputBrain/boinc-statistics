@@ -8,9 +8,9 @@ namespace BoincStatistic.Database;
 public class PostgreSqlContext : DbContext
 {
     public readonly IDatabaseFacade Db;
-
-    public DbSet<BoincStatsModel> BoincStats { get; set; }
+    
     public DbSet<BoincProjectStatsModel> ProjectStats { get; set; }
+    public DbSet<BoincStatsModel> DetailedProjectStats { get; set; }
 
 
     public PostgreSqlContext(DbContextOptions<PostgreSqlContext> options, ILoggerFactory loggerFactory) : base(options)

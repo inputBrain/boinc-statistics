@@ -82,7 +82,7 @@ namespace BoincStatistic.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("BoincStats");
+                    b.ToTable("DetailedProjectStats");
                 });
 
             modelBuilder.Entity("BoincStatistic.Database.BoincStats.BoincStatsModel", b =>

@@ -16,5 +16,9 @@
     <ItemGroup>
       <ProjectReference Include="..\BoincStatistic.Database\BoincStatistic.Database.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Migrations\" />
+    </ItemGroup>
 
 </Project>
