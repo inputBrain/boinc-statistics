@@ -29,7 +29,10 @@ public class BoincProjectStatsRepo : AbstractRepository<BoincProjectStatsModel>,
     
     public async Task<BoincProjectStatsModel> GetOneProjectStatsByProjectName(string project)
     {
-        var model = await DbModel.FirstOrDefaultAsync(x => x.ProjectName == project);
+        var model = await DbModel
+            .Include(x => x.DetailedStatistics)
+            .FirstOrDefaultAsync(x => x.ProjectName == project);
+        
         if (model == null)
         {
             throw new Exception("Country stats is not found");
@@ -47,12 +50,17 @@ public class BoincProjectStatsRepo : AbstractRepository<BoincProjectStatsModel>,
 
     public async Task<List<BoincProjectStatsModel>> GetPaginatedAsync(int pageNumber, int pageSize)
     {
-        return await DbModel.OrderBy(b => b.Id).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        return await DbModel
+            .OrderBy(b => b.Id)
+            .Include(x => x.DetailedStatistics)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
     }
 
 
     public async Task<List<BoincProjectStatsModel>> ListAll()
     {
-       return await DbModel.ToListAsync();
+       return await DbModel.Include(x => x.DetailedStatistics).ToListAsync();
     }
 }

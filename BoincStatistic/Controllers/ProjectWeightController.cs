@@ -11,7 +11,6 @@ private readonly ILogger<ProjectWeightController> _logger;
     private readonly IBoincProjectStatsRepo _projectStatsRepo;
     private readonly IBoincStatsRepository _statsRepository;
 
-    // Словарь для хранения значений CreditsPerHour для каждого проекта
     private readonly Dictionary<string, double> _creditsPerHourDictionary = new()
     {
         { "Asteroids", 45 },
@@ -36,54 +35,60 @@ private readonly ILogger<ProjectWeightController> _logger;
         _statsRepository = statsRepository;
     }
 
-public async Task<IActionResult> Index()
-{
-    var projectOverviewList = new List<ProjectWeightViewModel>();
-
-    
-    var firstCountry = await _statsRepository.GetOneByRank("1");
-    var ukraineStats = await _statsRepository.GetOneCountryStatsByCountryName("Ukraine");
-    var russiaStats = await _statsRepository.GetOneCountryStatsByCountryName("Russian Federation");
-
-    var uaCredit = double.Parse(ukraineStats.TotalCredit.Replace(",", ""));
-    var ruCredit = double.Parse(russiaStats.TotalCredit.Replace(",", ""));
-
-    var projectList = await _projectStatsRepo.ListAll();
-    foreach (var project in projectList)
+    public async Task<IActionResult> Index()
     {
-        var totalCredit = double.Parse(project.TotalCredit.Replace(",", ""));
-        var uaWeight = Math.Round((uaCredit / totalCredit) * 100, 2);
-        var ruWeight = Math.Round((ruCredit / totalCredit) * 100, 2);
-        var creditDifference = ruWeight - uaWeight;
+        var projectOverviewList = new List<ProjectWeightViewModel>();
 
-        var creditsPerHour = _creditsPerHourDictionary.TryGetValue(project.ProjectName, out var value) ? value : 1000;
+        var projectList = await _projectStatsRepo.ListAll();
 
-        // TaskHours, Years и MWt/h (CPU)
-        var taskHours = Math.Round(creditDifference / creditsPerHour, 0);
-        var years = Math.Round(taskHours / 8760, 2);
-        var mwthCpu = Math.Round(taskHours * 7 / 1000000, 2);
-
-        // Days To Win
-        var uaAverage = double.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
-        var ruAverage = double.Parse(russiaStats.CreditAvarage.Replace(",", ""));
-        var daysToWin = creditDifference > 0 ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : 0;
-
-
-        projectOverviewList.Add(new ProjectWeightViewModel
+        foreach (var project in projectList)
         {
-            ProjectName = project.ProjectName,
-            TotalCredit = totalCredit,
-            UaWeight = uaWeight,
-            RuWeight = ruWeight,
-            CreditDifference = creditDifference,
-            TaskHours = taskHours,
-            Years = years,
-            MWtPerHourCpu = mwthCpu,
-            DaysToWin = daysToWin
-        });
+            var firstCountry = await _statsRepository.GetOneByRank("1", project.Id);
+            var ukraineStats = await _statsRepository.GetOneCountryStatsByCountryName("Ukraine", project.Id);
+            var russiaStats = await _statsRepository.GetOneCountryStatsByCountryName("Russian Federation", project.Id);
+
+            var uaCredit = double.Parse(ukraineStats.TotalCredit.Replace(",", ""));
+            var ruCredit = double.Parse(russiaStats.TotalCredit.Replace(",", ""));
+            var totalCredit = double.Parse(project.TotalCredit.Replace(",", ""));
+
+            // UA weight и RU weight
+            var uaWeight = Math.Round((uaCredit / totalCredit) * 100, 2);
+            var ruWeight = Math.Round((ruCredit / totalCredit) * 100, 2);
+
+            // Credit difference с абсолютным значением
+            var creditDifference = Math.Abs(ruWeight - uaWeight);
+
+            // Credits per hour
+            var creditsPerHour = _creditsPerHourDictionary.TryGetValue(project.ProjectName, out var value) ? value : 1000;
+
+            // TaskHours, Years и MWt/h (CPU)
+            var taskHours = Math.Round(creditDifference / creditsPerHour, 0);
+            var years = Math.Round(taskHours / 8760, 2);
+            var mwthCpu = Math.Round(taskHours * 7 / 1000000, 2);
+
+            // Days To Win
+            var uaAverage = double.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
+            var ruAverage = double.Parse(russiaStats.CreditAvarage.Replace(",", ""));
+            var daysToWin = creditDifference > 0 && uaAverage > ruAverage 
+                ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 
+                : 0;
+
+            projectOverviewList.Add(new ProjectWeightViewModel
+            {
+                ProjectName = project.ProjectName,
+                TotalCredit = totalCredit,
+                UaWeight = uaWeight,
+                RuWeight = ruWeight,
+                CreditDifference = creditDifference,
+                TaskHours = taskHours,
+                Years = years,
+                MWtPerHourCpu = mwthCpu,
+                DaysToWin = daysToWin
+            });
+        }
+
+        return View(projectOverviewList);
     }
 
-    return View(projectOverviewList);
-}
 
 }

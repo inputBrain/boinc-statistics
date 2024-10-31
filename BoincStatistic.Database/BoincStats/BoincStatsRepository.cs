@@ -38,7 +38,7 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
     }
 
 
-    public async Task<BoincStatsModel> GetOneCountryStatsByCountryName(string country)
+    public async Task<BoincStatsModel> GetOneCountryStatsByCountryName(string country, int projectId)
     {
         var model = await DbModel.FirstOrDefaultAsync(x => x.CountryName == country);
         if (model == null)
@@ -50,9 +50,11 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
     }
     
         
-    public async Task<BoincStatsModel> GetOneByRank(string rank)
+    public async Task<BoincStatsModel> GetOneByRank(string rank, int projectId)
     {
-        return await DbModel.FirstOrDefaultAsync(x => x.Rank == rank);
+        return await DbModel
+            .Where(x => x.ProjectId == projectId)
+            .FirstOrDefaultAsync(x => x.Rank == rank);
     }
     
 
@@ -68,11 +70,13 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
     }
 
     
-    public async Task<List<BoincStatsModel>> GetThreeCountryAsync()
+    public async Task<List<BoincStatsModel>> GetThreeCountryAsync(int projectId)
     {
         return await DbModel
             .OrderBy(b => b.Id)
+            .Where(x => x.ProjectId == projectId)
             .Where(x => x.Rank == "1" || x.CountryName == "Ukraine" || x.CountryName == "Russian Federation")
+            .Take(3)
             .ToListAsync();
     }
     

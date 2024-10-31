@@ -98,7 +98,7 @@ public partial class BoincStatsService : BackgroundService
                     {
                         var offset = page * pageSize;
                         var url = $"{apiModel.CountryStatsUrl}/0/{offset}";
-                        Console.WriteLine($"Processing page with offset: {offset}");
+                        Console.WriteLine($"Processing page with offset: {url}");
 
                         var htmlDetailedPage = await Client.GetStringAsync(url, cancellationToken);
                         await Task.Delay(5_000, cancellationToken);
@@ -113,10 +113,10 @@ public partial class BoincStatsService : BackgroundService
                         }
 
                         var trs = tableDetailedPage.SelectNodes(".//tr");
-                        if (rows == null || rows.Count == 0)
+                        if (trs == null || trs.Count == 0)
                         {
                             Console.WriteLine("No rows found, stopping.");
-                            continue;
+                            break;
                         }
 
                         foreach (var tr in trs)

@@ -18,14 +18,14 @@ public interface IBoincStatsRepository
     );
 
 
-    public Task<BoincStatsModel> GetOneCountryStatsByCountryName(string country);
-    public Task<BoincStatsModel> GetOneByRank(string rank);
+    public Task<BoincStatsModel> GetOneCountryStatsByCountryName(string country, int projectId);
+    public Task<BoincStatsModel> GetOneByRank(string rank, int projectId);
     
     public Task<List<BoincStatsModel>> ListAllAsync();
     
     Task<int> CountAsync();
     
-    Task<List<BoincStatsModel>> GetThreeCountryAsync();
+    Task<List<BoincStatsModel>> GetThreeCountryAsync(int projectId);
 
     Task<List<BoincStatsModel>> GetPaginatedAsync(int pageNumber, int pageSize);
 }
