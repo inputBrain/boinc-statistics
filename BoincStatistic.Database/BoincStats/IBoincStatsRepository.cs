@@ -6,6 +6,7 @@ namespace BoincStatistic.Database.BoincStats;
 public interface IBoincStatsRepository
 {
     public Task<BoincStatsModel> CreateModel(
+        int projectId,
         string rank,
         string countryName,
         string totalCredit,

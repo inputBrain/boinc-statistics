@@ -15,6 +15,7 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
 
 
     public async Task<BoincStatsModel> CreateModel(
+        int projectId,
         string rank,
         string countryName,
         string totalCredit,
@@ -25,7 +26,7 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
         string creditUser
     )
     {
-        var model = BoincStatsModel.CreateModel(rank, countryName, totalCredit, creditDay, creditWeek, creditMonth, creditAverage, creditUser);
+        var model = BoincStatsModel.CreateModel(projectId, rank, countryName, totalCredit, creditDay, creditWeek, creditMonth, creditAverage, creditUser);
 
         var result = await CreateModelAsync(model);
         if (result == null)

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using BoincStatistic.Database;
+using BoincStatistic.Database.BoincProjectStats;
 using BoincStatistic.Database.BoincStats;
 using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BoincStatistic.Worker;
 
-public class BoincStatsService : BackgroundService
+public partial class BoincStatsService : BackgroundService
 {
     private readonly ILogger<BoincStatsService> _logger;
     private readonly IServiceProvider _serviceProvider;
@@ -34,8 +36,10 @@ public class BoincStatsService : BackgroundService
             var context = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
             
             var boincStatsRepository = context.Db.BoincStatsRepository;
+            var boincProjectStatsRepository = context.Db.BoincProjectStatsRepo;
+
             
-            await _processScrapping(boincStatsRepository, stoppingToken);
+            await _processScrapping(boincStatsRepository,boincProjectStatsRepository, stoppingToken);
 
             _logger.LogInformation("\n\t Stats scrapping completed. Start waiting");
             await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
@@ -44,69 +48,213 @@ public class BoincStatsService : BackgroundService
 
 
 
-    private async Task _processScrapping(IBoincStatsRepository boincStatsRepository, CancellationToken cancellationToken)
+    private async Task _processScrapping(IBoincStatsRepository boincStatsRepository, IBoincProjectStatsRepo boincProjectStatsRepo, CancellationToken cancellationToken)
     { 
-        const string baseUrl = "https://www.boincstats.com/stats/2/country/list";
+        var htmlDocument = new HtmlDocument();
         const int pageSize = 100;
         const int maxPages = 3;
 
-        for (var page = 0; page < maxPages; page++)
+        var collection = ProjectAPIModel.ProjectListData();
+        
+        foreach (var apiModel in collection)
         {
-            var offset = page * pageSize;
-            var url = $"{baseUrl}/0/{offset}";
-            Console.WriteLine($"Processing page with offset: {offset}");
+            Console.WriteLine($"Processing page with offset: {apiModel.ProjectUrl}");
 
-            var html = await Client.GetStringAsync(url, cancellationToken);
-            var htmlDocument = new HtmlDocument();
+            var html = await Client.GetStringAsync(apiModel.ProjectUrl, cancellationToken);
+            await Task.Delay(5_000, cancellationToken);
+
             htmlDocument.LoadHtml(html);
 
-            var table = htmlDocument.DocumentNode.SelectSingleNode("//table[@id='tblStats']/tbody");
+            var table = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='tablescroller']//table[@id='tblStats']");
+
+
             if (table == null)
             {
                 Console.WriteLine("No table found, stopping.");
-                break;
+                continue;
             }
 
             var rows = table.SelectNodes(".//tr");
             if (rows == null || rows.Count == 0)
             {
                 Console.WriteLine("No rows found, stopping.");
-                break;
+                continue;
             }
 
             foreach (var row in rows)
             {
                 var columns = row.SelectNodes(".//td");
-                if (columns == null || columns.Count < 14) 
+                if (columns == null || (columns[0]?.InnerText != "Total credit"))
                     continue;
+
+                var match = MyRegex().Match(columns[1]?.InnerText.Trim() ?? "0");
+
+                if (match.Success)
+                {
+                    var model = await boincProjectStatsRepo.CreateModel(apiModel.ProjectName, apiModel.Category, match.Value);
+                    
+                    
+                    for (var page = 0; page < maxPages; page++)
+                    {
+                        var offset = page * pageSize;
+                        var url = $"{apiModel.CountryStatsUrl}/0/{offset}";
+                        Console.WriteLine($"Processing page with offset: {offset}");
+
+                        var htmlDetailedPage = await Client.GetStringAsync(url, cancellationToken);
+                        await Task.Delay(5_000, cancellationToken);
+                        
+                        htmlDocument.LoadHtml(htmlDetailedPage);
+
+                        var tableDetailedPage = htmlDocument.DocumentNode.SelectSingleNode("//table[@id='tblStats']/tbody");
+                        if (tableDetailedPage == null)
+                        {
+                            Console.WriteLine("No table found, stopping.");
+                            continue;
+                        }
+
+                        var trs = tableDetailedPage.SelectNodes(".//tr");
+                        if (rows == null || rows.Count == 0)
+                        {
+                            Console.WriteLine("No rows found, stopping.");
+                            continue;
+                        }
+
+                        foreach (var tr in trs)
+                        {
+                            var projectColumns = tr.SelectNodes(".//td");
+                            if (projectColumns == null || projectColumns.Count < 14) 
+                                continue;
                 
-                await boincStatsRepository.CreateModel
-                (
-                    columns[3]?.InnerText.Trim() ?? "0",
-                    columns[4]?.InnerText.Trim() ?? "0",
-                    columns[5]?.InnerText.Trim() ?? "0",
-                    columns[6]?.InnerText.Trim() ?? "0",
-                    columns[7]?.InnerText.Trim() ?? "0",
-                    columns[8]?.InnerText.Trim() ?? "0",
-                    columns[9]?.InnerText.Trim() ?? "0",
-                    columns[11]?.InnerText.Trim() ?? "0"
-                );
-                
-                //
-                // var stats = new BoincStatsModel
-                // {
-                //     Rank = columns[3]?.InnerText.Trim().Replace(",", "") ?? "0",
-                //     CountryName = columns[4]?.InnerText.Trim().Replace(",", "") ?? "0",
-                //     TotalCredit = columns[5]?.InnerText.Trim().Replace(",", "") ?? "0",
-                //     CreditDay = columns[6]?.InnerText.Trim().Replace(",", "") ?? "0",
-                //     CreditWeek = columns[7]?.InnerText.Trim().Replace(",", "") ?? "0",
-                //     CreditMonth = columns[8]?.InnerText.Trim().Replace(",", "") ?? "0",
-                //     CreditAvarage = columns[9]?.InnerText.Trim().Replace(",", "") ?? "0",
-                //     CreditUser = columns[11]?.InnerText.Trim().Replace(",", "") ?? "0"
-                // };
-                //
-                // statsList.Add(stats);
+                            await boincStatsRepository.CreateModel
+                            (
+                                model.Id,
+                                projectColumns[3]?.InnerText.Trim() ?? "0",
+                                projectColumns[4]?.InnerText.Trim() ?? "0",
+                                projectColumns[5]?.InnerText.Trim() ?? "0",
+                                projectColumns[6]?.InnerText.Trim() ?? "0",
+                                projectColumns[7]?.InnerText.Trim() ?? "0",
+                                projectColumns[8]?.InnerText.Trim() ?? "0",
+                                projectColumns[9]?.InnerText.Trim() ?? "0",
+                                projectColumns[11]?.InnerText.Trim() ?? "0"
+                            );
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Number not found.");
+                }
             }
+        }
+    }
+
+    [GeneratedRegex(@"^\d{1,3}(,\d{3})*")]
+    private static partial Regex MyRegex();
+    
+    
+    
+    internal class ProjectAPIModel
+    {
+        public string ProjectUrl { get; set; }
+        
+        public string CountryStatsUrl { get; set; }
+
+        public string ProjectName { get; set; }
+
+        public string Category { get; set; }
+
+
+        public static List<ProjectAPIModel> ProjectListData()
+        {
+            var collection = new List<ProjectAPIModel>
+            {
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/-5/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/-5/country/list",
+                    ProjectName = "Total without ASIC",
+                    Category = "Uncategorized"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/2/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/2/country/list",
+                    ProjectName = "Climate Prediction",
+                    Category = "Earth Sciences"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/199/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/199/country/list",
+                    ProjectName = "LODA",
+                    Category = "Artificial intelligence"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/61/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/61/country/list",
+                    ProjectName = "Milkyway",
+                    Category = "Astrophysics"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/14/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/14/country/list",
+                    ProjectName = "Rosetta",
+                    Category = "Biology"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/15/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/15/country/list",
+                    ProjectName = "World Community Grid",
+                    Category = ""
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/121/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/121/country/list",
+                    ProjectName = "YAFU",
+                    Category = "Mathematics"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/52/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/52/country/list",
+                    ProjectName = "Yoyo",
+                    Category = "Umbrella project"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/172/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/172/country/list",
+                    ProjectName = "Amicable Numbers",
+                    Category = "Mathematics"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/5/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/5/country/list",
+                    ProjectName = "Einstein",
+                    Category = "Astrophysics"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/114/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/114/country/list",
+                    ProjectName = "Moo! Wrapper",
+                    Category = "Mathematics"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/11/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/11/country/list",
+                    ProjectName = "PrimeGrid",
+                    Category = "Mathematics"
+                },
+            };
+
+            return collection;
         }
     }
 }

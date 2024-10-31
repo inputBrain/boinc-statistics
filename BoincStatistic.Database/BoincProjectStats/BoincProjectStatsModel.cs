@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BoincStatistic.Database.BoincStats;
 
 namespace BoincStatistic.Database.BoincProjectStats;
 
@@ -14,6 +15,8 @@ public class BoincProjectStatsModel : AbstractModel
     public string ProjectCategory { get; set; }
     
     public string TotalCredit { get; set; }
+    
+    public BoincStatsModel DetailedStatistic { get; set; }
 
 
     public static BoincProjectStatsModel CreateModel(string projectName, string projectCategory, string totalCredit)
@@ -22,7 +25,8 @@ public class BoincProjectStatsModel : AbstractModel
         {
             ProjectName = projectName,
             ProjectCategory = projectCategory,
-            TotalCredit = totalCredit
+            TotalCredit = totalCredit,
+            DetailedStatistic = new BoincStatsModel()
         };
     }
 }

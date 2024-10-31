@@ -56,20 +56,19 @@ public async Task<IActionResult> Index()
         var ruWeight = Math.Round((ruCredit / totalCredit) * 100, 2);
         var creditDifference = ruWeight - uaWeight;
 
-        // Получаем CreditsPerHour для проекта
         var creditsPerHour = _creditsPerHourDictionary.TryGetValue(project.ProjectName, out var value) ? value : 1000;
 
-        // Рассчитываем TaskHours, Years и MWt/h (условные значения для CPU)
+        // TaskHours, Years и MWt/h (CPU)
         var taskHours = Math.Round(creditDifference / creditsPerHour, 0);
         var years = Math.Round(taskHours / 8760, 2);
         var mwthCpu = Math.Round(taskHours * 7 / 1000000, 2);
 
-        // Рассчитываем Days To Win, если разница положительная
+        // Days To Win
         var uaAverage = double.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
         var ruAverage = double.Parse(russiaStats.CreditAvarage.Replace(",", ""));
         var daysToWin = creditDifference > 0 ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : 0;
 
-        // Создаем модель для проекта
+
         projectOverviewList.Add(new ProjectWeightViewModel
         {
             ProjectName = project.ProjectName,
