@@ -62,7 +62,7 @@ public partial class BoincStatsService : BackgroundService
             Console.WriteLine($"Processing page with offset: {apiModel.ProjectUrl}");
 
             var html = await Client.GetStringAsync(apiModel.ProjectUrl, cancellationToken);
-            await Task.Delay(5_000, cancellationToken);
+            await Task.Delay(15_000, cancellationToken);
 
             htmlDocument.LoadHtml(html);
 
@@ -113,7 +113,7 @@ public partial class BoincStatsService : BackgroundService
                         Console.WriteLine($"Processing page with offset: {url}");
 
                         var htmlDetailedPage = await Client.GetStringAsync(url, cancellationToken);
-                        await Task.Delay(5_000, cancellationToken);
+                        await Task.Delay(15_000, cancellationToken);
                         
                         htmlDocument.LoadHtml(htmlDetailedPage);
 
