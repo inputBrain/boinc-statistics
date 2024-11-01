@@ -53,7 +53,7 @@ public partial class BoincStatsService : BackgroundService
             
             _logger.LogInformation($"\n ----- Scrapping completed. Next run time will be at: {nextRunTime:HH:mm:ss}. On: ( {nextRunTime:D} )----- \n");
             
-            await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromHours(2), stoppingToken);
         }
     }
 
