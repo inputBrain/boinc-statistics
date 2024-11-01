@@ -31,29 +31,58 @@ public class BoincProjectStatsModel : AbstractModel
             DetailedStatistics = []
         };
     }
-
-
-    // public static bool IsSameDetailedStatistic(BoincProjectStatsModel model, List<BoincStatsModel> detailedStatistic)
-    // {
-    //     if (model.DetailedStatistics.Count != detailedStatistic.Count)
-    //     {
-    //         return false;
-    //     }
-    //
-    //     var sortedStatistics = model.DetailedStatistics.OrderBy(x => x.CountryName).ToList();
-    //     var sortedApiStatistics = detailedStatistic.OrderBy(x => x.CountryName).ToList();
-    //
-    //
-    //     foreach (var statistic in sortedStatistics)
-    //     {
-    //         foreach (var apiStatistic in sortedApiStatistics)
-    //         {
-    //             return statistic.CountryName
-    //         }
-    //     }
-    //     
-    //     
-    // }
     
     
+    public static bool IsSameTotalStatsModel(BoincProjectStatsModel model, string projectName, string projectCategory, string totalCredit)
+    {
+        return model.ProjectName == projectName &&
+               model.ProjectCategory == projectCategory &&
+               model.TotalCredit == totalCredit;
+    }
+    
+    
+    public void UpdateTotalStatsModel(BoincProjectStatsModel model, string projectName, string projectCategory, string totalCredit)
+    {
+        model.ProjectName = projectName;
+        model.ProjectCategory = projectCategory;
+        model.TotalCredit = totalCredit;
+    }
+    
+    
+    
+
+    
+    public static bool IsSameDetailedStatistic(BoincProjectStatsModel model, BoincStatsModel apiModel)
+    {
+    
+        var foundStats = model.DetailedStatistics.FirstOrDefault(x => x.CountryName.ToLower() == apiModel.CountryName.ToLower());
+
+        return foundStats?.Rank == apiModel.Rank &&
+               foundStats.CountryName == apiModel.CountryName &&
+               foundStats.TotalCredit == apiModel.TotalCredit &&
+               foundStats.CreditDay == apiModel.CreditDay &&
+               foundStats.CreditWeek == apiModel.CreditWeek &&
+               foundStats.CreditMonth == apiModel.CreditMonth &&
+               foundStats.CreditAvarage == apiModel.CreditAvarage &&
+               foundStats.CreditUser == apiModel.CreditUser;
+    }
+
+    
+    
+    public void UpdateDetailedStatistics(BoincProjectStatsModel model, BoincStatsModel apiModel)
+    {
+        var foundStats = model.DetailedStatistics.FirstOrDefault(x => x.CountryName.ToLower() == apiModel.CountryName.ToLower());
+        if (foundStats == null)
+        {
+            return;
+        }
+        foundStats.Rank = apiModel.Rank;
+        foundStats.CountryName = apiModel.CountryName;
+        foundStats.TotalCredit = apiModel.TotalCredit;
+        foundStats.CreditDay = apiModel.CreditDay;
+        foundStats.CreditWeek = apiModel.CreditWeek;
+        foundStats.CreditMonth = apiModel.CreditMonth;
+        foundStats.CreditAvarage = apiModel.CreditAvarage;
+        foundStats.CreditUser = apiModel.CreditUser;
+    }
 }
