@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -91,8 +92,19 @@ public partial class BoincStatsService : BackgroundService
 
                 if (match.Success)
                 {
-                    var model = await boincProjectStatsRepo.CreateModel(apiModel.ProjectName, apiModel.Category, match.Value);
-                    
+                    var model = await boincProjectStatsRepo.GetOneByName(apiModel.ProjectName);
+
+                    if (model != null)
+                    {
+                        if (BoincProjectStatsModel.IsSameTotalStatsModel(model, apiModel.ProjectName, apiModel.Category, match.Value) == false)
+                        {
+                            await boincProjectStatsRepo.UpdateModel(model, apiModel.ProjectName, apiModel.Category, match.Value);
+                        }
+                    }
+                    else
+                    {
+                        model = await boincProjectStatsRepo.CreateModel(apiModel.ProjectName, apiModel.Category, match.Value);
+                    }
                     
                     for (var page = 0; page < maxPages; page++)
                     {
@@ -124,19 +136,50 @@ public partial class BoincStatsService : BackgroundService
                             var projectColumns = tr.SelectNodes(".//td");
                             if (projectColumns == null || projectColumns.Count < 14) 
                                 continue;
-                
-                            await boincStatsRepository.CreateModel
-                            (
-                                model.Id,
-                                projectColumns[3]?.InnerText.Trim() ?? "0",
-                                projectColumns[4]?.InnerText.Trim() ?? "0",
-                                projectColumns[5]?.InnerText.Trim() ?? "0",
-                                projectColumns[6]?.InnerText.Trim() ?? "0",
-                                projectColumns[7]?.InnerText.Trim() ?? "0",
-                                projectColumns[8]?.InnerText.Trim() ?? "0",
-                                projectColumns[9]?.InnerText.Trim() ?? "0",
-                                projectColumns[11]?.InnerText.Trim() ?? "0"
-                            );
+                            
+                            
+                            var rank = projectColumns[3]?.InnerText.Trim() ?? "0";
+                            var countryName = projectColumns[4]?.InnerText.Trim() ?? "0";
+                            var totalCredit = projectColumns[5]?.InnerText.Trim() ?? "0";
+                            var creditDay = projectColumns[6]?.InnerText.Trim() ?? "0";
+                            var creditWeek = projectColumns[7]?.InnerText.Trim() ?? "0";
+                            var creditMonth = projectColumns[8]?.InnerText.Trim() ?? "0";
+                            var creditAverage = projectColumns[9]?.InnerText.Trim() ?? "0";
+                            var creditUser = projectColumns[11]?.InnerText.Trim() ?? "0";
+
+                            var tempDetailedStatisticModel = new BoincStatsModel
+                            {
+                                Rank = rank,
+                                CountryName = countryName,
+                                TotalCredit = totalCredit,
+                                CreditDay = creditDay,
+                                CreditWeek = creditWeek,
+                                CreditMonth = creditMonth,
+                                CreditAvarage = creditAverage,
+                                CreditUser = creditUser
+                            };
+
+                            var foundDetailedCountryStatistic = model.DetailedStatistics.FirstOrDefault(x => x.CountryName.ToLower() == countryName.ToLower());
+                            if (foundDetailedCountryStatistic == null)
+                            {
+                                await boincStatsRepository.CreateModel(
+                                    model.Id,
+                                    rank,
+                                    countryName,
+                                    totalCredit,
+                                    creditDay,
+                                    creditWeek,
+                                    creditMonth,
+                                    creditAverage,
+                                    creditUser
+                                );
+                            }
+
+                            if (BoincProjectStatsModel.IsSameDetailedStatistic(model, tempDetailedStatisticModel) == false)
+                            {
+                                await boincProjectStatsRepo.UpdateDetailedStatistics(model, tempDetailedStatisticModel);
+                            }
+                            
                         }
                     }
                 }
@@ -174,6 +217,13 @@ public partial class BoincStatsService : BackgroundService
                     CountryStatsUrl = "https://www.boincstats.com/stats/-5/country/list",
                     ProjectName = "Total without ASIC",
                     Category = "Uncategorized"
+                },
+                new()
+                {
+                    ProjectUrl = "https://www.boincstats.com/stats/134/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/134/country/list",
+                    ProjectName = "Asteroids",
+                    Category = "Astrophysics"
                 },
                 new()
                 {
