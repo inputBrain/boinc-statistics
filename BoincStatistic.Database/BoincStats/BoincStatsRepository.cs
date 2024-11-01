@@ -40,7 +40,10 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
 
     public async Task<BoincStatsModel> GetOneCountryStatsByCountryName(string country, int projectId)
     {
-        var model = await DbModel.FirstOrDefaultAsync(x => x.CountryName == country);
+        var model = await DbModel
+            .Where(x => x.CountryName.ToLower() == country.ToLower() && x.ProjectId == projectId)
+            .FirstOrDefaultAsync();
+        
         if (model == null)
         {
             throw new Exception("Country stats is not found");
