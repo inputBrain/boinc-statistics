@@ -39,10 +39,20 @@ public partial class BoincStatsService : BackgroundService
             var boincStatsRepository = context.Db.BoincStatsRepository;
             var boincProjectStatsRepository = context.Db.BoincProjectStatsRepo;
 
+            var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kiev"));
+            var nextRunTime = kievTime.Date.AddHours(17);
+            
+            if (kievTime.Hour >= 17)
+            {
+                nextRunTime = nextRunTime.AddDays(1);
+            }
+
+            var delay = nextRunTime - kievTime;
             
             await _processScrapping(boincStatsRepository,boincProjectStatsRepository, stoppingToken);
-
-            _logger.LogInformation("\n\t Stats scrapping completed. Start waiting");
+            
+            _logger.LogInformation($"\n ----- Scrapping completed. Next run time will be at: {nextRunTime:HH:mm:ss}. On: ( {nextRunTime:D} )----- \n");
+            
             await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
         }
     }
@@ -62,7 +72,7 @@ public partial class BoincStatsService : BackgroundService
             Console.WriteLine($"Processing page with offset: {apiModel.ProjectUrl}");
 
             var html = await Client.GetStringAsync(apiModel.ProjectUrl, cancellationToken);
-            await Task.Delay(15_000, cancellationToken);
+            await Task.Delay(30_000, cancellationToken);
 
             htmlDocument.LoadHtml(html);
 
@@ -113,7 +123,7 @@ public partial class BoincStatsService : BackgroundService
                         Console.WriteLine($"Processing page with offset: {url}");
 
                         var htmlDetailedPage = await Client.GetStringAsync(url, cancellationToken);
-                        await Task.Delay(15_000, cancellationToken);
+                        await Task.Delay(30_000, cancellationToken);
                         
                         htmlDocument.LoadHtml(htmlDetailedPage);
 
