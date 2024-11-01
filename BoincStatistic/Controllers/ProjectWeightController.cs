@@ -1,5 +1,4 @@
 ﻿using BoincStatistic.Database.BoincProjectStats;
-using BoincStatistic.Database.BoincStats;
 using BoincStatistic.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,22 +9,23 @@ public class ProjectWeightController : Controller
     private readonly ILogger<ProjectWeightController> _logger;
     private readonly IBoincProjectStatsRepo _projectStatsRepo;
 
-    private readonly Dictionary<string, double> _creditsPerHourDictionary = new()
+    private readonly Dictionary<string, decimal> _creditsPerHourDictionary = new()
     {
-        { "Asteroids", 45 },
-        { "Climate Prediction", 70 },
-        { "LODA", 50 },
-        { "Milkyway", 50 },
-        { "NFS", 90 },
+        { "asteroids", 45 },
+        { "climate prediction", 70 },
+        { "loda", 50 },
+        { "milkyway", 50 },
+        { "nfs", 90 },
         { "rosetta", 40 },
-        { "WCD", 50 },
+        { "wcd", 50 },
         { "yafu", 40 },
-        { "Yoyo", 40 },
-        { "Amicable Numbers", 55000 },
-        { "Einstein", 22500 },
-        { "Total without ASIC", 22500 },
-        { "Moo wraper", 45000 },
-        { "PrimeGrid", 25000 }
+        { "yoyo", 40 },
+        { "amicable numbers", 55000 },
+        { "einstein", 22500 },
+        { "total without asic", 22500 },
+        { "moo wraper", 45000 },
+        { "primegrid", 25000 },
+        { "lth", 40 }
     };
 
     public ProjectWeightController(ILogger<ProjectWeightController> logger, IBoincProjectStatsRepo projectStatsRepo)
@@ -51,50 +51,50 @@ public class ProjectWeightController : Controller
                 continue;
             }
             
-            var uaCredit = double.Parse(ukraineStats.TotalCredit.Replace(",", ""));
-            var ruCredit = double.Parse(russiaStats.TotalCredit.Replace(",", ""));
-            var totalCredit = double.Parse(project.TotalCredit.Replace(",", ""));
+
+            var uaCredit = decimal.Parse(ukraineStats.TotalCredit.Replace(",", ""));
+            var ruCredit = decimal.Parse(russiaStats.TotalCredit.Replace(",", ""));
+            var totalCredit = decimal.Parse(project.TotalCredit.Replace(",", ""));
             
             var uaWeight = Math.Round((uaCredit / totalCredit) * 100, 2);
             var ruWeight = Math.Round((ruCredit / totalCredit) * 100, 2);
             
-            var creditDifference = Math.Abs(uaCredit - ruCredit);
+            var creditDifference = Math.Abs(ruCredit - uaCredit);
 
-            var creditsPerHour = _creditsPerHourDictionary.TryGetValue(project.ProjectName, out var value) ? value : 25000;
+            var creditsPerHour = (decimal)(_creditsPerHourDictionary.TryGetValue(project.ProjectName.ToLower(), out var value) ? value : 22500);
+
 
             var taskHours = Math.Round(creditDifference / creditsPerHour, 0);
             var yearsDifference = Math.Round(taskHours / 8760, 2);
             var mwthCpu = Math.Round(taskHours * 7 / 1000000, 2);
-            
 
-            var uaAverage = double.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
-            var ruAverage = double.Parse(russiaStats.CreditAvarage.Replace(",", ""));
-            var daysToWin = creditDifference > 0 && uaAverage > ruAverage 
-                ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 
+            var uaAverage = decimal.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
+            var ruAverage = decimal.Parse(russiaStats.CreditAvarage.Replace(",", ""));
+            var daysToWin = creditDifference > 0 && uaAverage > ruAverage
+                ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1
                 : 0;
-            
 
             var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
-
 
             projectOverviewList.Add(new ProjectWeightViewModel
             {
                 ProjectName = project.ProjectName,
-                UaWeight = uaWeight,
-                RuWeight = ruWeight,
-                CreditDifference = creditDifference,
+                UaWeight = (double)uaWeight,
+                RuWeight = (double)ruWeight,
+                CreditDifference = (double)creditDifference,
                 CreditUA = ukraineStats.TotalCredit,
                 CreditRU = russiaStats.TotalCredit,
                 AvarageRU = russiaStats.CreditAvarage,
                 AvarageUA = ukraineStats.CreditAvarage,
-                TaskHours = taskHours,
-                YearsDifference = yearsDifference,
-                MWtPerHourCpu = mwthCpu,
-                DevicesToOvercome = devicesToOvercome,
-                DaysToWin = daysToWin
+                TaskHours = (double)taskHours,
+                YearsDifference = (double)yearsDifference,
+                MWtPerHourCpu = (double)mwthCpu,
+                DevicesToOvercome = (double)devicesToOvercome,
+                DaysToWin = (double)daysToWin
             });
         }
 
         return View(projectOverviewList);
     }
+
 }
