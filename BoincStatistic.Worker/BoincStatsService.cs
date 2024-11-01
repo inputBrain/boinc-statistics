@@ -39,7 +39,7 @@ public partial class BoincStatsService : BackgroundService
             var boincStatsRepository = context.Db.BoincStatsRepository;
             var boincProjectStatsRepository = context.Db.BoincProjectStatsRepo;
 
-            var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kiev"));
+            var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
             var nextRunTime = kievTime.Date.AddHours(17);
             
             if (kievTime.Hour >= 17)
