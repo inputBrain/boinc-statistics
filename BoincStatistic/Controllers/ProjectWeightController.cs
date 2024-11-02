@@ -17,7 +17,7 @@ private readonly ILogger<ProjectWeightController> _logger;
         {"milkyway", 50},
         {"nfs", 90},
         {"rosetta", 40},
-        {"wcd", 50},
+        {"world community grid", 50},
         {"yafu", 40},
         {"yoyo", 40},
         {"lth", 40}
