@@ -8,13 +8,13 @@
     <li class="nav-item">
       <a href="@Url.Action("Index", "Home")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
         <svg class="bi me-2" width="16" height="16"><use xlink:href="#employee-icon"></use></svg>
-        All Stats
+        Countries
       </a>
     </li>
     <li>
       <a href="@Url.Action("Index", "ProjectStats")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectStats" ? "active" : "")">
         <svg class="bi me-2" width="16" height="16"><use xlink:href="#employee-icon"></use></svg>
-        Projects Stats
+        Projects
       </a>
     </li>
     <li>
