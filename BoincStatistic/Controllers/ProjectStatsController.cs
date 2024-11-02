@@ -18,7 +18,7 @@ public class ProjectStatsController : Controller
         _boincProjectStatsRepo = boincProjectStatsRepo;
     }
     
-    
+    [Route("project-stats")]
     public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 25)
     {
         

@@ -38,6 +38,7 @@ private readonly ILogger<ProjectWeightController> _logger;
         _projectStatsRepo = projectStatsRepo;
     }
 
+    [Route("calculation")]
     public async Task<IActionResult> Index()
     {
         var projectOverviewList = new List<ProjectWeightViewModel>();
