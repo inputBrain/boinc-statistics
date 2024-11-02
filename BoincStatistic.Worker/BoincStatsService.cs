@@ -26,6 +26,9 @@ public partial class BoincStatsService : BackgroundService
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
+        Client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36");
+        Client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("text/html"));
+        Client.DefaultRequestHeaders.AcceptLanguage.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("en-US"));
     }
 
 
@@ -38,22 +41,23 @@ public partial class BoincStatsService : BackgroundService
             
             var boincStatsRepository = context.Db.BoincStatsRepository;
             var boincProjectStatsRepository = context.Db.BoincProjectStatsRepo;
+            
+            await _processScrapping(boincStatsRepository,boincProjectStatsRepository, stoppingToken);
 
             var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
-            var nextRunTime = kievTime.Date.AddHours(17);
+            var nextRunTime = kievTime.Date.AddHours(5);
             
-            if (kievTime.Hour >= 17)
+            if (kievTime.Hour >= 5)
             {
                 nextRunTime = nextRunTime.AddDays(1);
             }
 
             var delay = nextRunTime - kievTime;
             
-            await _processScrapping(boincStatsRepository,boincProjectStatsRepository, stoppingToken);
             
             _logger.LogInformation($"\n ----- Scrapping completed. Next run time will be at: {nextRunTime:HH:mm:ss}. On: ( {nextRunTime:D} )----- \n");
             
-            await Task.Delay(TimeSpan.FromHours(2), stoppingToken);
+            await Task.Delay(delay, stoppingToken);
         }
     }
 
@@ -61,6 +65,7 @@ public partial class BoincStatsService : BackgroundService
 
     private async Task _processScrapping(IBoincStatsRepository boincStatsRepository, IBoincProjectStatsRepo boincProjectStatsRepo, CancellationToken cancellationToken)
     { 
+        var random = new Random();
         var htmlDocument = new HtmlDocument();
         const int pageSize = 100;
         const int maxPages = 3;
@@ -69,10 +74,16 @@ public partial class BoincStatsService : BackgroundService
         
         foreach (var apiModel in collection)
         {
+            //51 min - 1.20 h
+            var delay = random.Next(51 * 60 * 1000, 80 * 60 * 1000); 
+            _logger.LogInformation($"Waiting for {delay / 1000 / 60} minutes before processing the next page...");
+            await Task.Delay(delay, cancellationToken);
+
+            
+            
             Console.WriteLine($"Processing page with offset: {apiModel.ProjectUrl}");
 
             var html = await Client.GetStringAsync(apiModel.ProjectUrl, cancellationToken);
-            await Task.Delay(30_000, cancellationToken);
 
             htmlDocument.LoadHtml(html);
 
@@ -123,7 +134,11 @@ public partial class BoincStatsService : BackgroundService
                         Console.WriteLine($"Processing page with offset: {url}");
 
                         var htmlDetailedPage = await Client.GetStringAsync(url, cancellationToken);
-                        await Task.Delay(30_000, cancellationToken);
+                        
+                        // 7 -12 min
+                        var paginationDelay = random.Next(7 * 60 * 1000, 12 * 60 * 1000);
+                        _logger.LogInformation($"Paginated page = Waiting for {paginationDelay / 1000 / 60} minutes before processing the next page...");
+                        await Task.Delay(paginationDelay, cancellationToken);
                         
                         htmlDocument.LoadHtml(htmlDetailedPage);
 
