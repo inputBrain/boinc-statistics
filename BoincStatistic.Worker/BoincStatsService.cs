@@ -26,9 +26,6 @@ public partial class BoincStatsService : BackgroundService
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
-        Client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36");
-        Client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("text/html"));
-        Client.DefaultRequestHeaders.AcceptLanguage.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("en-US"));
     }
 
 
@@ -74,13 +71,6 @@ public partial class BoincStatsService : BackgroundService
         
         foreach (var apiModel in collection)
         {
-            //51 min - 1.20 h
-            var delay = random.Next(51 * 60 * 1000, 80 * 60 * 1000); 
-            _logger.LogInformation($"Waiting for {delay / 1000 / 60} minutes before processing the next page...");
-            await Task.Delay(delay, cancellationToken);
-
-            
-            
             Console.WriteLine($"Processing page with offset: {apiModel.ProjectUrl}");
 
             var html = await Client.GetStringAsync(apiModel.ProjectUrl, cancellationToken);
@@ -213,6 +203,13 @@ public partial class BoincStatsService : BackgroundService
                     Console.WriteLine("Number not found.");
                 }
             }
+            
+            //51 min - 1.20 h
+            var delay = random.Next(51 * 60 * 1000, 80 * 60 * 1000); 
+            _logger.LogInformation($"Waiting for {delay / 1000 / 60} minutes before processing the next page...");
+            await Task.Delay(delay, cancellationToken);
+
+
         }
     }
 
