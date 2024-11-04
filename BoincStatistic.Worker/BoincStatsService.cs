@@ -328,7 +328,7 @@ public partial class BoincStatsService : BackgroundService
                 {
                     ProjectUrl = "https://www.boincstats.com/stats/3/project/detail/",
                     CountryStatsUrl = "https://www.boincstats.com/stats/3/country/list",
-                    ProjectName = "LTH",
+                    ProjectName = "Large Hadron Collider",
                     Category = "Physics"
                 },
             };
