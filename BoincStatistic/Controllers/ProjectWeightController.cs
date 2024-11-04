@@ -9,28 +9,30 @@ public class ProjectWeightController : Controller
 private readonly ILogger<ProjectWeightController> _logger;
     private readonly IBoincProjectStatsRepo _projectStatsRepo;
 
-    private readonly Dictionary<string, decimal> _creditsPerHourDictionary = new()
+    private readonly Dictionary<string, (decimal CreditsPerHour, string Type)> _creditsPerHourDictionary = new()
     {
-        {"asteroids", 45},
-        {"climate prediction", 70}, 
-        {"loda", 50},
-        {"milkyway", 50},
-        {"nfs", 90},
-        {"rosetta", 40},
-        {"world community grid", 50},
-        {"yafu", 40},
-        {"yoyo", 40},
-        {"lth", 40}
+        {"asteroids", (45, "Core")},
+        {"climate prediction", (70, "Core")},
+        {"loda", (50, "Core")},
+        {"milkyway", (50, "Core")},
+        {"nfs", (90, "Core")},
+        {"rosetta", (40, "Core")},
+        {"world community grid", (50, "Core")},
+        {"yafu", (40, "Core")},
+        {"yoyo", (40, "Core")},
+        {"large hadron collider", (40, "Core")}
     };
 
-    private readonly Dictionary<string, decimal> _gpuProjects = new()
+
+    private readonly Dictionary<string, (decimal CreditsPerHour, string Type)> _gpuProjects = new()
     {
-        { "amicable numbers", 55000 },
-        { "einstein", 22500 },
-        { "total without asic", 22500 },
-        { "moo wraper", 45000 },
-        { "primegrid", 25000 }
+        { "amicable numbers", (55000, "GPU") },
+        { "einstein", (22500, "GPU") },
+        { "total without asic", (22500, "GPU") },
+        { "moo! wrapper", (45000, "GPU") },
+        { "primegrid", (25000, "GPU") }
     };
+
 
     public ProjectWeightController(ILogger<ProjectWeightController> logger, IBoincProjectStatsRepo projectStatsRepo)
     {
@@ -64,14 +66,20 @@ private readonly ILogger<ProjectWeightController> _logger;
 
             var creditDifference = Math.Abs(ruCredit - uaCredit);
 
-            var isGpuProject = _gpuProjects.TryGetValue(project.ProjectName.ToLower(), out var creditsPerHourGpu);
-            var creditsPerHour = isGpuProject ? creditsPerHourGpu : (_creditsPerHourDictionary.TryGetValue(project.ProjectName.ToLower(), out var value) ? value : 22500);
-
+            var isGpuProject = _gpuProjects.TryGetValue(project.ProjectName.ToLower(), out var gpuInfo);
+            var projectInfo = isGpuProject ? gpuInfo : (_creditsPerHourDictionary.TryGetValue(project.ProjectName.ToLower(), out var coreInfo) ? coreInfo : (22500, "Core"));
+            
+            var creditsPerHour = projectInfo.CreditsPerHour;
+            var projectType = projectInfo.Type;
+            
             var taskHours = Math.Round(creditDifference / creditsPerHour, 0);
             var yearsDifference = Math.Round(taskHours / 8760, 2);
 
             var mwthMultiplier = isGpuProject ? 150 : 7;
-            var mwth = Math.Round(taskHours * mwthMultiplier / 1000000, 2);
+            
+            _logger.LogDebug($"\nProject: {project.ProjectName}. MWt/h multiplier: {mwthMultiplier}");
+            
+            var mwth = Math.Ceiling(taskHours * mwthMultiplier / 1000000);
 
             var uaAverage = decimal.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
             var ruAverage = decimal.Parse(russiaStats.CreditAvarage.Replace(",", ""));
@@ -92,7 +100,8 @@ private readonly ILogger<ProjectWeightController> _logger;
                 YearsDifference = (double)yearsDifference,
                 MWtPerHourCpu = (double)mwth,
                 DevicesToOvercome = (double)devicesToOvercome,
-                DaysToWin = (double)daysToWin
+                DaysToWin = (double)daysToWin,
+                ProjectType = projectType
             });
         }
 
