@@ -39,7 +39,6 @@ public partial class BoincStatsService : BackgroundService
             var boincStatsRepository = context.Db.BoincStatsRepository;
             var boincProjectStatsRepository = context.Db.BoincProjectStatsRepo;
             
-            await _processScrapping(boincStatsRepository,boincProjectStatsRepository, stoppingToken);
 
             var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
             var nextRunTime = kievTime.Date.AddHours(5);
@@ -51,10 +50,11 @@ public partial class BoincStatsService : BackgroundService
 
             var delay = nextRunTime - kievTime;
             
-            
             _logger.LogInformation($"\n ----- Scrapping completed. Next run time will be at: {nextRunTime:HH:mm:ss}. On: ( {nextRunTime:D} )----- \n");
             
             await Task.Delay(delay, stoppingToken);
+            
+            await _processScrapping(boincStatsRepository,boincProjectStatsRepository, stoppingToken);
         }
     }
 
@@ -328,7 +328,7 @@ public partial class BoincStatsService : BackgroundService
                 {
                     ProjectUrl = "https://www.boincstats.com/stats/3/project/detail/",
                     CountryStatsUrl = "https://www.boincstats.com/stats/3/country/list",
-                    ProjectName = "Large Hadron Collider",
+                    ProjectName = "LHC",
                     Category = "Physics"
                 },
             };

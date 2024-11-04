@@ -20,7 +20,7 @@ private readonly ILogger<ProjectWeightController> _logger;
         {"world community grid", (50, "Core")},
         {"yafu", (40, "Core")},
         {"yoyo", (40, "Core")},
-        {"large hadron collider", (40, "Core")}
+        {"lhc", (40, "Core")}
     };
 
 
