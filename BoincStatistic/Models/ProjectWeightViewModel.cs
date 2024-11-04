@@ -15,4 +15,6 @@ public class ProjectWeightViewModel
     public double MWtPerHourCpu { get; set; }
     public double DevicesToOvercome { get; set; }
     public double DaysToWin { get; set; }
+    
+    public string ProjectType { get; set; } 
 }
