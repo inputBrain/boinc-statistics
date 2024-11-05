@@ -79,7 +79,7 @@ private readonly ILogger<ProjectWeightController> _logger;
             
             _logger.LogDebug($"\nProject: {project.ProjectName}. MWt/h multiplier: {mwthMultiplier}");
             
-            var mwth = Math.Ceiling(taskHours * mwthMultiplier / 1000000);
+            var mwth = Math.Ceiling(taskHours * mwthMultiplier / 1000000 * 100) / 100;
 
             var uaAverage = decimal.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
             var ruAverage = decimal.Parse(russiaStats.CreditAvarage.Replace(",", ""));
