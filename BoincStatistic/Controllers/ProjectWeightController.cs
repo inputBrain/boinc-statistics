@@ -61,10 +61,17 @@ private readonly ILogger<ProjectWeightController> _logger;
             var ruCredit = decimal.Parse(russiaStats.TotalCredit.Replace(",", ""));
             var totalCredit = decimal.Parse(project.TotalCredit.Replace(",", ""));
 
+            var uaAverage = decimal.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
+            var ruAverage = decimal.Parse(russiaStats.CreditAvarage.Replace(",", ""));
+
             var uaWeight = Math.Round((uaCredit / totalCredit) * 100, 2);
             var ruWeight = Math.Round((ruCredit / totalCredit) * 100, 2);
 
-            var creditDifference = Math.Abs(ruCredit - uaCredit);
+            var creditDifference = ruCredit - uaCredit;
+            if (creditDifference < 0)
+            {
+                creditDifference /= ruAverage;
+            }
 
             var isGpuProject = _gpuProjects.TryGetValue(project.ProjectName.ToLower(), out var gpuInfo);
             var projectInfo = isGpuProject ? gpuInfo : (_creditsPerHourDictionary.TryGetValue(project.ProjectName.ToLower(), out var coreInfo) ? coreInfo : (22500, "Core"));
@@ -81,8 +88,7 @@ private readonly ILogger<ProjectWeightController> _logger;
             
             var mwth = Math.Ceiling(taskHours * mwthMultiplier / 1000000 * 100) / 100;
 
-            var uaAverage = decimal.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
-            var ruAverage = decimal.Parse(russiaStats.CreditAvarage.Replace(",", ""));
+
             var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : 0;
 
             var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
