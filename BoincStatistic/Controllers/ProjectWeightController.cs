@@ -30,7 +30,7 @@ private readonly ILogger<ProjectWeightController> _logger;
         { "einstein", (22500, "GPU") },
         { "total without asic", (22500, "GPU") },
         { "moo! wrapper", (45000, "GPU") },
-        { "primegrid", (25000, "GPU") }
+        { "primegrid", (7500, "GPU") }
     };
 
 
