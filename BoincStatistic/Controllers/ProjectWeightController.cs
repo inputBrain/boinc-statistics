@@ -27,7 +27,7 @@ private readonly ILogger<ProjectWeightController> _logger;
     private readonly Dictionary<string, (decimal CreditsPerHour, string Type)> _gpuProjects = new()
     {
         { "amicable numbers", (55000, "GPU") },
-        { "einstein", (22500, "GPU") },
+        { "einstein", (27000, "GPU") },
         { "total without asic", (22500, "GPU") },
         { "moo! wrapper", (45000, "GPU") },
         { "primegrid", (7500, "GPU") }
