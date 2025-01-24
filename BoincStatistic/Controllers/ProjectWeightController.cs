@@ -27,10 +27,11 @@ private readonly ILogger<ProjectWeightController> _logger;
     private readonly Dictionary<string, (decimal CreditsPerHour, string Type)> _gpuProjects = new()
     {
         { "amicable numbers", (55000, "GPU") },
-        { "einstein", (27000, "GPU") },
+        { "einstein", (20000, "GPU") },
         { "total without asic", (22500, "GPU") },
         { "moo! wrapper", (45000, "GPU") },
-        { "primegrid", (7500, "GPU") }
+        { "primegrid", (7500, "GPU") },
+        { "numberfields", (2000, "GPU") },
     };
 
 
@@ -93,6 +94,12 @@ private readonly ILogger<ProjectWeightController> _logger;
 
             var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
 
+            
+            var taskHoursCategory = _getCategory((double)taskHours);
+            var yearsCategory = _getCategory((double)yearsDifference);
+            var mwthCategory = _getCategory((double)mwth);
+            
+            
             projectOverviewList.Add(new ProjectWeightViewModel {
                 ProjectName = project.ProjectName,
                 UaWeight = (double)uaWeight,
@@ -102,9 +109,9 @@ private readonly ILogger<ProjectWeightController> _logger;
                 CreditRU = russiaStats.TotalCredit,
                 AvarageRU = russiaStats.CreditAvarage,
                 AvarageUA = ukraineStats.CreditAvarage,
-                TaskHours = (double)taskHours,
-                YearsDifference = (double)yearsDifference,
-                MWtPerHourCpu = (double)mwth,
+                TaskHours = taskHoursCategory,
+                YearsDifference = yearsCategory,
+                MWtPerHourCpu = mwthCategory,
                 DevicesToOvercome = (double)devicesToOvercome,
                 DaysToWin = (double)daysToWin,
                 ProjectType = projectType
@@ -112,5 +119,22 @@ private readonly ILogger<ProjectWeightController> _logger;
         }
 
         return View(projectOverviewList);
+    }
+    
+    
+    private string _getCategory(double taskHours)
+    {
+        if (taskHours >= -100 && taskHours <= 0)
+            return "Overcome";
+        else if (taskHours >= -365 && taskHours <= -101)
+            return "Won";
+        else if (taskHours >= -1000 && taskHours <= -366)
+            return "Ownage";
+        else if (taskHours >= -10000 && taskHours <= -1001)
+            return "Destroyed";
+        else if (taskHours < -10001)
+            return "Annihilated";
+        else
+            return taskHours.ToString();
     }
 }

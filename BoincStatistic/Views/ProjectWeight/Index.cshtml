@@ -37,9 +37,15 @@
                         <td>@project.CreditDifference</td>
                         <td>@project.AvarageUA</td>
                         <td>@project.AvarageRU</td>
-                        <td>@project.TaskHours</td>
-                        <td>@project.YearsDifference</td>
-                        <td>@project.MWtPerHourCpu</td>
+                        <td style="@(new[] { "Overcome", "Won", "Ownage", "Destroyed", "Annihilated" }.Contains(project.TaskHours) ? "background-color: #e6ffe6;" : "")">
+                            @project.TaskHours
+                        </td>
+                        <td style="@(new[] { "Overcome", "Won", "Ownage", "Destroyed", "Annihilated" }.Contains(project.YearsDifference) ? "background-color: #e6ffe6;" : "")">
+                            @project.YearsDifference
+                        </td>
+                        <td style="@(new[] { "Overcome", "Won", "Ownage", "Destroyed", "Annihilated" }.Contains(project.MWtPerHourCpu) ? "background-color: #e6ffe6;" : "")">
+                            @project.MWtPerHourCpu
+                        </td>
                         <td>@project.DevicesToOvercome</td>
                         <td>@project.ProjectType</td>
                         @if (project.DaysToWin > 0)
