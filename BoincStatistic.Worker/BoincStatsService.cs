@@ -235,6 +235,13 @@ public partial class BoincStatsService : BackgroundService
             {
                 new()
                 {
+                    ProjectUrl = "https://www.boincstats.com/stats/122/project/detail/",
+                    CountryStatsUrl = "https://www.boincstats.com/stats/122/country/list",
+                    ProjectName = "NumberFields",
+                    Category = "Mathematics"
+                },
+                new()
+                {
                     ProjectUrl = "https://www.boincstats.com/stats/88/project/detail/",
                     CountryStatsUrl = "https://www.boincstats.com/stats/88/country/list",
                     ProjectName = "NFS",
