@@ -1,4 +1,5 @@
-﻿using BoincStatistic.Database.BoincProjectStats;
+﻿using System.Globalization;
+using BoincStatistic.Database.BoincProjectStats;
 using BoincStatistic.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -93,10 +94,6 @@ private readonly ILogger<ProjectWeightController> _logger;
 
             var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : 0;
             // var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : Math.Round(creditDifference / (uaAverage - ruAverage), 0);
-            // if (daysToWin < 0)
-            // {
-            //     daysToWin = 0;
-            // }
 
             var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
 
@@ -120,7 +117,7 @@ private readonly ILogger<ProjectWeightController> _logger;
                 YearsDifference = yearsCategory,
                 MWtPerHourCpu = mwthCategory,
                 DevicesToOvercome = (double)devicesToOvercome,
-                DaysToWin = wonDays,
+                DaysToWin = daysToWin.ToString(CultureInfo.InvariantCulture),
                 ProjectType = projectType
             });
         }
@@ -148,15 +145,15 @@ private readonly ILogger<ProjectWeightController> _logger;
     
     private string _getDaysToWinCategory(double daysToWin)
     {
-        if (daysToWin <= 100 && daysToWin >= 1)
+        if (daysToWin >= -100 && daysToWin <= 0)
             return "Overcome";
-        else if (daysToWin <= 365 && daysToWin >= 101)
+        else if (daysToWin >= -365 && daysToWin <= -101)
             return "Won";
-        else if (daysToWin <= 1000 && daysToWin >= 366)
+        else if (daysToWin >= -1000 && daysToWin <= -366)
             return "Ownage";
-        else if (daysToWin <= 10000 && daysToWin >= 1001)
+        else if (daysToWin >= -10000 && daysToWin <= -1001)
             return "Destroyed";
-        else if (daysToWin > 10000)
+        else if (daysToWin < -10000)
             return "Annihilated";
         else
             return daysToWin.ToString();
