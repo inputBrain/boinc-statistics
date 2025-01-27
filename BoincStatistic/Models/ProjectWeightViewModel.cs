@@ -2,6 +2,7 @@
 
 public class ProjectWeightViewModel
 {
+    public string Country { get; set; }
     public string ProjectName { get; set; }
     public double UaWeight { get; set; }
     public double RuWeight { get; set; }

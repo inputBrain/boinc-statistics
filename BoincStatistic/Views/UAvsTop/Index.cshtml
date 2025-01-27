@@ -1,7 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Projects";
+﻿@model List<ProjectWeightViewModel>
+@{
+ViewData["Title"] = "UA vs #1";
 }
-@model BoincProjectStatsViewModel
 
 <div class="row">
     <div class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 250px;">
@@ -49,47 +49,54 @@
             <table class="table table-hover" id="newsTable">
                 <thead>
                 <tr>
-                    <th>Project Name</th>
-                    <th>Total Credit</th>
-                    <th>Project Category</th>
+                    <th>#1</th>
+                    <th>Project</th>
+                    <th>UA Credit</th>
+                    <th>#1 Credit</th>
+                    <th>UA Weight (%)</th>
+                    <th>#1 Weight (%)</th>
+                    <th>Credit Difference</th>
+                    <th>UA Average</th>
+                    <th>#1 Average</th>
+                    <th>Task Hours</th>
+                    <th>Years</th>
+                    <th>MWt/h</th>
+                    <th>Devices to Overcome</th>
+                    <th>Type</th>
+                    <th>Days To Win</th>
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var item in Model.ProjectStats)
+                @foreach (var project in Model)
                 {
-                <tr>
-                    <td>@item.ProjectName</td>
-                    <td>@item.TotalCredit</td>
-                    <td>@item.ProjectCategory</td>
-                </tr>
+                    <tr>
+                        <td>@project.Country</td>
+                        <td>@project.ProjectName</td>
+                        <td>@project.CreditUA</td>
+                        <td>@project.CreditRU</td>
+                        <td>@project.UaWeight</td>
+                        <td>@project.RuWeight</td>
+                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.CreditDifference) ? "background-color: #e6ffe6; text-align: center;" : "")">
+                            @project.CreditDifference
+                        </td>
+                        <td>@project.AvarageUA</td>
+                        <td>@project.AvarageRU</td>
+                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.TaskHours) ? "background-color: #e6ffe6; text-align: center;" : "")">
+                            @project.TaskHours
+                        </td>
+                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.YearsDifference) ? "background-color: #e6ffe6;text-align: center;" : "")">
+                            @project.YearsDifference
+                        </td>
+                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.MWtPerHourCpu) ? "background-color: #e6ffe6; text-align: center;" : "")">
+                            @project.MWtPerHourCpu
+                        </td>
+                        <td>@project.DevicesToOvercome</td>
+                        <td>@project.ProjectType</td>
+                        <td>@project.DaysToWin</td>
+                    </tr>
                 }
                 </tbody>
             </table>
-            @* <nav aria-label="..."> *@
-            @*     <ul class="pagination justify-content-center"> *@
-            @*         <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")"> *@
-            @*             <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize })">Previous</a> *@
-            @*         </li> *@
-            @*         @for (int i = 1; i <= Model.TotalPages; i++) *@
-            @*         { *@
-            @*         <li class="page-item @(Model.PageNumber == i ? "active" : "")"> *@
-            @*             <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize })">@i</a> *@
-            @*         </li> *@
-            @*         } *@
-            @*         <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")"> *@
-            @*             <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize })">Next</a> *@
-            @*         </li> *@
-            @*     </ul> *@
-            @* </nav> *@
         </div>
     </div>
 </div>
-
-@* @section Scripts { *@
-@*     <script> *@
-@*         function changePageSize() { *@
-@*             var pageSize = document.getElementById("pageSizeSelect").value; *@
-@*             window.location.href = '@Url.Action("Index", new { pageNumber = 1, pageSize = "__pageSize__" })'.replace("__pageSize__", pageSize); *@
-@*         } *@
-@*     </script> *@
-@* } *@
