@@ -8,7 +8,7 @@
 
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
             <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
-            <span class="fs-4">BOINC Stats</span>
+            <span class="fs-4">Menu</span>
         </a>
         <hr>
         <ul class="nav nav-pills flex-column mb-auto">
@@ -40,7 +40,6 @@
                     <th>Project Name</th>
                     <th>Total Credit</th>
                     <th>Project Category</th>
-                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -50,40 +49,35 @@
                     <td>@item.ProjectName</td>
                     <td>@item.TotalCredit</td>
                     <td>@item.ProjectCategory</td>
-                    <td>
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-sm btn-outline-info">Info</button>
-                        </div>
-                    </td>
                 </tr>
                 }
                 </tbody>
             </table>
-            <nav aria-label="...">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize })">Previous</a>
-                    </li>
-                    @for (int i = 1; i <= Model.TotalPages; i++)
-                    {
-                    <li class="page-item @(Model.PageNumber == i ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize })">@i</a>
-                    </li>
-                    }
-                    <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize })">Next</a>
-                    </li>
-                </ul>
-            </nav>
+            @* <nav aria-label="..."> *@
+            @*     <ul class="pagination justify-content-center"> *@
+            @*         <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")"> *@
+            @*             <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize })">Previous</a> *@
+            @*         </li> *@
+            @*         @for (int i = 1; i <= Model.TotalPages; i++) *@
+            @*         { *@
+            @*         <li class="page-item @(Model.PageNumber == i ? "active" : "")"> *@
+            @*             <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize })">@i</a> *@
+            @*         </li> *@
+            @*         } *@
+            @*         <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")"> *@
+            @*             <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize })">Next</a> *@
+            @*         </li> *@
+            @*     </ul> *@
+            @* </nav> *@
         </div>
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        function changePageSize() {
-            var pageSize = document.getElementById("pageSizeSelect").value;
-            window.location.href = '@Url.Action("Index", new { pageNumber = 1, pageSize = "__pageSize__" })'.replace("__pageSize__", pageSize);
-        }
-    </script>
-}
+@* @section Scripts { *@
+@*     <script> *@
+@*         function changePageSize() { *@
+@*             var pageSize = document.getElementById("pageSizeSelect").value; *@
+@*             window.location.href = '@Url.Action("Index", new { pageNumber = 1, pageSize = "__pageSize__" })'.replace("__pageSize__", pageSize); *@
+@*         } *@
+@*     </script> *@
+@* } *@
