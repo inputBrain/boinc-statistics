@@ -24,7 +24,6 @@ IHost host = Host.CreateDefaultBuilder(args)
             ));
 
             services.AddHostedService<BoincStatsService>();
-            // services.AddHostedService<BoincProjectStatsService>();
 
         })
     .Build();
