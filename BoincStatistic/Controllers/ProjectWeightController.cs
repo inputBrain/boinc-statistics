@@ -93,11 +93,18 @@ private readonly ILogger<ProjectWeightController> _logger;
 
 
             var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : 0;
+            
             // var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : Math.Round(creditDifference / (uaAverage - ruAverage), 0);
 
             var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
 
+            var daysToWinWord = daysToWin.ToString(CultureInfo.InvariantCulture);
 
+            if (creditDifference < 0)
+            {
+                daysToWinWord = _getDaysToWinCategory((double)creditDifference);
+            }
+            
             var taskHoursCategory = _getCategory((double)taskHours);
             var yearsCategory = _getCategory((double)yearsDifference);
             var mwthCategory = _getCategory((double)mwth);
@@ -117,7 +124,7 @@ private readonly ILogger<ProjectWeightController> _logger;
                 YearsDifference = yearsCategory,
                 MWtPerHourCpu = mwthCategory,
                 DevicesToOvercome = (double)devicesToOvercome,
-                DaysToWin = daysToWin.ToString(CultureInfo.InvariantCulture),
+                DaysToWin = daysToWinWord,
                 ProjectType = projectType
             });
         }

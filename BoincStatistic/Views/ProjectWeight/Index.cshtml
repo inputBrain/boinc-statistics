@@ -89,7 +89,9 @@
                         </td>
                         <td>@project.DevicesToOvercome</td>
                         <td>@project.ProjectType</td>
-                        <td>@project.DaysToWin</td>
+                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "background-color: #e6ffe6;text-align: center;" : "")">
+                            @project.DaysToWin
+                        </td>
                     </tr>
                 }
                 </tbody>
