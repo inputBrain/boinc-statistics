@@ -59,28 +59,25 @@
                         <td>@project.CreditRU</td>
                         <td>@project.UaWeight</td>
                         <td>@project.RuWeight</td>
-                        <td>@project.CreditDifference</td>
+                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.CreditDifference) ? "background-color: #e6ffe6; text-align: center;" : "")">
+                            @project.CreditDifference
+                        </td>
                         <td>@project.AvarageUA</td>
                         <td>@project.AvarageRU</td>
-                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.TaskHours) ? "background-color: #e6ffe6;" : "")">
+                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.TaskHours) ? "background-color: #e6ffe6; text-align: center;" : "")">
                             @project.TaskHours
                         </td>
-                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.YearsDifference) ? "background-color: #e6ffe6;" : "")">
+                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.YearsDifference) ? "background-color: #e6ffe6;text-align: center;" : "")">
                             @project.YearsDifference
                         </td>
-                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.MWtPerHourCpu) ? "background-color: #e6ffe6;" : "")">
+                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.MWtPerHourCpu) ? "background-color: #e6ffe6; text-align: center;" : "")">
                             @project.MWtPerHourCpu
                         </td>
                         <td>@project.DevicesToOvercome</td>
                         <td>@project.ProjectType</td>
-                        @if (project.DaysToWin > 0)
-                        {
-                            <td>@project.DaysToWin</td>
-                        }
-                        else
-                        {
-                            <td>0</td>
-                        }
+                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "background-color: #e6ffe6; text-align: center;" : "")">
+                            @project.DaysToWin
+                        </td>
                     </tr>
                 }
                 </tbody>

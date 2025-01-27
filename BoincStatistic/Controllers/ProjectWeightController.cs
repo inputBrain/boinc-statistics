@@ -94,17 +94,18 @@ private readonly ILogger<ProjectWeightController> _logger;
 
             var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
 
-            
+
             var taskHoursCategory = _getCategory((double)taskHours);
             var yearsCategory = _getCategory((double)yearsDifference);
             var mwthCategory = _getCategory((double)mwth);
-            
+            var creditDiff = _getCategory((double)creditDifference);
+            var wonDays = _getDaysToWinCategory((double)daysToWin);
             
             projectOverviewList.Add(new ProjectWeightViewModel {
                 ProjectName = project.ProjectName,
                 UaWeight = (double)uaWeight,
                 RuWeight = (double)ruWeight,
-                CreditDifference = (double)creditDifference,
+                CreditDifference = creditDiff,
                 CreditUA = ukraineStats.TotalCredit,
                 CreditRU = russiaStats.TotalCredit,
                 AvarageRU = russiaStats.CreditAvarage,
@@ -113,7 +114,7 @@ private readonly ILogger<ProjectWeightController> _logger;
                 YearsDifference = yearsCategory,
                 MWtPerHourCpu = mwthCategory,
                 DevicesToOvercome = (double)devicesToOvercome,
-                DaysToWin = (double)daysToWin,
+                DaysToWin = wonDays,
                 ProjectType = projectType
             });
         }
@@ -136,5 +137,22 @@ private readonly ILogger<ProjectWeightController> _logger;
             return "Annihilated";
         else
             return taskHours.ToString();
+    }
+    
+    
+    private string _getDaysToWinCategory(double daysToWin)
+    {
+        if (daysToWin >= -100 && daysToWin <= 0)
+            return "Overcome";
+        else if (daysToWin >= -365 && daysToWin <= -101)
+            return "Won";
+        else if (daysToWin >= -1000 && daysToWin <= -366)
+            return "Ownage";
+        else if (daysToWin >= -10000 && daysToWin <= -1001)
+            return "Destroyed";
+        else if (daysToWin < -10000)
+            return "Annihilated";
+        else
+            return daysToWin.ToString();
     }
 }
