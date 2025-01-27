@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BoincStatistic.Controllers;
 
-public class ProjectWeightController : Controller
+public class UAvsUsaController : Controller
 {
-private readonly ILogger<ProjectWeightController> _logger;
+    private readonly ILogger<UAvsUsaController> _logger;
     private readonly IBoincProjectStatsRepo _projectStatsRepo;
 
     private readonly Dictionary<string, (decimal CreditsPerHour, string Type)> _creditsPerHourDictionary = new()
@@ -37,13 +37,13 @@ private readonly ILogger<ProjectWeightController> _logger;
     };
 
 
-    public ProjectWeightController(ILogger<ProjectWeightController> logger, IBoincProjectStatsRepo projectStatsRepo)
+    public UAvsUsaController(ILogger<UAvsUsaController> logger, IBoincProjectStatsRepo projectStatsRepo)
     {
         _logger = logger;
         _projectStatsRepo = projectStatsRepo;
     }
 
-    [Route("ua-vs-ru")]
+    [Route("ua-vs-usa")]
     public async Task<IActionResult> Index()
     {
         var projectOverviewList = new List<ProjectWeightViewModel>();
@@ -51,29 +51,29 @@ private readonly ILogger<ProjectWeightController> _logger;
 
         foreach (var project in projectList)
         {
-            var firstCountry = project.DetailedStatistics.FirstOrDefault(x => x.Rank == "1");
+            // var firstCountry = project.DetailedStatistics.FirstOrDefault(x => x.Rank == "1");
             var ukraineStats = project.DetailedStatistics.FirstOrDefault(x => x.CountryName == "Ukraine");
-            var russiaStats = project.DetailedStatistics.FirstOrDefault(x => x.CountryName == "Russian Federation");
+            var usaStats = project.DetailedStatistics.FirstOrDefault(x => x.CountryName == "United States");
 
-            if (ukraineStats == null || russiaStats == null || firstCountry == null)
+            if (ukraineStats == null || usaStats == null)
             {
                 continue;
             }
 
             var uaCredit = decimal.Parse(ukraineStats.TotalCredit.Replace(",", ""));
-            var ruCredit = decimal.Parse(russiaStats.TotalCredit.Replace(",", ""));
+            var usaCredit = decimal.Parse(usaStats.TotalCredit.Replace(",", ""));
             var totalCredit = decimal.Parse(project.TotalCredit.Replace(",", ""));
 
             var uaAverage = decimal.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
-            var ruAverage = decimal.Parse(russiaStats.CreditAvarage.Replace(",", ""));
+            var usaAverage = decimal.Parse(usaStats.CreditAvarage.Replace(",", ""));
 
             var uaWeight = Math.Round((uaCredit / totalCredit) * 100, 2);
-            var ruWeight = Math.Round((ruCredit / totalCredit) * 100, 2);
+            var usaWeight = Math.Round((usaCredit / totalCredit) * 100, 2);
 
-            var creditDifference = ruCredit - uaCredit;
+            var creditDifference = usaCredit - uaCredit;
             if (creditDifference < 0)
             {
-                creditDifference /= ruAverage;
+                creditDifference /= usaAverage;
             }
 
             var isGpuProject = _gpuProjects.TryGetValue(project.ProjectName.ToLower(), out var gpuInfo);
@@ -92,10 +92,10 @@ private readonly ILogger<ProjectWeightController> _logger;
             var mwth = Math.Ceiling(taskHours * mwthMultiplier / 1000000 * 100) / 100;
 
 
-            var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : 0;
+            var daysToWin = creditDifference > 0 && uaAverage > usaAverage ? Math.Round(creditDifference / (uaAverage - usaAverage), 0) + 1 : 0;
             // var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : Math.Round(creditDifference / (uaAverage - ruAverage), 0);
 
-            var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
+            var devicesToOvercome = Math.Round((usaAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
 
 
             var taskHoursCategory = _getCategory((double)taskHours);
@@ -107,11 +107,11 @@ private readonly ILogger<ProjectWeightController> _logger;
             projectOverviewList.Add(new ProjectWeightViewModel {
                 ProjectName = project.ProjectName,
                 UaWeight = (double)uaWeight,
-                RuWeight = (double)ruWeight,
+                RuWeight = (double)usaWeight,
                 CreditDifference = creditDiff,
                 CreditUA = ukraineStats.TotalCredit,
-                CreditRU = russiaStats.TotalCredit,
-                AvarageRU = russiaStats.CreditAvarage,
+                CreditRU = usaStats.TotalCredit,
+                AvarageRU = usaStats.CreditAvarage,
                 AvarageUA = ukraineStats.CreditAvarage,
                 TaskHours = taskHoursCategory,
                 YearsDifference = yearsCategory,
