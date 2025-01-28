@@ -70,9 +70,15 @@ public class UAvsTopController : Controller
             var topCountryWeight = Math.Round((topCountryCredit / totalCredit) * 100, 2);
 
             var creditDifference = topCountryCredit - uaCredit;
+
+            var foundDaysToWinWord = string.Empty;
             if (creditDifference < 0)
             {
-                creditDifference /= topCountryAverage;
+                var copyDifference = creditDifference;
+                copyDifference /= topCountryAverage;
+                Math.Round(copyDifference, 2);
+                
+                foundDaysToWinWord = _getDaysToWinCategory((double)copyDifference);
             }
 
             var isGpuProject = _gpuProjects.TryGetValue(project.ProjectName.ToLower(), out var gpuInfo);
@@ -80,8 +86,8 @@ public class UAvsTopController : Controller
             
             var creditsPerHour = projectInfo.CreditsPerHour;
             var projectType = projectInfo.Type;
-            
             var taskHours = Math.Round(creditDifference / creditsPerHour, 0);
+
             var yearsDifference = Math.Round(taskHours / 8760, 2);
 
             var mwthMultiplier = isGpuProject ? 150 : 7;
@@ -95,15 +101,13 @@ public class UAvsTopController : Controller
             // var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : Math.Round(creditDifference / (uaAverage - ruAverage), 0);
 
             var devicesToOvercome = Math.Round((topCountryAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
+            var daysToWinAsString = daysToWin.ToString(CultureInfo.InvariantCulture);
 
-            var daysToWinWord = daysToWin.ToString(CultureInfo.InvariantCulture);
-
-            if (creditDifference < 0)
+            if (string.IsNullOrEmpty(foundDaysToWinWord) == false)
             {
-                daysToWinWord = _getDaysToWinCategory((double)creditDifference);
+                daysToWinAsString = foundDaysToWinWord;
             }
 
-            Console.WriteLine(project.ProjectName);
             projectOverviewList.Add(new ProjectWeightViewModel {
                 Country = topCountryStats.CountryName,
                 ProjectName = project.ProjectName,
@@ -118,7 +122,7 @@ public class UAvsTopController : Controller
                 YearsDifference = (double)yearsDifference,
                 MWtPerHourCpu = (double)mwth,
                 DevicesToOvercome = (double)devicesToOvercome,
-                DaysToWin = daysToWinWord,
+                DaysToWin = daysToWinAsString,
                 ProjectType = projectType
             });
         }

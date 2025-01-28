@@ -71,9 +71,15 @@ private readonly ILogger<ProjectWeightController> _logger;
             var ruWeight = Math.Round((ruCredit / totalCredit) * 100, 2);
 
             var creditDifference = ruCredit - uaCredit;
+
+            var foundDaysToWinWord = string.Empty;
             if (creditDifference < 0)
             {
-                creditDifference /= ruAverage;
+                var copyDifference = creditDifference;
+                copyDifference /= ruAverage;
+                Math.Round(copyDifference, 2);
+                
+                foundDaysToWinWord = _getDaysToWinCategory((double)copyDifference);
             }
 
             var isGpuProject = _gpuProjects.TryGetValue(project.ProjectName.ToLower(), out var gpuInfo);
@@ -81,7 +87,6 @@ private readonly ILogger<ProjectWeightController> _logger;
             
             var creditsPerHour = projectInfo.CreditsPerHour;
             var projectType = projectInfo.Type;
-            creditDifference = Math.Round(creditDifference, 2);
             var taskHours = Math.Round(creditDifference / creditsPerHour, 0);
 
             var yearsDifference = Math.Round(taskHours / 8760, 2);
@@ -97,12 +102,11 @@ private readonly ILogger<ProjectWeightController> _logger;
             // var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : Math.Round(creditDifference / (uaAverage - ruAverage), 0);
 
             var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
+            var daysToWinAsString = daysToWin.ToString(CultureInfo.InvariantCulture);
 
-            var daysToWinWord = daysToWin.ToString(CultureInfo.InvariantCulture);
-
-            if (creditDifference < 0)
+            if (string.IsNullOrEmpty(foundDaysToWinWord) == false)
             {
-                daysToWinWord = _getDaysToWinCategory((double)creditDifference);
+                daysToWinAsString = foundDaysToWinWord;
             }
 
             projectOverviewList.Add(new ProjectWeightViewModel {
@@ -118,7 +122,7 @@ private readonly ILogger<ProjectWeightController> _logger;
                 YearsDifference = (double)yearsDifference,
                 MWtPerHourCpu = (double)mwth,
                 DevicesToOvercome = (double)devicesToOvercome,
-                DaysToWin = daysToWinWord,
+                DaysToWin = daysToWinAsString,
                 ProjectType = projectType
             });
         }
