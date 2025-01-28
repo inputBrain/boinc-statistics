@@ -96,53 +96,37 @@ public class UAvsTopController : Controller
 
             var devicesToOvercome = Math.Round((topCountryAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
 
+            var daysToWinWord = daysToWin.ToString(CultureInfo.InvariantCulture);
 
-            var taskHoursCategory = _getCategory((double)taskHours);
-            var yearsCategory = _getCategory((double)yearsDifference);
-            var mwthCategory = _getCategory((double)mwth);
-            var creditDiff = _getCategory((double)creditDifference);
-            var wonDays = _getDaysToWinCategory((double)daysToWin);
-            
+            if (creditDifference < 0)
+            {
+                daysToWinWord = _getDaysToWinCategory((double)creditDifference);
+            }
+
+            Console.WriteLine(project.ProjectName);
             projectOverviewList.Add(new ProjectWeightViewModel {
                 Country = topCountryStats.CountryName,
                 ProjectName = project.ProjectName,
                 UaWeight = (double)uaWeight,
                 RuWeight = (double)topCountryWeight,
-                CreditDifference = creditDiff,
+                CreditDifference = Math.Round((double)creditDifference, 6),
                 CreditUA = ukraineStats.TotalCredit,
                 CreditRU = topCountryStats.TotalCredit,
                 AvarageRU = topCountryStats.CreditAvarage,
                 AvarageUA = ukraineStats.CreditAvarage,
-                TaskHours = taskHoursCategory,
-                YearsDifference = yearsCategory,
-                MWtPerHourCpu = mwthCategory,
+                TaskHours = (double)taskHours,
+                YearsDifference = (double)yearsDifference,
+                MWtPerHourCpu = (double)mwth,
                 DevicesToOvercome = (double)devicesToOvercome,
-                DaysToWin = daysToWin.ToString(CultureInfo.InvariantCulture),
+                DaysToWin = daysToWinWord,
                 ProjectType = projectType
             });
         }
 
         return View(projectOverviewList);
     }
-    
-    
-    private string _getCategory(double taskHours)
-    {
-        if (taskHours >= -100 && taskHours <= 0)
-            return "Overcome";
-        else if (taskHours >= -365 && taskHours <= -101)
-            return "Won";
-        else if (taskHours >= -1000 && taskHours <= -366)
-            return "Ownage";
-        else if (taskHours >= -10000 && taskHours <= -1001)
-            return "Destroyed";
-        else if (taskHours < -10001)
-            return "Annihilated";
-        else
-            return taskHours.ToString();
-    }
-    
-    
+
+
     private string _getDaysToWinCategory(double daysToWin)
     {
         if (daysToWin >= -100 && daysToWin <= 0)

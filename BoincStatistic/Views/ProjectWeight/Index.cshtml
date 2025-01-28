@@ -30,12 +30,6 @@
                 </a>
             </li>
             <li>
-                <a href="@Url.Action("Index", "UAvsUsa")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UAvsUsa" ? "active" : "")">
-                    <svg class="bi me-2" width="16" height="16"><use xlink:href="#employee-icon"></use></svg>
-                    UA vs USA
-                </a>
-            </li>
-            <li>
                 <a href="@Url.Action("Index", "UAvsTop")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UAvsTop" ? "active" : "")">
                     <svg class="bi me-2" width="16" height="16"><use xlink:href="#employee-icon"></use></svg>
                     UA vs #1
@@ -73,20 +67,12 @@
                         <td>@project.CreditRU</td>
                         <td>@project.UaWeight</td>
                         <td>@project.RuWeight</td>
-                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.CreditDifference) ? "background-color: #e6ffe6; text-align: center;" : "")">
-                            @project.CreditDifference
-                        </td>
+                        <td>@project.CreditDifference</td>
                         <td>@project.AvarageUA</td>
                         <td>@project.AvarageRU</td>
-                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.TaskHours) ? "background-color: #e6ffe6; text-align: center;" : "")">
-                            @project.TaskHours
-                        </td>
-                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.YearsDifference) ? "background-color: #e6ffe6;text-align: center;" : "")">
-                            @project.YearsDifference
-                        </td>
-                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.MWtPerHourCpu) ? "background-color: #e6ffe6; text-align: center;" : "")">
-                            @project.MWtPerHourCpu
-                        </td>
+                        <td>@project.TaskHours</td>
+                        <td>@project.YearsDifference</td>
+                        <td>@project.MWtPerHourCpu</td>
                         <td>@project.DevicesToOvercome</td>
                         <td>@project.ProjectType</td>
                         <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "background-color: #e6ffe6;text-align: center;" : "")">

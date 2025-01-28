@@ -81,8 +81,9 @@ private readonly ILogger<ProjectWeightController> _logger;
             
             var creditsPerHour = projectInfo.CreditsPerHour;
             var projectType = projectInfo.Type;
-            
+            creditDifference = Math.Round(creditDifference, 2);
             var taskHours = Math.Round(creditDifference / creditsPerHour, 0);
+
             var yearsDifference = Math.Round(taskHours / 8760, 2);
 
             var mwthMultiplier = isGpuProject ? 150 : 7;
@@ -93,7 +94,6 @@ private readonly ILogger<ProjectWeightController> _logger;
 
 
             var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : 0;
-            
             // var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : Math.Round(creditDifference / (uaAverage - ruAverage), 0);
 
             var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
@@ -104,25 +104,19 @@ private readonly ILogger<ProjectWeightController> _logger;
             {
                 daysToWinWord = _getDaysToWinCategory((double)creditDifference);
             }
-            
-            var taskHoursCategory = _getCategory((double)taskHours);
-            var yearsCategory = _getCategory((double)yearsDifference);
-            var mwthCategory = _getCategory((double)mwth);
-            var creditDiff = _getCategory((double)creditDifference);
-            var wonDays = _getDaysToWinCategory((double)daysToWin);
-            
+
             projectOverviewList.Add(new ProjectWeightViewModel {
                 ProjectName = project.ProjectName,
                 UaWeight = (double)uaWeight,
                 RuWeight = (double)ruWeight,
-                CreditDifference = creditDiff,
+                CreditDifference = Math.Round((double)creditDifference, 6),
                 CreditUA = ukraineStats.TotalCredit,
                 CreditRU = russiaStats.TotalCredit,
                 AvarageRU = russiaStats.CreditAvarage,
                 AvarageUA = ukraineStats.CreditAvarage,
-                TaskHours = taskHoursCategory,
-                YearsDifference = yearsCategory,
-                MWtPerHourCpu = mwthCategory,
+                TaskHours = (double)taskHours,
+                YearsDifference = (double)yearsDifference,
+                MWtPerHourCpu = (double)mwth,
                 DevicesToOvercome = (double)devicesToOvercome,
                 DaysToWin = daysToWinWord,
                 ProjectType = projectType
@@ -130,23 +124,6 @@ private readonly ILogger<ProjectWeightController> _logger;
         }
 
         return View(projectOverviewList);
-    }
-    
-    
-    private string _getCategory(double taskHours)
-    {
-        if (taskHours >= -100 && taskHours <= 0)
-            return "Overcome";
-        else if (taskHours >= -365 && taskHours <= -101)
-            return "Won";
-        else if (taskHours >= -1000 && taskHours <= -366)
-            return "Ownage";
-        else if (taskHours >= -10000 && taskHours <= -1001)
-            return "Destroyed";
-        else if (taskHours < -10001)
-            return "Annihilated";
-        else
-            return taskHours.ToString();
     }
     
     

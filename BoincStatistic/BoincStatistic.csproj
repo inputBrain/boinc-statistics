@@ -20,5 +20,9 @@
     <ItemGroup>
       <Folder Include="Migrations\" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\UAvsUsa\Index.cshtml" />
+    </ItemGroup>
 
 </Project>
