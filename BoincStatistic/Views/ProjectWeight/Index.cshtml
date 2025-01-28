@@ -2,41 +2,6 @@
 @{
     ViewData["Title"] = "UA vs RU";
 }
-<div class="row">
-    <div class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 250px;">
-
-        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
-            <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
-            <span class="fs-4">Menu</span>
-        </a>
-        <hr>
-        <ul class="nav nav-pills flex-column mb-auto">
-            <li class="nav-item">
-                <a href="@Url.Action("Index", "Home")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
-                    <svg class="bi me-2" width="16" height="16"><use xlink:href="#employee-icon"></use></svg>
-                    Countries
-                </a>
-            </li>
-            <li>
-                <a href="@Url.Action("Index", "ProjectStats")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectStats" ? "active" : "")">
-                    <svg class="bi me-2" width="16" height="16"><use xlink:href="#employee-icon"></use></svg>
-                    Projects
-                </a>
-            </li>
-            <li>
-                <a href="@Url.Action("Index", "ProjectWeight")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectWeight" ? "active" : "")">
-                    <svg class="bi me-2" width="16" height="16"><use xlink:href="#employee-icon"></use></svg>
-                    UA vs RU
-                </a>
-            </li>
-            <li>
-                <a href="@Url.Action("Index", "UAvsTop")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UAvsTop" ? "active" : "")">
-                    <svg class="bi me-2" width="16" height="16"><use xlink:href="#employee-icon"></use></svg>
-                    UA vs #1
-                </a>
-            </li>
-        </ul>
-    </div>
     <div class="col-md-9">
         <div class="container mt-5">
             <table class="table table-hover" id="newsTable">
@@ -84,4 +49,3 @@
             </table>
         </div>
     </div>
-</div>
