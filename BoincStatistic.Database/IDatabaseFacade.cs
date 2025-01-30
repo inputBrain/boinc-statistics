@@ -1,10 +1,10 @@
-﻿using BoincStatistic.Database.BoincProjectStats;
-using BoincStatistic.Database.BoincStats;
+﻿using BoincStatistic.Database.CountryStatistic;
+using BoincStatistic.Database.ProjectStatistic;
 
 namespace BoincStatistic.Database;
 
 public interface IDatabaseFacade
 {
-    IBoincStatsRepository BoincStatsRepository { get; }
-    IBoincProjectStatsRepo BoincProjectStatsRepo { get; }
+    ICountryStatisticRepository CountryStatisticRepository { get; }
+    IProjectStatisticRepository ProjectStatisticRepository { get; }
 }

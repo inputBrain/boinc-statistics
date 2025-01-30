@@ -1,10 +1,10 @@
-﻿using BoincStatistic.Database.BoincStats;
+﻿using BoincStatistic.Database.CountryStatistic;
 
 namespace BoincStatistic.Models;
 
 public class BoincStatsViewModel
 {
-    public List<BoincStatsModel> BoincStats { get; set; }
+    public List<CountryStatisticModel> BoincStats { get; set; }
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
     public int TotalRecords { get; set; }

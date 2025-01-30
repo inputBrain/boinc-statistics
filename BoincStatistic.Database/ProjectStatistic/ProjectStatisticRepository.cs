@@ -2,23 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BoincStatistic.Database.BoincStats;
+using BoincStatistic.Database.CountryStatistic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace BoincStatistic.Database.BoincProjectStats;
+namespace BoincStatistic.Database.ProjectStatistic;
 
-public class BoincProjectStatsRepo : AbstractRepository<BoincProjectStatsModel>, IBoincProjectStatsRepo
+public class ProjectStatisticRepository : AbstractRepository<ProjectStatisticModel>, IProjectStatisticRepository
 {
-    public BoincProjectStatsRepo(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
+    public ProjectStatisticRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
     {
     }
 
 
-    public async Task<BoincProjectStatsModel> GetOneByName(string projectName)
+    public async Task<ProjectStatisticModel> GetOneByName(string projectName)
     {
         var model = await DbModel
-            .Include(x => x.DetailedStatistics)
+            .Include(x => x.CountryStatistics)
             .AsSplitQuery()
             .FirstOrDefaultAsync(x => x.ProjectName.ToLower() == projectName.ToLower());
 
@@ -32,9 +32,9 @@ public class BoincProjectStatsRepo : AbstractRepository<BoincProjectStatsModel>,
     }
 
 
-    public async Task<BoincProjectStatsModel> CreateModel(string name, string category, string totalCredit)
+    public async Task<ProjectStatisticModel> CreateModel(string name, string category, string totalCredit)
     {
-        var model = BoincProjectStatsModel.CreateModel(name, category, totalCredit);
+        var model = ProjectStatisticModel.CreateModel(name, category, totalCredit);
 
         var result = await CreateModelAsync(model);
         if (result == null)
@@ -46,14 +46,14 @@ public class BoincProjectStatsRepo : AbstractRepository<BoincProjectStatsModel>,
     }
 
     
-    public async Task UpdateModel(BoincProjectStatsModel model, string name, string category, string totalCredit)
+    public async Task UpdateModel(ProjectStatisticModel model, string name, string category, string totalCredit)
     {
         model.UpdateTotalStatsModel(model, name, category, totalCredit);
         await UpdateModelAsync(model);
     }
     
     
-    public async Task UpdateDetailedStatistics(BoincProjectStatsModel model, BoincStatsModel apiModel)
+    public async Task UpdateDetailedStatistics(ProjectStatisticModel model, CountryStatisticModel apiModel)
     {
         model.UpdateDetailedStatistics(model, apiModel);
         await UpdateModelAsync(model);
@@ -66,11 +66,11 @@ public class BoincProjectStatsRepo : AbstractRepository<BoincProjectStatsModel>,
     }
 
 
-    public async Task<List<BoincProjectStatsModel>> GetPaginatedAsync(int pageNumber, int pageSize)
+    public async Task<List<ProjectStatisticModel>> GetPaginatedAsync(int pageNumber, int pageSize)
     {
         return await DbModel
             .OrderBy(b => b.Id)
-            .Include(x => x.DetailedStatistics)
+            .Include(x => x.CountryStatistics)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .AsSplitQuery()
@@ -78,10 +78,10 @@ public class BoincProjectStatsRepo : AbstractRepository<BoincProjectStatsModel>,
     }
 
 
-    public async Task<List<BoincProjectStatsModel>> ListAll()
+    public async Task<List<ProjectStatisticModel>> ListAll()
     {
         var projectList = await DbModel
-            .Include(x => x.DetailedStatistics)
+            .Include(x => x.CountryStatistics)
             .AsSplitQuery()
             .ToListAsync();
 

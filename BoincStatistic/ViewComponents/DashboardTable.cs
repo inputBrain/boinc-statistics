@@ -1,14 +1,14 @@
-﻿using BoincStatistic.Database.BoincStats;
+﻿using BoincStatistic.Database.CountryStatistic;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoincStatistic.ViewComponents;
 
 public class DashboardTable : ViewComponent
 {
-    private readonly IBoincStatsRepository _statsRepository;
+    private readonly ICountryStatisticRepository _statsRepository;
 
 
-    public DashboardTable(IBoincStatsRepository statsRepository)
+    public DashboardTable(ICountryStatisticRepository statsRepository)
     {
         _statsRepository = statsRepository;
     }

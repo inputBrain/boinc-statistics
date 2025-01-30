@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BoincStatistic.Database.BoincProjectStats;
+using BoincStatistic.Database.ProjectStatistic;
 
-namespace BoincStatistic.Database.BoincStats;
+namespace BoincStatistic.Database.CountryStatistic;
 
-public class BoincStatsModel : AbstractModel
+public class CountryStatisticModel : AbstractModel
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -13,7 +13,7 @@ public class BoincStatsModel : AbstractModel
     public int ProjectId { get; set; }
     
     [ForeignKey("ProjectId")]
-    public BoincProjectStatsModel ProjectModel { get; set; }
+    public ProjectStatisticModel ProjectModel { get; set; }
     public string Rank { get; set; } 
     public string CountryName { get; set; }
     public string TotalCredit { get; set; } 
@@ -24,9 +24,9 @@ public class BoincStatsModel : AbstractModel
     public string CreditUser { get; set; }
 
 
-    public static BoincStatsModel CreateModel(int projectId, string rank, string countryName, string totalCredit, string creditDay, string creditWeek, string creditMonth, string creditAvarage, string creditUser)
+    public static CountryStatisticModel CreateModel(int projectId, string rank, string countryName, string totalCredit, string creditDay, string creditWeek, string creditMonth, string creditAvarage, string creditUser)
     {
-        return new BoincStatsModel
+        return new CountryStatisticModel
         {
             ProjectId = projectId,
             Rank = rank,

@@ -1,10 +1,10 @@
-﻿using BoincStatistic.Database.BoincProjectStats;
+﻿using BoincStatistic.Database.ProjectStatistic;
 
 namespace BoincStatistic.Models;
 
 public class BoincProjectStatsViewModel
 {
-    public List<BoincProjectStatsModel> ProjectStats { get; set; }
+    public List<ProjectStatisticModel> ProjectStats { get; set; }
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
     public int TotalRecords { get; set; }

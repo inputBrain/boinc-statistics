@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace BoincStatistic.Database.BoincStats;
+namespace BoincStatistic.Database.CountryStatistic;
 
-public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincStatsRepository
+public class CountryStatisticRepository : AbstractRepository<CountryStatisticModel>, ICountryStatisticRepository
 {
-    public BoincStatsRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
+    public CountryStatisticRepository(PostgreSqlContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
     {
     }
 
 
-    public async Task<BoincStatsModel> CreateModel(
+    public async Task<CountryStatisticModel> CreateModel(
         int projectId,
         string rank,
         string countryName,
@@ -26,7 +26,7 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
         string creditUser
     )
     {
-        var model = BoincStatsModel.CreateModel(projectId, rank, countryName, totalCredit, creditDay, creditWeek, creditMonth, creditAverage, creditUser);
+        var model = CountryStatisticModel.CreateModel(projectId, rank, countryName, totalCredit, creditDay, creditWeek, creditMonth, creditAverage, creditUser);
 
         var result = await CreateModelAsync(model);
         if (result == null)
@@ -38,7 +38,7 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
     }
 
 
-    public async Task<BoincStatsModel> GetOneCountryStatsByCountryName(string country, int projectId)
+    public async Task<CountryStatisticModel> GetOneCountryStatsByCountryName(string country, int projectId)
     {
         var model = await DbModel
             .Where(x => x.CountryName.ToLower() == country.ToLower() && x.ProjectId == projectId)
@@ -53,7 +53,7 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
     }
     
     
-    public async Task<BoincStatsModel> GetOneByRank(string rank, int projectId)
+    public async Task<CountryStatisticModel> GetOneByRank(string rank, int projectId)
     {
         var model =  await DbModel
                                 .Where(x => x.Rank == rank && x.ProjectId == projectId)
@@ -62,7 +62,7 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
     }
     
 
-    public async Task<List<BoincStatsModel>> ListAllAsync()
+    public async Task<List<CountryStatisticModel>> ListAllAsync()
     {
         return await DbModel.OrderBy(x => x.Id).ToListAsync();
     }
@@ -74,7 +74,7 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
     }
 
     
-    public async Task<List<BoincStatsModel>> GetThreeCountryAsync(int projectId)
+    public async Task<List<CountryStatisticModel>> GetThreeCountryAsync(int projectId)
     {
         return await DbModel
             .OrderBy(b => b.Id)
@@ -88,7 +88,7 @@ public class BoincStatsRepository : AbstractRepository<BoincStatsModel>, IBoincS
 
     
     
-    public async Task<List<BoincStatsModel>> GetPaginatedAsync(int pageNumber, int pageSize)
+    public async Task<List<CountryStatisticModel>> GetPaginatedAsync(int pageNumber, int pageSize)
     {
         return await DbModel
             .OrderBy(b => b.Id)

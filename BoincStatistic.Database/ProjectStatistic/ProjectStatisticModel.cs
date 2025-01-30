@@ -2,11 +2,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using BoincStatistic.Database.BoincStats;
+using BoincStatistic.Database.CountryStatistic;
 
-namespace BoincStatistic.Database.BoincProjectStats;
+namespace BoincStatistic.Database.ProjectStatistic;
 
-public class BoincProjectStatsModel : AbstractModel
+public class ProjectStatisticModel : AbstractModel
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -18,22 +18,22 @@ public class BoincProjectStatsModel : AbstractModel
     
     public string TotalCredit { get; set; }
     
-    public List<BoincStatsModel> DetailedStatistics { get; set; }
+    public List<CountryStatisticModel> CountryStatistics { get; set; }
 
 
-    public static BoincProjectStatsModel CreateModel(string projectName, string projectCategory, string totalCredit)
+    public static ProjectStatisticModel CreateModel(string projectName, string projectCategory, string totalCredit)
     {
-        return new BoincProjectStatsModel
+        return new ProjectStatisticModel
         {
             ProjectName = projectName,
             ProjectCategory = projectCategory,
             TotalCredit = totalCredit,
-            DetailedStatistics = []
+            CountryStatistics = []
         };
     }
     
     
-    public static bool IsSameTotalStatsModel(BoincProjectStatsModel model, string projectName, string projectCategory, string totalCredit)
+    public static bool IsSameTotalStatsModel(ProjectStatisticModel model, string projectName, string projectCategory, string totalCredit)
     {
         return model.ProjectName == projectName &&
                model.ProjectCategory == projectCategory &&
@@ -41,7 +41,7 @@ public class BoincProjectStatsModel : AbstractModel
     }
     
     
-    public void UpdateTotalStatsModel(BoincProjectStatsModel model, string projectName, string projectCategory, string totalCredit)
+    public void UpdateTotalStatsModel(ProjectStatisticModel model, string projectName, string projectCategory, string totalCredit)
     {
         model.ProjectName = projectName;
         model.ProjectCategory = projectCategory;
@@ -52,10 +52,10 @@ public class BoincProjectStatsModel : AbstractModel
     
 
     
-    public static bool IsSameDetailedStatistic(BoincProjectStatsModel model, BoincStatsModel apiModel)
+    public static bool IsSameDetailedStatistic(ProjectStatisticModel model, CountryStatisticModel apiModel)
     {
     
-        var foundStats = model.DetailedStatistics.FirstOrDefault(x => x.CountryName.ToLower() == apiModel.CountryName.ToLower());
+        var foundStats = model.CountryStatistics.FirstOrDefault(x => x.CountryName.ToLower() == apiModel.CountryName.ToLower());
 
         return foundStats?.Rank == apiModel.Rank &&
                foundStats.CountryName == apiModel.CountryName &&
@@ -69,9 +69,9 @@ public class BoincProjectStatsModel : AbstractModel
 
     
     
-    public void UpdateDetailedStatistics(BoincProjectStatsModel model, BoincStatsModel apiModel)
+    public void UpdateDetailedStatistics(ProjectStatisticModel model, CountryStatisticModel apiModel)
     {
-        var foundStats = model.DetailedStatistics.FirstOrDefault(x => x.CountryName.ToLower() == apiModel.CountryName.ToLower());
+        var foundStats = model.CountryStatistics.FirstOrDefault(x => x.CountryName.ToLower() == apiModel.CountryName.ToLower());
         if (foundStats == null)
         {
             return;

@@ -6,8 +6,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using BoincStatistic.Database;
-using BoincStatistic.Database.BoincProjectStats;
-using BoincStatistic.Database.BoincStats;
+using BoincStatistic.Database.CountryStatistic;
+using BoincStatistic.Database.ProjectStatistic;
 using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,8 +36,8 @@ public partial class BoincStatsService : BackgroundService
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
             
-            var boincStatsRepository = context.Db.BoincStatsRepository;
-            var boincProjectStatsRepository = context.Db.BoincProjectStatsRepo;
+            var boincStatsRepository = context.Db.CountryStatisticRepository;
+            var boincProjectStatsRepository = context.Db.ProjectStatisticRepository;
             
 
             var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
@@ -60,7 +60,7 @@ public partial class BoincStatsService : BackgroundService
 
 
 
-    private async Task _processScrapping(IBoincStatsRepository boincStatsRepository, IBoincProjectStatsRepo boincProjectStatsRepo, CancellationToken cancellationToken)
+    private async Task _processScrapping(ICountryStatisticRepository countryStatisticRepository, IProjectStatisticRepository projectStatisticRepository, CancellationToken cancellationToken)
     { 
         var random = new Random();
         var htmlDocument = new HtmlDocument();
@@ -103,18 +103,18 @@ public partial class BoincStatsService : BackgroundService
 
                 if (match.Success)
                 {
-                    var model = await boincProjectStatsRepo.GetOneByName(apiModel.ProjectName);
+                    var model = await projectStatisticRepository.GetOneByName(apiModel.ProjectName);
 
                     if (model != null)
                     {
-                        if (BoincProjectStatsModel.IsSameTotalStatsModel(model, apiModel.ProjectName, apiModel.Category, match.Value) == false)
+                        if (ProjectStatisticModel.IsSameTotalStatsModel(model, apiModel.ProjectName, apiModel.Category, match.Value) == false)
                         {
-                            await boincProjectStatsRepo.UpdateModel(model, apiModel.ProjectName, apiModel.Category, match.Value);
+                            await projectStatisticRepository.UpdateModel(model, apiModel.ProjectName, apiModel.Category, match.Value);
                         }
                     }
                     else
                     {
-                        model = await boincProjectStatsRepo.CreateModel(apiModel.ProjectName, apiModel.Category, match.Value);
+                        model = await projectStatisticRepository.CreateModel(apiModel.ProjectName, apiModel.Category, match.Value);
                     }
                     
                     for (var page = 0; page < maxPages; page++)
@@ -162,7 +162,7 @@ public partial class BoincStatsService : BackgroundService
                             var creditAverage = projectColumns[9]?.InnerText.Trim() ?? "0";
                             var creditUser = projectColumns[11]?.InnerText.Trim() ?? "0";
 
-                            var tempDetailedStatisticModel = new BoincStatsModel
+                            var tempDetailedStatisticModel = new CountryStatisticModel
                             {
                                 Rank = rank,
                                 CountryName = countryName,
@@ -174,10 +174,10 @@ public partial class BoincStatsService : BackgroundService
                                 CreditUser = creditUser
                             };
 
-                            var foundDetailedCountryStatistic = model.DetailedStatistics.FirstOrDefault(x => x.CountryName.ToLower() == countryName.ToLower());
+                            var foundDetailedCountryStatistic = model.CountryStatistics.FirstOrDefault(x => x.CountryName.ToLower() == countryName.ToLower());
                             if (foundDetailedCountryStatistic == null)
                             {
-                                await boincStatsRepository.CreateModel(
+                                await countryStatisticRepository.CreateModel(
                                     model.Id,
                                     rank,
                                     countryName,
@@ -190,9 +190,9 @@ public partial class BoincStatsService : BackgroundService
                                 );
                             }
 
-                            if (BoincProjectStatsModel.IsSameDetailedStatistic(model, tempDetailedStatisticModel) == false)
+                            if (ProjectStatisticModel.IsSameDetailedStatistic(model, tempDetailedStatisticModel) == false)
                             {
-                                await boincProjectStatsRepo.UpdateDetailedStatistics(model, tempDetailedStatisticModel);
+                                await projectStatisticRepository.UpdateDetailedStatistics(model, tempDetailedStatisticModel);
                             }
                             
                         }

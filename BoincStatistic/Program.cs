@@ -1,6 +1,6 @@
 using BoincStatistic.Database;
-using BoincStatistic.Database.BoincProjectStats;
-using BoincStatistic.Database.BoincStats;
+using BoincStatistic.Database.CountryStatistic;
+using BoincStatistic.Database.ProjectStatistic;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,8 +15,8 @@ builder.Services.AddDbContext<PostgreSqlContext>(
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IBoincStatsRepository, BoincStatsRepository>();
-builder.Services.AddScoped<IBoincProjectStatsRepo, BoincProjectStatsRepo>();
+builder.Services.AddScoped<ICountryStatisticRepository, CountryStatisticRepository>();
+builder.Services.AddScoped<IProjectStatisticRepository, ProjectStatisticRepository>();
 
 var app = builder.Build();
 

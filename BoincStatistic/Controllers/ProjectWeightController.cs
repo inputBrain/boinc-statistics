@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using BoincStatistic.Database.BoincProjectStats;
+using BoincStatistic.Database.ProjectStatistic;
 using BoincStatistic.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +8,7 @@ namespace BoincStatistic.Controllers;
 public class ProjectWeightController : Controller
 {
 private readonly ILogger<ProjectWeightController> _logger;
-    private readonly IBoincProjectStatsRepo _projectStatsRepo;
+    private readonly IProjectStatisticRepository _projectStatisticRepository;
 
     private readonly Dictionary<string, (decimal CreditsPerHour, string Type)> _creditsPerHourDictionary = new()
     {
@@ -37,23 +37,23 @@ private readonly ILogger<ProjectWeightController> _logger;
     };
 
 
-    public ProjectWeightController(ILogger<ProjectWeightController> logger, IBoincProjectStatsRepo projectStatsRepo)
+    public ProjectWeightController(ILogger<ProjectWeightController> logger, IProjectStatisticRepository projectStatisticRepository)
     {
         _logger = logger;
-        _projectStatsRepo = projectStatsRepo;
+        _projectStatisticRepository = projectStatisticRepository;
     }
 
     [Route("ua-vs-ru")]
     public async Task<IActionResult> Index()
     {
         var projectOverviewList = new List<ProjectWeightViewModel>();
-        var projectList = await _projectStatsRepo.ListAll();
+        var projectList = await _projectStatisticRepository.ListAll();
 
         foreach (var project in projectList)
         {
-            var firstCountry = project.DetailedStatistics.FirstOrDefault(x => x.Rank == "1");
-            var ukraineStats = project.DetailedStatistics.FirstOrDefault(x => x.CountryName == "Ukraine");
-            var russiaStats = project.DetailedStatistics.FirstOrDefault(x => x.CountryName == "Russian Federation");
+            var firstCountry = project.CountryStatistics.FirstOrDefault(x => x.Rank == "1");
+            var ukraineStats = project.CountryStatistics.FirstOrDefault(x => x.CountryName == "Ukraine");
+            var russiaStats = project.CountryStatistics.FirstOrDefault(x => x.CountryName == "Russian Federation");
 
             if (ukraineStats == null || russiaStats == null || firstCountry == null)
             {

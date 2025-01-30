@@ -1,5 +1,4 @@
-﻿using BoincStatistic.Database.BoincProjectStats;
-using BoincStatistic.Database.BoincStats;
+﻿using BoincStatistic.Database.ProjectStatistic;
 using BoincStatistic.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,21 +8,21 @@ public class ProjectStatsController : Controller
 {
     private readonly ILogger<ProjectStatsController> _logger;
 
-    private readonly IBoincProjectStatsRepo _boincProjectStatsRepo;
+    private readonly IProjectStatisticRepository _projectStatisticRepository;
 
 
-    public ProjectStatsController(ILogger<ProjectStatsController> logger, IBoincProjectStatsRepo boincProjectStatsRepo)
+    public ProjectStatsController(ILogger<ProjectStatsController> logger, IProjectStatisticRepository projectStatisticRepository)
     {
         _logger = logger;
-        _boincProjectStatsRepo = boincProjectStatsRepo;
+        _projectStatisticRepository = projectStatisticRepository;
     }
     
     [Route("projects")]
     public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 25)
     {
         
-        var totalRecords = await _boincProjectStatsRepo.CountAsync();
-        var boincStats = await _boincProjectStatsRepo.GetPaginatedAsync(pageNumber, pageSize);
+        var totalRecords = await _projectStatisticRepository.CountAsync();
+        var boincStats = await _projectStatisticRepository.GetPaginatedAsync(pageNumber, pageSize);
         
         var model = new BoincProjectStatsViewModel
         {

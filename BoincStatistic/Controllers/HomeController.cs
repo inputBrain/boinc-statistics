@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using BoincStatistic.Database.BoincStats;
+using BoincStatistic.Database.CountryStatistic;
 using Microsoft.AspNetCore.Mvc;
 using BoincStatistic.Models;
 
@@ -9,19 +9,19 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
 
-    private readonly IBoincStatsRepository _boincStatsRepository;
+    private readonly ICountryStatisticRepository _countryStatisticRepository;
 
 
-    public HomeController(ILogger<HomeController> logger, IBoincStatsRepository boincStatsRepository)
+    public HomeController(ILogger<HomeController> logger, ICountryStatisticRepository countryStatisticRepository)
     {
         _logger = logger;
-        _boincStatsRepository = boincStatsRepository;
+        _countryStatisticRepository = countryStatisticRepository;
     }
 
 
     public async Task<IActionResult> Index()
     {
-        var boincStats = await _boincStatsRepository.GetThreeCountryAsync(1);
+        var boincStats = await _countryStatisticRepository.GetThreeCountryAsync(1);
         
         var model = new BoincStatsViewModel
         {

@@ -1,20 +1,20 @@
-﻿using BoincStatistic.Database.BoincProjectStats;
-using BoincStatistic.Database.BoincStats;
+﻿using BoincStatistic.Database.CountryStatistic;
+using BoincStatistic.Database.ProjectStatistic;
 using Microsoft.Extensions.Logging;
 
 namespace BoincStatistic.Database;
 
 public class DatabaseFacade : IDatabaseFacade
 {
-    public IBoincStatsRepository BoincStatsRepository { get; set; }
+    public ICountryStatisticRepository CountryStatisticRepository { get; set; }
 
-    public IBoincProjectStatsRepo BoincProjectStatsRepo { get; set; }
+    public IProjectStatisticRepository ProjectStatisticRepository { get; set; }
 
 
     public DatabaseFacade(PostgreSqlContext context, ILoggerFactory loggerFactory)
     {
-        BoincStatsRepository = new BoincStatsRepository(context, loggerFactory);
-        BoincProjectStatsRepo = new BoincProjectStatsRepo(context, loggerFactory);
+        CountryStatisticRepository = new CountryStatisticRepository(context, loggerFactory);
+        ProjectStatisticRepository = new ProjectStatisticRepository(context, loggerFactory);
     }
 
 }
