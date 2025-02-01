@@ -1,10 +1,10 @@
 ﻿@{
     ViewData["Title"] = "Projects";
 }
-@model BoincProjectStatsViewModel
+@* @model BoincProjectStatsViewModel *@
+@model List<ProjectsSimpleViewModel>
 
-
-    <div class="col-md-9">
+<div class="col-md-9">
         <div class="container mt-5">
             <table class="table table-hover" id="newsTable">
                 <thead>
@@ -15,12 +15,14 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var item in Model.ProjectStats)
+                @foreach (var project in Model)
                 {
                 <tr>
-                    <td>@item.ProjectName</td>
-                    <td>@item.TotalCredit</td>
-                    <td>@item.ProjectCategory</td>
+                    <td style="@(project.HasMoreThanZeroCreditDay ? "background-color: #F57D6F" : "")">
+                        @project.ProjectName
+                    </td>
+                    <td>@project.TotalCredit</td>
+                    <td>@project.Category</td>
                 </tr>
                 }
                 </tbody>

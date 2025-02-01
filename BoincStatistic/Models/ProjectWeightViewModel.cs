@@ -18,4 +18,6 @@ public class ProjectWeightViewModel
     public string DaysToWin { get; set; }
     
     public string ProjectType { get; set; } 
+    
+    public bool HasMoreThanZeroCreditDay { get; set; }
 }

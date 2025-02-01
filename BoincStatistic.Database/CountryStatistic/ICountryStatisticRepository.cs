@@ -17,6 +17,8 @@ public interface ICountryStatisticRepository
         string creditUser
     );
 
+    Task<bool> CountCreditDayRows(int projectId);
+
 
     public Task<CountryStatisticModel> GetOneCountryStatsByCountryName(string country, int projectId);
     public Task<CountryStatisticModel> GetOneByRank(string rank, int projectId);

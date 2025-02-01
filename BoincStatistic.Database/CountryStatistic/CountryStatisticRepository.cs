@@ -38,6 +38,19 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
     }
 
 
+    public async Task<bool> CountCreditDayRows(int projectId)
+    {
+        var count = await DbModel.Where(x => x.ProjectId == projectId).CountAsync();
+        
+        var result = await DbModel
+            .Where(x => x.ProjectId == projectId)
+            .Where(x => x.CreditDay == "0")
+            .CountAsync();
+
+        return count == result;
+    }
+
+
     public async Task<CountryStatisticModel> GetOneCountryStatsByCountryName(string country, int projectId)
     {
         var model = await DbModel

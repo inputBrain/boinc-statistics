@@ -27,7 +27,9 @@
                 @foreach (var project in Model)
                 {
                     <tr>
-                        <td>@project.ProjectName</td>
+                        <td style="@(project.HasMoreThanZeroCreditDay ? "background-color: #F57D6F" : "")">
+                            @project.ProjectName
+                        </td>
                         <td>@project.CreditUA</td>
                         <td>@project.CreditRU</td>
                         <td>@project.UaWeight</td>
