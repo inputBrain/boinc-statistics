@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using BoincStatistic.Database.CountryStatistic;
 
@@ -20,4 +21,6 @@ public interface IProjectStatisticRepository
     Task<List<ProjectStatisticModel>> GetPaginatedAsync(int pageNumber, int pageSize);
 
     Task<List<ProjectStatisticModel>> ListAll();
+    
+    Task<ImmutableArray<ProjectStatisticModel>> List();
 }

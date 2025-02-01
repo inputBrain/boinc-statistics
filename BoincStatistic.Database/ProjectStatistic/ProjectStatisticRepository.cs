@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using BoincStatistic.Database.CountryStatistic;
@@ -88,5 +89,17 @@ public class ProjectStatisticRepository : AbstractRepository<ProjectStatisticMod
         return projectList
             .OrderBy(p => p.ProjectName == "Total without ASIC" ? 1 : 0)
             .ToList();
+    }
+    
+    
+    public async Task<ImmutableArray<ProjectStatisticModel>> List()
+    {
+        var collection =await DbModel
+            .OrderBy(b => b.Id)
+            .Include(x => x.CountryStatistics)
+            .AsSplitQuery()
+            .ToListAsync();
+
+        return [..collection];
     }
 }

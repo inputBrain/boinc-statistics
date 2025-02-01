@@ -1,4 +1,5 @@
-﻿using BoincStatistic.Database.CountryStatistic;
+﻿using System.Collections.Immutable;
+using BoincStatistic.Database.CountryStatistic;
 using BoincStatistic.Database.ProjectStatistic;
 using BoincStatistic.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +11,8 @@ public class ProjectStatsController : Controller
     private readonly ILogger<ProjectStatsController> _logger;
 
     private readonly IProjectStatisticRepository _projectStatisticRepository;
-    private readonly ICountryStatisticRepository _countryStatistic;
 
+    private readonly ICountryStatisticRepository _countryStatistic;
 
     public ProjectStatsController(ILogger<ProjectStatsController> logger, IProjectStatisticRepository projectStatisticRepository, ICountryStatisticRepository countryStatistic)
     {
@@ -23,35 +24,36 @@ public class ProjectStatsController : Controller
     [Route("projects")]
     public async Task<IActionResult> Index()
     {
-        // var totalRecords = await _projectStatisticRepository.CountAsync();
-        // var boincStats = await _projectStatisticRepository.GetPaginatedAsync(pageNumber, pageSize);
+        var collection = await _projectStatisticRepository.List();
+    
+        var projectIds = collection.Select(p => p.Id).ToImmutableArray();
 
-        var collection = await _projectStatisticRepository.ListAll();
+        var allCreditData = await _countryStatistic.ListAllCreditDayData(projectIds);
 
-        var viewCollection = new List<ProjectsSimpleViewModel>();
+        var creditDayCounts = allCreditData
+            .GroupBy(x => x.ProjectId)
+            .ToDictionary(
+                g => g.Key,
+                g => new
+                {
+                    TotalCount = g.Count(),
+                    CreditDayZeroCount = g.Count(x => x.CreditDay == "0")
+                });
 
-        foreach (var project in collection)
+        var viewCollection = collection.Select(project =>
         {
-            var hasMoreThanZeroCreditDay = await _countryStatistic.CountCreditDayRows(project.Id);
-
-            
-            viewCollection.Add(new ProjectsSimpleViewModel{
-                ProjectName = project.ProjectName, 
+            var stats = creditDayCounts.GetValueOrDefault(project.Id);
+            return new ProjectsSimpleViewModel
+            {
+                ProjectName = project.ProjectName,
                 TotalCredit = project.TotalCredit,
-                Category = project.ProjectCategory, 
-                HasMoreThanZeroCreditDay = hasMoreThanZeroCreditDay}
-            );
-        }
-        
-        // var model = new BoincProjectStatsViewModel
-        // {
-        //     ProjectStats = boincStats,
-        //     PageNumber = pageNumber,
-        //     PageSize = pageSize,
-        //     TotalRecords = totalRecords
-        // };
+                Category = project.ProjectCategory,
+                HasMoreThanZeroCreditDay = stats != null && stats.TotalCount == stats.CreditDayZeroCount
+            };
+        }).ToList();
 
         return View(viewCollection);
     }
+
 
 }

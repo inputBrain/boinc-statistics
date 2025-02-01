@@ -31,7 +31,9 @@ ViewData["Title"] = "UA vs #1";
                 {
                 <tr>
                     <td>@project.Country</td>
-                    <td>@project.ProjectName</td>
+                    <td style="@(project.HasMoreThanZeroCreditDay ? "background-color: #F57D6F" : "")">
+                        @project.ProjectName
+                    </td>
                     <td>@project.CreditUA</td>
                     <td>@project.CreditRU</td>
                     <td>@project.UaWeight</td>

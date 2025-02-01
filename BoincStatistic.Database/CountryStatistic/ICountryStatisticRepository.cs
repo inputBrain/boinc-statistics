@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 namespace BoincStatistic.Database.CountryStatistic;
@@ -16,16 +17,11 @@ public interface ICountryStatisticRepository
         string creditAverage,
         string creditUser
     );
-
-    Task<bool> CountCreditDayRows(int projectId);
-
-
-    public Task<CountryStatisticModel> GetOneCountryStatsByCountryName(string country, int projectId);
-    public Task<CountryStatisticModel> GetOneByRank(string rank, int projectId);
     
     public Task<List<CountryStatisticModel>> ListAllAsync();
+
+    Task<List<CountryStatisticModel>> ListAllCreditDayData(ImmutableArray<int> projectIds);
     
-    Task<int> CountAsync();
     
     Task<List<CountryStatisticModel>> GetThreeCountryAsync(int projectId);
 

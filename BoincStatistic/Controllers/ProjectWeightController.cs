@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Immutable;
+using System.Globalization;
 using BoincStatistic.Database.CountryStatistic;
 using BoincStatistic.Database.ProjectStatistic;
 using BoincStatistic.Models;
@@ -53,14 +54,35 @@ public class ProjectWeightController : Controller
     public async Task<IActionResult> Index()
     {
         var projectOverviewList = new List<ProjectWeightViewModel>();
+
         var projectList = await _projectStatisticRepository.ListAll();
+        var projectIds = projectList.Select(p => p.Id).ToImmutableArray();
+
+        var allCountryStats = await _countryStatistic.ListAllCreditDayData(projectIds);
+        
+        var countryStatsByProject = allCountryStats.GroupBy(x => x.ProjectId).ToDictionary(g => g.Key, g => g.ToList());
+
+        var creditDayCounts = allCountryStats
+            .GroupBy(x => x.ProjectId)
+            .ToDictionary(
+                g => g.Key,
+                g => new
+                {
+                    TotalCount = g.Count(),
+                    CreditDayZeroCount = g.Count(x => x.CreditDay == "0")
+                });
 
         foreach (var project in projectList)
         {
-            var hasMoreThanZeroCreditDay = await _countryStatistic.CountCreditDayRows(project.Id);
-            
-            var ukraineStats = project.CountryStatistics.FirstOrDefault(x => x.CountryName == "Ukraine");
-            var russiaStats = project.CountryStatistics.FirstOrDefault(x => x.CountryName == "Russian Federation");
+            var hasMoreThanZeroCreditDay = creditDayCounts.TryGetValue(project.Id, out var stats) && stats.TotalCount == stats.CreditDayZeroCount;
+
+            if (!countryStatsByProject.TryGetValue(project.Id, out var countryStats))
+            {
+                continue;
+            }
+
+            var ukraineStats = countryStats.FirstOrDefault(x => x.CountryName == "Ukraine");
+            var russiaStats = countryStats.FirstOrDefault(x => x.CountryName == "Russian Federation");
 
             if (ukraineStats == null || russiaStats == null)
             {
@@ -82,10 +104,7 @@ public class ProjectWeightController : Controller
             var foundDaysToWinWord = string.Empty;
             if (creditDifference < 0)
             {
-                var copyDifference = creditDifference;
-                copyDifference /= ruAverage;
-                Math.Round(copyDifference, 2);
-                
+                var copyDifference = creditDifference / ruAverage;
                 foundDaysToWinWord = _getDaysToWinCategory((double)copyDifference);
             }
 
@@ -120,7 +139,7 @@ public class ProjectWeightController : Controller
                 ProjectName = project.ProjectName,
                 UaWeight = (double)uaWeight,
                 RuWeight = (double)ruWeight,
-                CreditDifference = Math.Round((double)creditDifference, 6),
+                CreditDifference = Math.Round((double)creditDifference, 2),
                 CreditUA = ukraineStats.TotalCredit,
                 CreditRU = russiaStats.TotalCredit,
                 AvarageRU = russiaStats.CreditAvarage,

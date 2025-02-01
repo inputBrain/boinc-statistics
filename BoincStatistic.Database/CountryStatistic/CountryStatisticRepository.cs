@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -38,43 +39,6 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
     }
 
 
-    public async Task<bool> CountCreditDayRows(int projectId)
-    {
-        var count = await DbModel.Where(x => x.ProjectId == projectId).CountAsync();
-        
-        var result = await DbModel
-            .Where(x => x.ProjectId == projectId)
-            .Where(x => x.CreditDay == "0")
-            .CountAsync();
-
-        return count == result;
-    }
-
-
-    public async Task<CountryStatisticModel> GetOneCountryStatsByCountryName(string country, int projectId)
-    {
-        var model = await DbModel
-            .Where(x => x.CountryName.ToLower() == country.ToLower() && x.ProjectId == projectId)
-            .FirstOrDefaultAsync();
-        
-        if (model == null)
-        {
-            throw new Exception("Country stats is not found");
-        }
-
-        return model;
-    }
-    
-    
-    public async Task<CountryStatisticModel> GetOneByRank(string rank, int projectId)
-    {
-        var model =  await DbModel
-                                .Where(x => x.Rank == rank && x.ProjectId == projectId)
-                                .FirstOrDefaultAsync();
-        return model;
-    }
-    
-
     public async Task<List<CountryStatisticModel>> ListAllAsync()
     {
         return await DbModel.OrderBy(x => x.Id).ToListAsync();
@@ -108,6 +72,14 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
             .Where(x => x.Rank == "1" || x.CountryName == "Ukraine" || x.CountryName == "Russian Federation")
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
+            .ToListAsync();
+    }
+    
+    
+    public async Task<List<CountryStatisticModel>> ListAllCreditDayData(ImmutableArray<int> projectIds)
+    {
+        return await DbModel
+            .Where(x => projectIds.Contains(x.ProjectId))
             .ToListAsync();
     }
 }

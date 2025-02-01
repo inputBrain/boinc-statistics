@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System.Collections.Immutable;
+using System.Globalization;
+using BoincStatistic.Database.CountryStatistic;
 using BoincStatistic.Database.ProjectStatistic;
 using BoincStatistic.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,15 @@ public class UAvsTopController : Controller
 {
     private readonly ILogger<UAvsTopController> _logger;
     private readonly IProjectStatisticRepository _projectStatisticRepository;
+    private readonly ICountryStatisticRepository _countryStatistic;
 
+    public UAvsTopController(ILogger<UAvsTopController> logger, IProjectStatisticRepository projectStatisticRepository, ICountryStatisticRepository countryStatistic)
+    {
+        _logger = logger;
+        _projectStatisticRepository = projectStatisticRepository;
+        _countryStatistic = countryStatistic;
+    }
+    
     private readonly Dictionary<string, (decimal CreditsPerHour, string Type)> _creditsPerHourDictionary = new()
     {
         {"asteroids", (45, "Core")},
@@ -35,24 +45,39 @@ public class UAvsTopController : Controller
         { "numberfields", (2000, "GPU") },
         { "gpugrid", (100000, "GPU") },
     };
-
-
-    public UAvsTopController(ILogger<UAvsTopController> logger, IProjectStatisticRepository projectStatisticRepository)
-    {
-        _logger = logger;
-        _projectStatisticRepository = projectStatisticRepository;
-    }
+    
 
     [Route("ua-vs-top")]
     public async Task<IActionResult> Index()
     {
         var projectOverviewList = new List<ProjectWeightViewModel>();
         var projectList = await _projectStatisticRepository.ListAll();
+        var projectIds = projectList.Select(p => p.Id).ToImmutableArray();
+
+        var allCountryStats = await _countryStatistic.ListAllCreditDayData(projectIds);
+        var countryStatsByProject = allCountryStats.GroupBy(x => x.ProjectId).ToDictionary(g => g.Key, g => g.ToList());
+        
+        var creditDayCounts = allCountryStats
+            .GroupBy(x => x.ProjectId)
+            .ToDictionary(
+                g => g.Key,
+                g => new
+                {
+                    TotalCount = g.Count(),
+                    CreditDayZeroCount = g.Count(x => x.CreditDay == "0")
+                });
 
         foreach (var project in projectList)
         {
-            var topCountryStats = project.CountryStatistics.FirstOrDefault(x => x.Rank == "1");
-            var ukraineStats = project.CountryStatistics.FirstOrDefault(x => x.CountryName == "Ukraine");
+            var hasMoreThanZeroCreditDay = creditDayCounts.TryGetValue(project.Id, out var stats) && stats.TotalCount == stats.CreditDayZeroCount;
+            
+            if (!countryStatsByProject.TryGetValue(project.Id, out var countryStats))
+            {
+                continue;
+            }
+
+            var topCountryStats = countryStats.FirstOrDefault(x => x.Rank == "1");
+            var ukraineStats = countryStats.FirstOrDefault(x => x.CountryName == "Ukraine");
 
             if (ukraineStats == null || topCountryStats == null)
             {
@@ -113,7 +138,7 @@ public class UAvsTopController : Controller
                 ProjectName = project.ProjectName,
                 UaWeight = (double)uaWeight,
                 RuWeight = (double)topCountryWeight,
-                CreditDifference = Math.Round((double)creditDifference, 6),
+                CreditDifference = Math.Round((double)creditDifference, 2),
                 CreditUA = ukraineStats.TotalCredit,
                 CreditRU = topCountryStats.TotalCredit,
                 AvarageRU = topCountryStats.CreditAvarage,
@@ -123,7 +148,8 @@ public class UAvsTopController : Controller
                 MWtPerHourCpu = (double)mwth,
                 DevicesToOvercome = (double)devicesToOvercome,
                 DaysToWin = daysToWinAsString,
-                ProjectType = projectType
+                ProjectType = projectType,
+                HasMoreThanZeroCreditDay = hasMoreThanZeroCreditDay
             });
         }
 
