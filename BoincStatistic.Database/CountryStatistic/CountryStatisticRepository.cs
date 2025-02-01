@@ -51,12 +51,13 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
     }
 
     
-    public async Task<List<CountryStatisticModel>> GetThreeCountryAsync(int projectId)
+    public async Task<List<CountryStatisticModel>> GetThreeCountryAsync()
     {
+        var targetCountries = new[] { "Ukraine", "Russian Federation" };
+
         return await DbModel
-            .OrderBy(b => b.Id)
-            .Where(x => x.ProjectId == projectId)
-            .Where(x => x.Rank == "1" || x.CountryName == "Ukraine" || x.CountryName == "Russian Federation")
+            .Where(x => x.Rank == "1" || targetCountries.Contains(x.CountryName))
+            .OrderBy(x => x.Id)
             .Take(3)
             .ToListAsync();
     }

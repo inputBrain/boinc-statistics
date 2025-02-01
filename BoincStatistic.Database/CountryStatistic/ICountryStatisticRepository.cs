@@ -23,7 +23,7 @@ public interface ICountryStatisticRepository
     Task<List<CountryStatisticModel>> ListAllCreditDayData(ImmutableArray<int> projectIds);
     
     
-    Task<List<CountryStatisticModel>> GetThreeCountryAsync(int projectId);
+    Task<List<CountryStatisticModel>> GetThreeCountryAsync();
 
     Task<List<CountryStatisticModel>> GetPaginatedAsync(int pageNumber, int pageSize);
 }
