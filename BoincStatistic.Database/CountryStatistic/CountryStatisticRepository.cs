@@ -82,5 +82,13 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
         return await DbModel
             .Where(x => projectIds.Contains(x.ProjectId))
             .ToListAsync();
+    }    
+    
+    public async Task<List<CountryStatisticModel>> ListAllCreditDayData(int projectId, ImmutableArray<string> countryNames)
+    {
+        return await DbModel
+            .Where(x => x.ProjectId == projectId)
+            .Where(x => countryNames.Contains(x.CountryName))
+            .ToListAsync();
     }
 }

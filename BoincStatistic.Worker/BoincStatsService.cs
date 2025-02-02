@@ -36,8 +36,8 @@ public partial class BoincStatsService : BackgroundService
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
             
-            var boincStatsRepository = context.Db.CountryStatisticRepository;
-            var boincProjectStatsRepository = context.Db.ProjectStatisticRepository;
+            var countryStatisticRepository = context.Db.CountryStatisticRepository;
+            var projectStatisticRepository = context.Db.ProjectStatisticRepository;
             
 
             // var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
@@ -54,7 +54,7 @@ public partial class BoincStatsService : BackgroundService
             //
             // await Task.Delay(delay, stoppingToken);
             
-            await _processScrapping(boincStatsRepository,boincProjectStatsRepository, stoppingToken);
+            await _processScrapping(countryStatisticRepository,projectStatisticRepository, stoppingToken);
         }
     }
 
@@ -66,14 +66,22 @@ public partial class BoincStatsService : BackgroundService
         var htmlDocument = new HtmlDocument();
         const int pageSize = 100;
         const int maxPages = 3;
+        var regex = MyRegex();
 
-        var collection = ProjectAPIModel.ProjectListData();
+        // var collection = ProjectAPIModel.ProjectListData();
+
+        var collection = await projectStatisticRepository.List();
+        await projectStatisticRepository.SetToAllProjectsInWaitingStatus();
         
-        foreach (var apiModel in collection)
+        
+        
+        foreach (var dbModel in collection)
         {
-            Console.WriteLine($"Processing page with offset: {apiModel.ProjectUrl}");
+            await projectStatisticRepository.SetProjectStatus(dbModel, ScrappingStatus.InProcess);
+            
+            Console.WriteLine($"Processing page with offset: {dbModel.ProjectStatisticUrl}");
 
-            var html = await Client.GetStringAsync(apiModel.ProjectUrl, cancellationToken);
+            var html = await Client.GetStringAsync(dbModel.ProjectStatisticUrl, cancellationToken);
 
             htmlDocument.LoadHtml(html);
 
@@ -99,28 +107,21 @@ public partial class BoincStatsService : BackgroundService
                 if (columns == null || (columns[0]?.InnerText != "Total credit"))
                     continue;
 
-                var match = MyRegex().Match(columns[1]?.InnerText.Trim() ?? "0");
+                var matchTotalCredit = regex.Match(columns[1]?.InnerText.Trim() ?? "0");
 
-                if (match.Success)
-                {
-                    var model = await projectStatisticRepository.GetOneByName(apiModel.ProjectName);
-
-                    if (model != null)
+                    if (dbModel != null)
                     {
-                        if (ProjectStatisticModel.IsSameTotalStatsModel(model, apiModel.ProjectName, apiModel.Category, match.Value) == false)
+                        if (ProjectStatisticModel.IsSameTotalStatsModel(dbModel,  matchTotalCredit.Value) == false)
                         {
-                            await projectStatisticRepository.UpdateModel(model, apiModel.ProjectName, apiModel.Category, match.Value);
+                            await projectStatisticRepository.UpdateModel(dbModel, matchTotalCredit.Value);
                         }
                     }
-                    else
-                    {
-                        model = await projectStatisticRepository.CreateModel(apiModel.ProjectName, apiModel.Category, match.Value);
-                    }
+
                     
                     for (var page = 0; page < maxPages; page++)
                     {
                         var offset = page * pageSize;
-                        var url = $"{apiModel.CountryStatsUrl}/0/{offset}";
+                        var url = $"{dbModel.CountryStatisticUrl}/0/{offset}";
                         Console.WriteLine($"Processing page with offset: {url}");
 
                         var htmlDetailedPage = await Client.GetStringAsync(url, cancellationToken);
@@ -210,150 +211,151 @@ public partial class BoincStatsService : BackgroundService
             // await Task.Delay(delay, cancellationToken);
 
         }
-    }
-
     [GeneratedRegex(@"^\d{1,3}(,\d{3})*")]
     private static partial Regex MyRegex();
-    
-    
-    
-    internal class ProjectAPIModel
-    {
-        public string ProjectUrl { get; set; }
-        
-        public string CountryStatsUrl { get; set; }
-
-        public string ProjectName { get; set; }
-
-        public string Category { get; set; }
-
-
-        public static List<ProjectAPIModel> ProjectListData()
-        {
-            var collection = new List<ProjectAPIModel>
-            {
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/45/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/45/country/list",
-                    ProjectName = "GPUGRID",
-                    Category = "Biology"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/122/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/122/country/list",
-                    ProjectName = "NumberFields",
-                    Category = "Mathematics"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/88/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/88/country/list",
-                    ProjectName = "NFS",
-                    Category = "Mathematics"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/-5/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/-5/country/list",
-                    ProjectName = "Total without ASIC",
-                    Category = "Uncategorized"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/134/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/134/country/list",
-                    ProjectName = "Asteroids",
-                    Category = "Astrophysics"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/2/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/2/country/list",
-                    ProjectName = "Climate Prediction",
-                    Category = "Earth Sciences"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/199/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/199/country/list",
-                    ProjectName = "LODA",
-                    Category = "Artificial intelligence"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/61/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/61/country/list",
-                    ProjectName = "Milkyway",
-                    Category = "Astrophysics"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/14/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/14/country/list",
-                    ProjectName = "Rosetta",
-                    Category = "Biology"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/15/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/15/country/list",
-                    ProjectName = "World Community Grid",
-                    Category = "Umbrella project"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/121/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/121/country/list",
-                    ProjectName = "YAFU",
-                    Category = "Mathematics"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/52/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/52/country/list",
-                    ProjectName = "Yoyo",
-                    Category = "Umbrella project"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/172/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/172/country/list",
-                    ProjectName = "Amicable Numbers",
-                    Category = "Mathematics"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/5/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/5/country/list",
-                    ProjectName = "Einstein",
-                    Category = "Astrophysics"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/114/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/114/country/list",
-                    ProjectName = "Moo! Wrapper",
-                    Category = "Mathematics"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/11/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/11/country/list",
-                    ProjectName = "PrimeGrid",
-                    Category = "Mathematics"
-                },
-                new()
-                {
-                    ProjectUrl = "https://www.boincstats.com/stats/3/project/detail/",
-                    CountryStatsUrl = "https://www.boincstats.com/stats/3/country/list",
-                    ProjectName = "LHC",
-                    Category = "Physics"
-                },
-            };
-
-            return collection;
-        }
     }
+
+
+    
+
+
+    // internal class ProjectAPIModel
+    // {
+    //     public string ProjectUrl { get; set; }
+    //     
+    //     public string CountryStatsUrl { get; set; }
+    //
+    //     public string ProjectName { get; set; }
+    //
+    //     public string Category { get; set; }
+    //
+    //
+    //     public static List<ProjectAPIModel> ProjectListData()
+    //     {
+    //         var collection = new List<ProjectAPIModel>
+    //         {
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/45/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/45/country/list",
+    //                 ProjectName = "GPUGRID",
+    //                 Category = "Biology"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/122/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/122/country/list",
+    //                 ProjectName = "NumberFields",
+    //                 Category = "Mathematics"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/88/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/88/country/list",
+    //                 ProjectName = "NFS",
+    //                 Category = "Mathematics"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/-5/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/-5/country/list",
+    //                 ProjectName = "Total without ASIC",
+    //                 Category = "Uncategorized"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/134/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/134/country/list",
+    //                 ProjectName = "Asteroids",
+    //                 Category = "Astrophysics"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/2/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/2/country/list",
+    //                 ProjectName = "Climate Prediction",
+    //                 Category = "Earth Sciences"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/199/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/199/country/list",
+    //                 ProjectName = "LODA",
+    //                 Category = "Artificial intelligence"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/61/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/61/country/list",
+    //                 ProjectName = "Milkyway",
+    //                 Category = "Astrophysics"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/14/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/14/country/list",
+    //                 ProjectName = "Rosetta",
+    //                 Category = "Biology"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/15/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/15/country/list",
+    //                 ProjectName = "World Community Grid",
+    //                 Category = "Umbrella project"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/121/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/121/country/list",
+    //                 ProjectName = "YAFU",
+    //                 Category = "Mathematics"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/52/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/52/country/list",
+    //                 ProjectName = "Yoyo",
+    //                 Category = "Umbrella project"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/172/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/172/country/list",
+    //                 ProjectName = "Amicable Numbers",
+    //                 Category = "Mathematics"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/5/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/5/country/list",
+    //                 ProjectName = "Einstein",
+    //                 Category = "Astrophysics"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/114/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/114/country/list",
+    //                 ProjectName = "Moo! Wrapper",
+    //                 Category = "Mathematics"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/11/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/11/country/list",
+    //                 ProjectName = "PrimeGrid",
+    //                 Category = "Mathematics"
+    //             },
+    //             new()
+    //             {
+    //                 ProjectUrl = "https://www.boincstats.com/stats/3/project/detail/",
+    //                 CountryStatsUrl = "https://www.boincstats.com/stats/3/country/list",
+    //                 ProjectName = "LHC",
+    //                 Category = "Physics"
+    //             },
+    //         };
+    //
+    //         return collection;
+    //     }
+    // }
 }

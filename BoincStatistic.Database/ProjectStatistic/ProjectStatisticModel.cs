@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -14,9 +15,25 @@ public class ProjectStatisticModel : AbstractModel
     
     public string ProjectName { get; set; }
     
-    public string ProjectCategory { get; set; }
+    public string ProjectStatisticUrl { get; set; }
+
+    public string CountryStatisticUrl { get; set; }
     
-    public string TotalCredit { get; set; }
+    public string? ProjectCategory { get; set; }
+    
+    public string? TotalCredit { get; set; }
+
+    public ProjectType Type { get; set; }
+    
+    public int Divider { get; set; }
+    
+    public int DefaultDivider { get; set; }
+
+    public ScrappingStatus Status { get; set; }
+
+    public DateTimeOffset CreatedAt { get; set; }
+
+    public DateTimeOffset UpdatedAt { get; set; }
     
     public List<CountryStatisticModel> CountryStatistics { get; set; }
 
@@ -33,18 +50,14 @@ public class ProjectStatisticModel : AbstractModel
     }
     
     
-    public static bool IsSameTotalStatsModel(ProjectStatisticModel model, string projectName, string projectCategory, string totalCredit)
+    public static bool IsSameTotalStatsModel(ProjectStatisticModel model, string totalCredit)
     {
-        return model.ProjectName == projectName &&
-               model.ProjectCategory == projectCategory &&
-               model.TotalCredit == totalCredit;
+        return model.TotalCredit == totalCredit;
     }
     
     
-    public void UpdateTotalStatsModel(ProjectStatisticModel model, string projectName, string projectCategory, string totalCredit)
+    public void UpdateTotalStatsModel(ProjectStatisticModel model,  string totalCredit)
     {
-        model.ProjectName = projectName;
-        model.ProjectCategory = projectCategory;
         model.TotalCredit = totalCredit;
     }
     
