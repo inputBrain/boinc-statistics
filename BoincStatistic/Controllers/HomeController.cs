@@ -21,7 +21,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var boincStats = await _countryStatisticRepository.GetThreeCountryAsync(1);
+        var boincStats = await _countryStatisticRepository.GetThreeCountryAsync();
         
         var model = new BoincStatsViewModel
         {
