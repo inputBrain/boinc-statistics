@@ -40,4 +40,7 @@ public class CountryStatisticModel : AbstractModel
             CreditUser = creditUser
         };
     }
+    
+    
+    
 }

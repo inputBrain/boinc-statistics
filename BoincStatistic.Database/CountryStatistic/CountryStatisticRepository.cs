@@ -67,14 +67,7 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
     {
         return await DbModel.OrderBy(x => x.Id).ToListAsync();
     }
-    
-    
-    public async Task<int> CountAsync()
-    {
-        return await DbModel.CountAsync();
-    }
 
-    
     public async Task<List<CountryStatisticModel>> GetThreeCountryAsync()
     {
         var targetCountries = new[] { "Ukraine", "Russian Federation" };
@@ -87,9 +80,6 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
     }
     
 
-
-    
-    
     public async Task<List<CountryStatisticModel>> GetPaginatedAsync(int pageNumber, int pageSize)
     {
         return await DbModel
@@ -108,11 +98,4 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
             .ToListAsync();
     }    
     
-    public async Task<List<CountryStatisticModel>> ListAllCreditDayData(int projectId, ImmutableArray<string> countryNames)
-    {
-        return await DbModel
-            .Where(x => x.ProjectId == projectId)
-            .Where(x => countryNames.Contains(x.CountryName))
-            .ToListAsync();
-    }
 }

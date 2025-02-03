@@ -159,6 +159,7 @@ public partial class BoincStatsService : BackgroundService
 
                         var apiModel = new CountryStatisticModel
                         {
+                            ProjectId = project.Id,
                             Rank = projectColumns[3]?.InnerText.Trim() ?? "0",
                             CountryName = projectColumns[4]?.InnerText.Trim() ?? "Unknown",
                             TotalCredit = projectColumns[5]?.InnerText.Trim() ?? "0",
@@ -174,7 +175,7 @@ public partial class BoincStatsService : BackgroundService
                         if (foundCountry == null)
                         {
                             var newCountry = CountryStatisticModel.CreateModel(
-                                project.Id,
+                                apiModel.ProjectId,
                                 apiModel.Rank,
                                 apiModel.CountryName,
                                 apiModel.TotalCredit,
@@ -192,6 +193,13 @@ public partial class BoincStatsService : BackgroundService
                             preparedCountriesToUpdate.Add(apiModel);
                         }
                     }
+                    
+                    
+                    _logger.LogInformation($"NEXT PAGE!!!! WAIT for 5 sec before next request...");
+                    await Task.Delay(5_000, cancellationToken);
+                    
+                    
+                    
                 }
                 if (preparedNewCountries.Any())
                 {
@@ -214,13 +222,17 @@ public partial class BoincStatsService : BackgroundService
                 
                 // var paginationDelay = random.Next(7 * 60 * 1000, 12 * 60 * 1000);
                 // _logger.LogInformation($"Waiting for {paginationDelay / 1000 / 60} minutes before next request...");
-                _logger.LogInformation($"Waiting for 5 sec before next request...");
-                await Task.Delay(5_000, cancellationToken);
+                // _logger.LogInformation($"Waiting for 5 sec before next request...");
+                // await Task.Delay(5_000, cancellationToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing project: {Url}", project.ProjectStatisticUrl);
             }
+            
+            _logger.LogInformation($"================ NEXT PROJECT  for 10 sec before next request...");
+            await Task.Delay(10_000, cancellationToken);
+            
         }
         
         _logger.LogInformation("Scraping completed.");
