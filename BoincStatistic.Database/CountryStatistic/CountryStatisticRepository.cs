@@ -39,6 +39,30 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
     }
 
 
+    public async Task<bool> CreateBulk(ImmutableArray<CountryStatisticModel> models)
+    {
+        var result = await CreateBulkModelsAsync(models);
+        if (result == null)
+        {
+            throw new Exception("BitFlyer currency bids collection is not created");
+        }
+
+        return true;
+    }
+    
+    
+    public async Task<bool> UpdateBulk(ImmutableArray<CountryStatisticModel> models)
+    {
+        var result = await UpdateBulkModelsAsync(models);
+        if (result == null)
+        {
+            throw new Exception("BitFlyer currency bids collection is not updated");
+        }
+
+        return true;
+    }
+
+
     public async Task<List<CountryStatisticModel>> ListAllAsync()
     {
         return await DbModel.OrderBy(x => x.Id).ToListAsync();

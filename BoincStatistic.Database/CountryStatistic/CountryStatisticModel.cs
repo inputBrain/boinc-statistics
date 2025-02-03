@@ -23,10 +23,6 @@ public class CountryStatisticModel : AbstractModel
     public string CreditMonth { get; set; }
     public string CreditAvarage { get; set; }
     public string CreditUser { get; set; }
-    
-    public DateTimeOffset CreatedAt { get; set; }
-    
-    public DateTimeOffset UpdatedAt { get; set; }
 
 
     public static CountryStatisticModel CreateModel(int projectId, string rank, string countryName, string totalCredit, string creditDay, string creditWeek, string creditMonth, string creditAvarage, string creditUser)
