@@ -68,7 +68,7 @@ public class ProjectStatisticModel : AbstractModel
     public static bool IsSameDetailedStatistic(ProjectStatisticModel model, CountryStatisticModel apiModel)
     {
     
-        var foundStats = model.CountryStatistics.FirstOrDefault(x => x.CountryName.ToLower() == apiModel.CountryName.ToLower());
+        var foundStats = model.CountryStatistics.FirstOrDefault(x => x.CountryName.Equals(apiModel.CountryName, StringComparison.CurrentCultureIgnoreCase));
 
         return foundStats?.Rank == apiModel.Rank &&
                foundStats.CountryName == apiModel.CountryName &&

@@ -70,24 +70,25 @@ public partial class BoincStatsService : BackgroundService
 
         // var collection = ProjectAPIModel.ProjectListData();
 
+        var preparedNewCountries = new List<CountryStatisticModel>();
+        var preparedCountriesToUpdate = new List<CountryStatisticModel>();
+        
+        
         var collection = await projectStatisticRepository.List();
+        
+        
         await projectStatisticRepository.SetToAllProjectsInWaitingStatus();
         
         
         
-        foreach (var dbModel in collection)
+        foreach (var model in collection)
         {
-            await projectStatisticRepository.SetProjectStatus(dbModel, ScrappingStatus.InProcess);
-            
-            Console.WriteLine($"Processing page with offset: {dbModel.ProjectStatisticUrl}");
-
-            var html = await Client.GetStringAsync(dbModel.ProjectStatisticUrl, cancellationToken);
-
+            await projectStatisticRepository.SetProjectStatus(model, ScrappingStatus.InProcess);
+            Console.WriteLine($"Processing page with offset: {model.ProjectStatisticUrl}");
+            var html = await Client.GetStringAsync(model.ProjectStatisticUrl, cancellationToken);
             htmlDocument.LoadHtml(html);
-
+            
             var table = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='tablescroller']//table[@id='tblStats']");
-
-
             if (table == null)
             {
                 Console.WriteLine("No table found, stopping.");
@@ -109,99 +110,99 @@ public partial class BoincStatsService : BackgroundService
 
                 var matchTotalCredit = regex.Match(columns[1]?.InnerText.Trim() ?? "0");
 
-                    if (dbModel != null)
+                if (ProjectStatisticModel.IsSameTotalStatsModel(model, matchTotalCredit.Value) == false)
+                {
+                    await projectStatisticRepository.UpdateModel(model, matchTotalCredit.Value);
+                }
+                
+            }
+
+
+            for (var page = 0; page < maxPages; page++)
                     {
-                        if (ProjectStatisticModel.IsSameTotalStatsModel(dbModel,  matchTotalCredit.Value) == false)
-                        {
-                            await projectStatisticRepository.UpdateModel(dbModel, matchTotalCredit.Value);
-                        }
+                    var offset = page * pageSize;
+                    var url = $"{model.CountryStatisticUrl}/0/{offset}";
+                    Console.WriteLine($"Processing page with offset: {url}");
+
+                    var htmlDetailedPage = await Client.GetStringAsync(url, cancellationToken);
+                    
+                    // 7 -12 min
+                    var paginationDelay = random.Next(7 * 60 * 1000, 12 * 60 * 1000);
+                    _logger.LogInformation($"Paginated page = Waiting for {paginationDelay / 1000 / 60} minutes before processing the next page...");
+                    // await Task.Delay(paginationDelay, cancellationToken);
+                    
+                    htmlDocument.LoadHtml(htmlDetailedPage);
+
+                    var tableDetailedPage = htmlDocument.DocumentNode.SelectSingleNode("//table[@id='tblStats']/tbody");
+                    if (tableDetailedPage == null)
+                    {
+                        Console.WriteLine("No table found, stopping.");
+                        continue;
                     }
 
-                    
-                    for (var page = 0; page < maxPages; page++)
+                    var trs = tableDetailedPage.SelectNodes(".//tr");
+                    if (trs == null || trs.Count == 0)
                     {
-                        var offset = page * pageSize;
-                        var url = $"{dbModel.CountryStatisticUrl}/0/{offset}";
-                        Console.WriteLine($"Processing page with offset: {url}");
+                        Console.WriteLine("No rows found, stopping.");
+                        break;
+                    }
 
-                        var htmlDetailedPage = await Client.GetStringAsync(url, cancellationToken);
+                    foreach (var tr in trs)
+                    {
+                        var projectColumns = tr.SelectNodes(".//td");
+                        if (projectColumns == null || projectColumns.Count < 14) 
+                            continue;
                         
-                        // 7 -12 min
-                        var paginationDelay = random.Next(7 * 60 * 1000, 12 * 60 * 1000);
-                        _logger.LogInformation($"Paginated page = Waiting for {paginationDelay / 1000 / 60} minutes before processing the next page...");
-                        // await Task.Delay(paginationDelay, cancellationToken);
                         
-                        htmlDocument.LoadHtml(htmlDetailedPage);
+                        var rank = projectColumns[3]?.InnerText.Trim() ?? "0";
+                        var countryName = projectColumns[4]?.InnerText.Trim() ?? "0";
+                        var totalCredit = projectColumns[5]?.InnerText.Trim() ?? "0";
+                        var creditDay = projectColumns[6]?.InnerText.Trim() ?? "0";
+                        var creditWeek = projectColumns[7]?.InnerText.Trim() ?? "0";
+                        var creditMonth = projectColumns[8]?.InnerText.Trim() ?? "0";
+                        var creditAverage = projectColumns[9]?.InnerText.Trim() ?? "0";
+                        var creditUser = projectColumns[11]?.InnerText.Trim() ?? "0";
 
-                        var tableDetailedPage = htmlDocument.DocumentNode.SelectSingleNode("//table[@id='tblStats']/tbody");
-                        if (tableDetailedPage == null)
+                        var apiModel = new CountryStatisticModel
                         {
-                            Console.WriteLine("No table found, stopping.");
+                            Rank = rank,
+                            CountryName = countryName,
+                            TotalCredit = totalCredit,
+                            CreditDay = creditDay,
+                            CreditWeek = creditWeek,
+                            CreditMonth = creditMonth,
+                            CreditAvarage = creditAverage,
+                            CreditUser = creditUser
+                        };
+
+                        var foundCountry = model.CountryStatistics.FirstOrDefault(x => x.CountryName.Equals(countryName, StringComparison.CurrentCultureIgnoreCase));
+                        if (foundCountry == null)
+                        {
+                            var newCountry = CountryStatisticModel.CreateModel(
+                                model.Id,
+                                rank,
+                                countryName,
+                                totalCredit,
+                                creditDay,
+                                creditWeek,
+                                creditMonth,
+                                creditAverage,
+                                creditUser
+                            );
+                            
+                            preparedNewCountries.Add(newCountry);
                             continue;
                         }
 
-                        var trs = tableDetailedPage.SelectNodes(".//tr");
-                        if (trs == null || trs.Count == 0)
+                        
+                        if (ProjectStatisticModel.IsSameDetailedStatistic(model, apiModel) == false)
                         {
-                            Console.WriteLine("No rows found, stopping.");
-                            break;
+                            
+                            await projectStatisticRepository.UpdateDetailedStatistics(model, apiModel);
                         }
-
-                        foreach (var tr in trs)
-                        {
-                            var projectColumns = tr.SelectNodes(".//td");
-                            if (projectColumns == null || projectColumns.Count < 14) 
-                                continue;
-                            
-                            
-                            var rank = projectColumns[3]?.InnerText.Trim() ?? "0";
-                            var countryName = projectColumns[4]?.InnerText.Trim() ?? "0";
-                            var totalCredit = projectColumns[5]?.InnerText.Trim() ?? "0";
-                            var creditDay = projectColumns[6]?.InnerText.Trim() ?? "0";
-                            var creditWeek = projectColumns[7]?.InnerText.Trim() ?? "0";
-                            var creditMonth = projectColumns[8]?.InnerText.Trim() ?? "0";
-                            var creditAverage = projectColumns[9]?.InnerText.Trim() ?? "0";
-                            var creditUser = projectColumns[11]?.InnerText.Trim() ?? "0";
-
-                            var tempDetailedStatisticModel = new CountryStatisticModel
-                            {
-                                Rank = rank,
-                                CountryName = countryName,
-                                TotalCredit = totalCredit,
-                                CreditDay = creditDay,
-                                CreditWeek = creditWeek,
-                                CreditMonth = creditMonth,
-                                CreditAvarage = creditAverage,
-                                CreditUser = creditUser
-                            };
-
-                            var foundDetailedCountryStatistic = model.CountryStatistics.FirstOrDefault(x => x.CountryName.ToLower() == countryName.ToLower());
-                            if (foundDetailedCountryStatistic == null)
-                            {
-                                await countryStatisticRepository.CreateModel(
-                                    model.Id,
-                                    rank,
-                                    countryName,
-                                    totalCredit,
-                                    creditDay,
-                                    creditWeek,
-                                    creditMonth,
-                                    creditAverage,
-                                    creditUser
-                                );
-                            }
-
-                            if (ProjectStatisticModel.IsSameDetailedStatistic(model, tempDetailedStatisticModel) == false)
-                            {
-                                await projectStatisticRepository.UpdateDetailedStatistics(model, tempDetailedStatisticModel);
-                            }
-                            
-                        }
+                        
+                        
                     }
-                }
-                else
-                {
-                    Console.WriteLine("Number not found.");
                 }
             }
             
