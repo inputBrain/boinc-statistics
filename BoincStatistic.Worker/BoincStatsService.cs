@@ -39,20 +39,20 @@ public partial class BoincStatsService : BackgroundService
             var countryStatisticRepository = context.Db.CountryStatisticRepository;
             var projectStatisticRepository = context.Db.ProjectStatisticRepository;
             
-            //
-            // var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
-            // var nextRunTime = kievTime.Date.AddHours(5);
-            //
-            // if (kievTime.Hour >= 5)
-            // {
-            //     nextRunTime = nextRunTime.AddDays(1);
-            // }
-            //
-            // var delay = nextRunTime - kievTime;
-            //
-            // _logger.LogInformation($"\n ----- Scrapping completed. Next run time will be at: {nextRunTime:HH:mm:ss}. On: ( {nextRunTime:D} )----- \n");
-            //
-            // await Task.Delay(delay, stoppingToken);
+            
+            var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
+            var nextRunTime = kievTime.Date.AddHours(5);
+            
+            if (kievTime.Hour >= 5)
+            {
+                nextRunTime = nextRunTime.AddDays(1);
+            }
+            
+            var delay = nextRunTime - kievTime;
+            
+            _logger.LogInformation($"\n ----- Scrapping completed. Next run time will be at: {nextRunTime:HH:mm:ss}. On: ( {nextRunTime:D} )----- \n");
+            
+            await Task.Delay(delay, stoppingToken);
             
             await _processScrapping(countryStatisticRepository,projectStatisticRepository, stoppingToken);
         }
@@ -204,10 +204,10 @@ public partial class BoincStatsService : BackgroundService
                     }
                     
                     // 7 -12 min
-                    // var paginationDelay = random.Next(7 * 60 * 1000, 12 * 60 * 1000);
-                    // _logger.LogInformation($"Paginated page = Waiting for {paginationDelay / 1000 / 60} minutes before processing the next page...");
-                    // await Task.Delay(paginationDelay, cancellationToken);
-                    await Task.Delay(3_000, cancellationToken);
+                    var paginationDelay = random.Next(7 * 60 * 1000, 12 * 60 * 1000);
+                    _logger.LogInformation($"Paginated page = Waiting for {paginationDelay / 1000 / 60} minutes before processing the next page...");
+                    await Task.Delay(paginationDelay, cancellationToken);
+                    // await Task.Delay(3_000, cancellationToken);
                     
                 }
                 if (preparedNewCountries.Any())
@@ -235,8 +235,8 @@ public partial class BoincStatsService : BackgroundService
             //51 min - 1.20 h
             var delay = random.Next(51 * 60 * 1000, 80 * 60 * 1000); 
             _logger.LogInformation($"Waiting for {delay / 1000 / 60} minutes before processing the next project...");
-            // await Task.Delay(delay, cancellationToken);
-            await Task.Delay(15_000, cancellationToken);
+            await Task.Delay(delay, cancellationToken);
+            // await Task.Delay(15_000, cancellationToken);
 
 
         }
