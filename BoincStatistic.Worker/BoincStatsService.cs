@@ -40,19 +40,19 @@ public partial class BoincStatsService : BackgroundService
             var projectStatisticRepository = context.Db.ProjectStatisticRepository;
             
 
-            // var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
-            // var nextRunTime = kievTime.Date.AddHours(5);
-            //
-            // if (kievTime.Hour >= 5)
-            // {
-            //     nextRunTime = nextRunTime.AddDays(1);
-            // }
-            //
-            // var delay = nextRunTime - kievTime;
-            //
-            // _logger.LogInformation($"\n ----- Scrapping completed. Next run time will be at: {nextRunTime:HH:mm:ss}. On: ( {nextRunTime:D} )----- \n");
-            //
-            // await Task.Delay(delay, stoppingToken);
+            var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
+            var nextRunTime = kievTime.Date.AddHours(5);
+            
+            if (kievTime.Hour >= 5)
+            {
+                nextRunTime = nextRunTime.AddDays(1);
+            }
+            
+            var delay = nextRunTime - kievTime;
+            
+            _logger.LogInformation($"\n ----- Scrapping completed. Next run time will be at: {nextRunTime:HH:mm:ss}. On: ( {nextRunTime:D} )----- \n");
+            
+            await Task.Delay(delay, stoppingToken);
             
             await _processScrapping(countryStatisticRepository,projectStatisticRepository, stoppingToken);
         }
@@ -204,8 +204,8 @@ public partial class BoincStatsService : BackgroundService
                     }
 
 
-                    // _logger.LogInformation($"NEXT PAGE!!!! WAIT for 5 sec before next request...");
-                    // await Task.Delay(5_000, cancellationToken);
+                    _logger.LogInformation($"NEXT PAGE!!!! WAIT for 5 sec before next request...");
+                    await Task.Delay(5_000, cancellationToken);
 
 
                 }
@@ -238,14 +238,12 @@ public partial class BoincStatsService : BackgroundService
                 _logger.LogError(ex, "Error processing project: {Url}", project.ProjectStatisticUrl);
             }
 
-            // _logger.LogInformation($"================ NEXT PROJECT  for 10 sec before next request...");
-            // await Task.Delay(10_000, cancellationToken);
+            _logger.LogInformation($"================ NEXT PROJECT  for 10 sec before next request...");
+            await Task.Delay(10_000, cancellationToken);
 
         }
 
         _logger.LogInformation("Scraping completed.");
-        _logger.LogInformation($"================ NEXT PROJECT  for 10 sec before next request...");
-        await Task.Delay(10_000, cancellationToken);
     }
 
     [GeneratedRegex(@"^\d{1,3}(,\d{3})*")]
