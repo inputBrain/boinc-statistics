@@ -11,6 +11,9 @@ public interface IProjectStatisticRepository
     public Task<ProjectStatisticModel> CreateModel(string name, string category, string totalCredit);
     
     public Task UpdateModel(ProjectStatisticModel model, string totalCredit);
+    
+    Task<bool> UpdateBulk(ImmutableArray<ProjectStatisticModel> models);
+
 
     public Task UpdateDetailedStatistics(ProjectStatisticModel model, CountryStatisticModel apiModel);
     

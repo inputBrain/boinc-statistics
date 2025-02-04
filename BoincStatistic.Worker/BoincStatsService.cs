@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -60,7 +59,6 @@ public partial class BoincStatsService : BackgroundService
     }
 
 
-
     private async Task _processScrapping(
         ICountryStatisticRepository countryStatisticRepository,
         IProjectStatisticRepository projectStatisticRepository,
@@ -77,7 +75,7 @@ public partial class BoincStatsService : BackgroundService
         var preparedCountriesToUpdate = new List<CountryStatisticModel>();
 
         var collection = await projectStatisticRepository.List();
-        
+
         await projectStatisticRepository.SetToAllProjectsInWaitingStatus();
 
         foreach (var project in collection)
@@ -190,16 +188,26 @@ public partial class BoincStatsService : BackgroundService
                         }
                         else if (!ProjectStatisticModel.IsSameDetailedStatistic(project, apiModel))
                         {
-                            preparedCountriesToUpdate.Add(apiModel);
+                            foundCountry.Update(
+                                foundCountry,
+                                apiModel.Rank,
+                                apiModel.CountryName,
+                                apiModel.TotalCredit,
+                                apiModel.CreditDay,
+                                apiModel.CreditWeek,
+                                apiModel.CreditMonth,
+                                apiModel.CreditAvarage,
+                                apiModel.CreditUser
+                            );
+                            preparedCountriesToUpdate.Add(foundCountry);
                         }
                     }
-                    
-                    
-                    _logger.LogInformation($"NEXT PAGE!!!! WAIT for 5 sec before next request...");
-                    await Task.Delay(5_000, cancellationToken);
-                    
-                    
-                    
+
+
+                    // _logger.LogInformation($"NEXT PAGE!!!! WAIT for 5 sec before next request...");
+                    // await Task.Delay(5_000, cancellationToken);
+
+
                 }
                 if (preparedNewCountries.Any())
                 {
@@ -207,19 +215,19 @@ public partial class BoincStatsService : BackgroundService
                     _logger.LogInformation("Added {Count} new country records.", preparedNewCountries.Count);
                     preparedNewCountries.Clear();
                 }
-        
+
                 if (preparedCountriesToUpdate.Any())
                 {
                     await countryStatisticRepository.UpdateBulk([..preparedCountriesToUpdate]);
                     _logger.LogInformation("Updated {Count} country records.", preparedCountriesToUpdate.Count);
-                    
+
                     preparedCountriesToUpdate.Clear();
                 }
-                
+
                 await projectStatisticRepository.SetProjectStatus(project, ScrappingStatus.Completed);
                 _logger.LogInformation("Project {ProjectName} marked as Completed.", project.ProjectName);
-                
-                
+
+
                 // var paginationDelay = random.Next(7 * 60 * 1000, 12 * 60 * 1000);
                 // _logger.LogInformation($"Waiting for {paginationDelay / 1000 / 60} minutes before next request...");
                 // _logger.LogInformation($"Waiting for 5 sec before next request...");
@@ -229,13 +237,15 @@ public partial class BoincStatsService : BackgroundService
             {
                 _logger.LogError(ex, "Error processing project: {Url}", project.ProjectStatisticUrl);
             }
-            
-            _logger.LogInformation($"================ NEXT PROJECT  for 10 sec before next request...");
-            await Task.Delay(10_000, cancellationToken);
-            
+
+            // _logger.LogInformation($"================ NEXT PROJECT  for 10 sec before next request...");
+            // await Task.Delay(10_000, cancellationToken);
+
         }
-        
+
         _logger.LogInformation("Scraping completed.");
+        _logger.LogInformation($"================ NEXT PROJECT  for 10 sec before next request...");
+        await Task.Delay(10_000, cancellationToken);
     }
 
     [GeneratedRegex(@"^\d{1,3}(,\d{3})*")]

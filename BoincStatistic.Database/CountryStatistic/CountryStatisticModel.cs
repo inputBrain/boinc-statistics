@@ -40,7 +40,18 @@ public class CountryStatisticModel : AbstractModel
             CreditUser = creditUser
         };
     }
-    
-    
+
+
+    public void Update(CountryStatisticModel model, string rank, string countryName, string totalCredit, string creditDay, string creditWeek, string creditMonth, string creditAvarage, string creditUser)
+    {
+        model.Rank = rank;
+        model.CountryName = countryName;
+        model.TotalCredit = totalCredit;
+        model.CreditDay = creditDay;
+        model.CreditWeek = creditWeek;
+        model.CreditMonth = creditMonth;
+        model.CreditAvarage = creditAvarage;
+        model.CreditUser = creditUser;
+    }
     
 }
