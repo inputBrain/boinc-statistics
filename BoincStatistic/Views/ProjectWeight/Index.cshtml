@@ -27,7 +27,8 @@
                 @foreach (var project in Model)
                 {
                     <tr>
-                        <td style="@(project.HasMoreThanZeroCreditDay ? "background-color: #F57D6F" : "")">
+                        <td style="@(project.HasMoreThanZeroCreditDay ? "background-color: #F57D6F;" : "") cursor: pointer;"
+                            onclick="window.open('@project.CountryStatsUrl', '_blank')">
                             @project.ProjectName
                         </td>
                         <td>@project.CreditUA</td>

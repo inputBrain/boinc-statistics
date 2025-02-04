@@ -3,6 +3,7 @@
 public class ProjectsSimpleViewModel
 {
     public string ProjectName { get; set; }
+    public string ProjectStatsUrl { get; set; }
     
     public string TotalCredit { get; set; }
     
