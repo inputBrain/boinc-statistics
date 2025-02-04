@@ -24,36 +24,35 @@ public class ProjectStatsController : Controller
     [Route("projects")]
     public async Task<IActionResult> Index()
     {
-        var collection = await _projectStatisticRepository.List();
+        var viewCollection = new List<ProjectsSimpleViewModel>();
     
-        var projectIds = collection.Select(p => p.Id).ToImmutableArray();
+        var collection = await _projectStatisticRepository.List();
 
-        var allCreditData = await _countryStatistic.ListAllCreditDayData(projectIds);
-
-        var creditDayCounts = allCreditData
-            .GroupBy(x => x.ProjectId)
-            .ToDictionary(
-                g => g.Key,
-                g => new
-                {
-                    TotalCount = g.Count(),
-                    CreditDayZeroCount = g.Count(x => x.CreditDay == "0")
-                });
-
-        var viewCollection = collection.Select(project =>
+        foreach (var project in collection)
         {
-            var stats = creditDayCounts.GetValueOrDefault(project.Id);
-            return new ProjectsSimpleViewModel
+            var totalCount = 0;
+            var creditDayZeroCount = 0;
+
+            foreach (var stat in project.CountryStatistics)
+            {
+                totalCount++;
+                if (stat.CreditDay == "0")
+                {
+                    creditDayZeroCount++;
+                }
+            }
+
+            var isAllCreditDayZero = totalCount == creditDayZeroCount;
+
+            viewCollection.Add(new ProjectsSimpleViewModel
             {
                 ProjectName = project.ProjectName,
                 TotalCredit = project.TotalCredit,
                 Category = project.ProjectCategory,
-                HasMoreThanZeroCreditDay = stats != null && stats.TotalCount == stats.CreditDayZeroCount
-            };
-        }).ToList();
+                HasMoreThanZeroCreditDay = isAllCreditDayZero
+            });
+        }
 
         return View(viewCollection);
     }
-
-
 }

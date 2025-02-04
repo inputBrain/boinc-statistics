@@ -56,33 +56,25 @@ public class ProjectWeightController : Controller
         var projectOverviewList = new List<ProjectWeightViewModel>();
 
         var projectList = await _projectStatisticRepository.ListAll();
-        var projectIds = projectList.Select(p => p.Id).ToImmutableArray();
-
-        var allCountryStats = await _countryStatistic.ListAllCreditDayData(projectIds);
-        
-        var countryStatsByProject = allCountryStats.GroupBy(x => x.ProjectId).ToDictionary(g => g.Key, g => g.ToList());
-
-        var creditDayCounts = allCountryStats
-            .GroupBy(x => x.ProjectId)
-            .ToDictionary(
-                g => g.Key,
-                g => new
-                {
-                    TotalCount = g.Count(),
-                    CreditDayZeroCount = g.Count(x => x.CreditDay == "0")
-                });
 
         foreach (var project in projectList)
         {
-            var hasMoreThanZeroCreditDay = creditDayCounts.TryGetValue(project.Id, out var stats) && stats.TotalCount == stats.CreditDayZeroCount;
+            var totalCount = 0;
+            var creditDayZeroCount = 0;
 
-            if (!countryStatsByProject.TryGetValue(project.Id, out var countryStats))
+            foreach (var stat in project.CountryStatistics)
             {
-                continue;
+                totalCount++;
+                if (stat.CreditDay == "0")
+                {
+                    creditDayZeroCount++;
+                }
             }
 
-            var ukraineStats = countryStats.FirstOrDefault(x => x.CountryName == "Ukraine");
-            var russiaStats = countryStats.FirstOrDefault(x => x.CountryName == "Russian Federation");
+            var isAllCreditDayZero = totalCount == creditDayZeroCount;
+            
+            var ukraineStats = project.CountryStatistics.FirstOrDefault(x => x.CountryName == "Ukraine");
+            var russiaStats = project.CountryStatistics.FirstOrDefault(x => x.CountryName == "Russian Federation");
 
             if (ukraineStats == null || russiaStats == null)
             {
@@ -150,7 +142,7 @@ public class ProjectWeightController : Controller
                 DevicesToOvercome = (double)devicesToOvercome,
                 DaysToWin = daysToWinAsString,
                 ProjectType = projectType,
-                HasMoreThanZeroCreditDay = hasMoreThanZeroCreditDay
+                HasMoreThanZeroCreditDay = isAllCreditDayZero
             });
         }
 
