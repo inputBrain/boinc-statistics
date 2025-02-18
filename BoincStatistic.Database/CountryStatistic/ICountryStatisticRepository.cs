@@ -18,6 +18,9 @@ public interface ICountryStatisticRepository
         string creditUser
     );
     
+    Task<bool> CreateBulk(ImmutableArray<CountryStatisticModel> models);
+    Task<bool> UpdateBulk(ImmutableArray<CountryStatisticModel> models);
+    
     public Task<List<CountryStatisticModel>> ListAllAsync();
 
     Task<List<CountryStatisticModel>> ListAllCreditDayData(ImmutableArray<int> projectIds);

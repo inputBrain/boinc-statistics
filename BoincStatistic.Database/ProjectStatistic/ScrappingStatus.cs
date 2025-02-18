@@ -1,4 +1,4 @@
-﻿namespace BoincStatistic.Database.ProjectConfig;
+﻿namespace BoincStatistic.Database.ProjectStatistic;
 
 public enum ScrappingStatus
 {

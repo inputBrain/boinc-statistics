@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Globalization;
-using BoincStatistic.Database.CountryStatistic;
+﻿using System.Globalization;
 using BoincStatistic.Database.ProjectStatistic;
 using BoincStatistic.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -11,73 +9,38 @@ public class UAvsTopController : Controller
 {
     private readonly ILogger<UAvsTopController> _logger;
     private readonly IProjectStatisticRepository _projectStatisticRepository;
-    private readonly ICountryStatisticRepository _countryStatistic;
 
-    public UAvsTopController(ILogger<UAvsTopController> logger, IProjectStatisticRepository projectStatisticRepository, ICountryStatisticRepository countryStatistic)
+    public UAvsTopController(ILogger<UAvsTopController> logger, IProjectStatisticRepository projectStatisticRepository)
     {
         _logger = logger;
         _projectStatisticRepository = projectStatisticRepository;
-        _countryStatistic = countryStatistic;
     }
-    
-    private readonly Dictionary<string, (decimal CreditsPerHour, string Type)> _creditsPerHourDictionary = new()
-    {
-        {"asteroids", (45, "Core")},
-        {"climate prediction", (70, "Core")},
-        {"loda", (50, "Core")},
-        {"milkyway", (50, "Core")},
-        {"nfs", (90, "Core")},
-        {"rosetta", (40, "Core")},
-        {"world community grid", (50, "Core")},
-        {"yafu", (40, "Core")},
-        {"yoyo", (40, "Core")},
-        {"lhc", (40, "Core")}
-    };
 
-
-    private readonly Dictionary<string, (decimal CreditsPerHour, string Type)> _gpuProjects = new()
-    {
-        { "amicable numbers", (55000, "GPU") },
-        { "einstein", (20000, "GPU") },
-        { "total without asic", (22500, "GPU") },
-        { "moo! wrapper", (45000, "GPU") },
-        { "primegrid", (7500, "GPU") },
-        { "numberfields", (2000, "GPU") },
-        { "gpugrid", (100000, "GPU") },
-    };
-    
 
     [Route("ua-vs-top")]
     public async Task<IActionResult> Index()
     {
         var projectOverviewList = new List<ProjectWeightViewModel>();
         var projectList = await _projectStatisticRepository.ListAll();
-        var projectIds = projectList.Select(p => p.Id).ToImmutableArray();
-
-        var allCountryStats = await _countryStatistic.ListAllCreditDayData(projectIds);
-        var countryStatsByProject = allCountryStats.GroupBy(x => x.ProjectId).ToDictionary(g => g.Key, g => g.ToList());
-        
-        var creditDayCounts = allCountryStats
-            .GroupBy(x => x.ProjectId)
-            .ToDictionary(
-                g => g.Key,
-                g => new
-                {
-                    TotalCount = g.Count(),
-                    CreditDayZeroCount = g.Count(x => x.CreditDay == "0")
-                });
 
         foreach (var project in projectList)
         {
-            var hasMoreThanZeroCreditDay = creditDayCounts.TryGetValue(project.Id, out var stats) && stats.TotalCount == stats.CreditDayZeroCount;
-            
-            if (!countryStatsByProject.TryGetValue(project.Id, out var countryStats))
+            var totalCount = 0;
+            var creditDayZeroCount = 0;
+
+            foreach (var stat in project.CountryStatistics)
             {
-                continue;
+                totalCount++;
+                if (stat.CreditDay == "0")
+                {
+                    creditDayZeroCount++;
+                }
             }
 
-            var topCountryStats = countryStats.FirstOrDefault(x => x.Rank == "1");
-            var ukraineStats = countryStats.FirstOrDefault(x => x.CountryName == "Ukraine");
+            var isAllCreditDayZero = totalCount == creditDayZeroCount;
+            
+            var topCountryStats = project.CountryStatistics.FirstOrDefault(x => x.Rank == "1");
+            var ukraineStats = project.CountryStatistics.FirstOrDefault(x => x.CountryName == "Ukraine");
 
             if (ukraineStats == null || topCountryStats == null)
             {
@@ -105,17 +68,14 @@ public class UAvsTopController : Controller
                 
                 foundDaysToWinWord = _getDaysToWinCategory((double)copyDifference);
             }
-
-            var isGpuProject = _gpuProjects.TryGetValue(project.ProjectName.ToLower(), out var gpuInfo);
-            var projectInfo = isGpuProject ? gpuInfo : (_creditsPerHourDictionary.TryGetValue(project.ProjectName.ToLower(), out var coreInfo) ? coreInfo : (22500, "Core"));
             
-            var creditsPerHour = projectInfo.CreditsPerHour;
-            var projectType = projectInfo.Type;
+            var creditsPerHour = project.Divider;
+            var projectType = project.Type;
             var taskHours = Math.Round(creditDifference / creditsPerHour, 0);
 
             var yearsDifference = Math.Round(taskHours / 8760, 2);
 
-            var mwthMultiplier = isGpuProject ? 150 : 7;
+            var mwthMultiplier = project.Type == ProjectType.GPU ? 150 : 7;
             
             _logger.LogDebug($"\nProject: {project.ProjectName}. MWt/h multiplier: {mwthMultiplier}");
             
@@ -148,8 +108,8 @@ public class UAvsTopController : Controller
                 MWtPerHourCpu = (double)mwth,
                 DevicesToOvercome = (double)devicesToOvercome,
                 DaysToWin = daysToWinAsString,
-                ProjectType = projectType,
-                HasMoreThanZeroCreditDay = hasMoreThanZeroCreditDay
+                ProjectType = projectType == ProjectType.GPU ? "GPU" : "Core",
+                HasMoreThanZeroCreditDay = isAllCreditDayZero
             });
         }
 

@@ -39,24 +39,40 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
     }
 
 
+    public async Task<bool> CreateBulk(ImmutableArray<CountryStatisticModel> models)
+    {
+        var result = await CreateBulkModelsAsync(models);
+        if (result == null)
+        {
+            throw new Exception("BitFlyer currency bids collection is not created");
+        }
+
+        return true;
+    }
+    
+    
+    public async Task<bool> UpdateBulk(ImmutableArray<CountryStatisticModel> models)
+    {
+        var result = await UpdateBulkModelsAsync(models);
+        if (result == null)
+        {
+            throw new Exception("BitFlyer currency bids collection is not updated");
+        }
+
+        return true;
+    }
+
+
     public async Task<List<CountryStatisticModel>> ListAllAsync()
     {
         return await DbModel.OrderBy(x => x.Id).ToListAsync();
     }
-    
-    
-    public async Task<int> CountAsync()
-    {
-        return await DbModel.CountAsync();
-    }
 
-    
     public async Task<List<CountryStatisticModel>> GetThreeCountryAsync()
     {
         var targetCountries = new[] { "Ukraine", "Russian Federation" };
 
         return await DbModel
-            .Where(x => x.ProjectId == 1)
             .Where(x => x.Rank == "1" || targetCountries.Contains(x.CountryName))
             .OrderBy(x => x.Id)
             .Take(3)
@@ -64,9 +80,6 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
     }
     
 
-
-    
-    
     public async Task<List<CountryStatisticModel>> GetPaginatedAsync(int pageNumber, int pageSize)
     {
         return await DbModel
@@ -83,5 +96,6 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
         return await DbModel
             .Where(x => projectIds.Contains(x.ProjectId))
             .ToListAsync();
-    }
+    }    
+    
 }

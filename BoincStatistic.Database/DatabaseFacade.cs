@@ -11,6 +11,7 @@ public class DatabaseFacade : IDatabaseFacade
     public IProjectStatisticRepository ProjectStatisticRepository { get; set; }
 
 
+
     public DatabaseFacade(PostgreSqlContext context, ILoggerFactory loggerFactory)
     {
         CountryStatisticRepository = new CountryStatisticRepository(context, loggerFactory);

@@ -47,13 +47,24 @@ public class ProjectStatisticRepository : AbstractRepository<ProjectStatisticMod
     }
 
     
-    public async Task UpdateModel(ProjectStatisticModel model, string name, string category, string totalCredit)
+    public async Task UpdateModel(ProjectStatisticModel model, string totalCredit)
     {
-        model.UpdateTotalStatsModel(model, name, category, totalCredit);
+        model.UpdateTotalStatsModel(model, totalCredit);
         await UpdateModelAsync(model);
     }
-    
-    
+
+
+    public async Task<bool> UpdateBulk(ImmutableArray<ProjectStatisticModel> models)
+    {
+        var result = await UpdateBulkModelsAsync(models);
+        if (result == null)
+        {
+            throw new Exception("BitFlyer currency bids collection is not updated");
+        }
+
+        return true;
+    }
+
     public async Task UpdateDetailedStatistics(ProjectStatisticModel model, CountryStatisticModel apiModel)
     {
         model.UpdateDetailedStatistics(model, apiModel);
@@ -64,6 +75,19 @@ public class ProjectStatisticRepository : AbstractRepository<ProjectStatisticMod
     public async Task<int> CountAsync()
     {
         return await DbModel.CountAsync();
+    }
+
+
+    public async Task SetProjectStatus(ProjectStatisticModel model, ScrappingStatus scrappingStatus)
+    {
+        model.Status = scrappingStatus;
+        await UpdateModelAsync(model);
+    }
+
+
+    public async Task SetToAllProjectsInWaitingStatus()
+    {
+        await DbModel.ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, ScrappingStatus.InWaiting));
     }
 
 

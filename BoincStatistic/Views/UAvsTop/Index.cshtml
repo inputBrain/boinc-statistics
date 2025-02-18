@@ -1,57 +1,57 @@
 ﻿@model List<ProjectWeightViewModel>
 @{
-ViewData["Title"] = "UA vs #1";
+    ViewData["Title"] = "UA vs #1";
 }
 
-
-    <div class="col-md-9">
-        <div class="container mt-5">
-            <table class="table table-hover" id="newsTable">
-                <thead>
-                <tr>
-                    <th>#1</th>
-                    <th>Project</th>
-                    <th>UA Credit</th>
-                    <th>#1 Credit</th>
-                    <th>UA Weight (%)</th>
-                    <th>#1 Weight (%)</th>
-                    <th>Credit Difference</th>
-                    <th>UA Average</th>
-                    <th>#1 Average</th>
-                    <th>Task Hours</th>
-                    <th>Years</th>
-                    <th>MWt/h</th>
-                    <th>Devices to Overcome</th>
-                    <th>Type</th>
-                    <th>Days To Win</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var project in Model)
-                {
-                <tr>
-                    <td>@project.Country</td>
-                    <td style="@(project.HasMoreThanZeroCreditDay ? "background-color: #F57D6F" : "")">
-                        @project.ProjectName
-                    </td>
-                    <td>@project.CreditUA</td>
-                    <td>@project.CreditRU</td>
-                    <td>@project.UaWeight</td>
-                    <td>@project.RuWeight</td>
-                    <td>@project.CreditDifference</td>
-                    <td>@project.AvarageUA</td>
-                    <td>@project.AvarageRU</td>
-                    <td>@project.TaskHours</td>
-                    <td>@project.YearsDifference</td>
-                    <td>@project.MWtPerHourCpu</td>
-                    <td>@project.DevicesToOvercome</td>
-                    <td>@project.ProjectType</td>
-                    <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "background-color: #e6ffe6;text-align: center;" : "")">
-                        @project.DaysToWin
-                    </td>
-                </tr>
-                }
-                </tbody>
-            </table>
-        </div>
+<div class="col-md-9">
+    <div class="container mt-5">
+        <table class="table table-hover" id="newsTable">
+            <thead>
+            <tr>
+                <th>#1</th>
+                <th>Project</th>
+                <th>UA Credit</th>
+                <th>#1 Credit</th>
+                <th>UA Weight (%)</th>
+                <th>#1 Weight (%)</th>
+                <th>Credit Difference</th>
+                <th>UA Average</th>
+                <th>#1 Average</th>
+                <th>Task Hours</th>
+                <th>Years</th>
+                <th>MWt/h</th>
+                <th>Devices to Overcome</th>
+                <th>Type</th>
+                <th>Days To Win</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var project in Model)
+            {
+            <tr>
+                <td>@project.Country</td>
+                <td style="@(project.HasMoreThanZeroCreditDay ? "background-color: #F57D6F;" : "") cursor: pointer;"
+                    onclick="window.open('@project.CountryStatsUrl', '_blank')">
+                    @project.ProjectName
+                </td>
+                <td>@project.CreditUA</td>
+                <td>@project.CreditRU</td>
+                <td>@project.UaWeight</td>
+                <td>@project.RuWeight</td>
+                <td>@project.CreditDifference</td>
+                <td>@project.AvarageUA</td>
+                <td>@project.AvarageRU</td>
+                <td>@project.TaskHours</td>
+                <td>@project.YearsDifference</td>
+                <td>@project.MWtPerHourCpu</td>
+                <td>@project.DevicesToOvercome</td>
+                <td>@project.ProjectType</td>
+                <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "background-color: #e6ffe6;text-align: center;" : "")">
+                    @project.DaysToWin
+                </td>
+            </tr>
+            }
+            </tbody>
+        </table>
     </div>
+</div>
