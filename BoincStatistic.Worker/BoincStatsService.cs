@@ -225,7 +225,11 @@ public partial class BoincStatsService : BackgroundService
                 }
 
                 await projectStatisticRepository.SetProjectStatus(project, ScrappingStatus.Completed);
-                _logger.LogInformation("Project {ProjectName} marked as Completed.", project.ProjectName);
+                
+                var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
+                await projectStatisticRepository.UpdateUpdateAt(project, kievTime);
+                
+                _logger.LogInformation("\nProject {ProjectName} marked as Completed\n", project.ProjectName);
             }
             catch (Exception ex)
             {

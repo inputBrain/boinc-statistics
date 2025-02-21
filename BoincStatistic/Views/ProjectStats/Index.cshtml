@@ -2,6 +2,7 @@
     ViewData["Title"] = "Projects";
 }
 @* @model BoincProjectStatsViewModel *@
+@using BoincStatistic.Database.ProjectStatistic
 @model List<ProjectsSimpleViewModel>
 
 <div class="col-md-9">
@@ -12,6 +13,8 @@
                     <th>Project Name</th>
                     <th>Total Credit</th>
                     <th>Project Category</th>
+                    <th>Scrapping</th>
+                    <th>Last update</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -24,6 +27,19 @@
                     </td>
                     <td>@project.TotalCredit</td>
                     <td>@project.Category</td>
+                    <td>
+                        @{
+                        var statusClass = project.Status switch
+                        {
+                        ScrappingStatus.InProcess => "bg-warning text-dark",
+                        ScrappingStatus.Completed => "bg-success text-white",
+                        ScrappingStatus.InWaiting => "bg-secondary-subtle text-white",
+                        _ => "bg-light text-dark"
+                        };
+                        }
+                        <span class="badge @statusClass">@project.Status</span>
+                    </td>
+                    <td>@project.UpdatedAt.ToString("dd-MMM-yy hh:mm")</td>
                 </tr>
                 }
                 </tbody>

@@ -60,9 +60,6 @@ public class ProjectStatisticModel : AbstractModel
     {
         model.TotalCredit = totalCredit;
     }
-    
-    
-    
 
     
     public static bool IsSameDetailedStatistic(ProjectStatisticModel model, CountryStatisticModel apiModel)

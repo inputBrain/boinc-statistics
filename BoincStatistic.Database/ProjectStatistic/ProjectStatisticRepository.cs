@@ -65,6 +65,14 @@ public class ProjectStatisticRepository : AbstractRepository<ProjectStatisticMod
         return true;
     }
 
+
+    public async Task UpdateUpdateAt(ProjectStatisticModel model, DateTimeOffset updatedAt)
+    {
+        model.UpdatedAt = updatedAt;
+        await UpdateModelAsync(model);
+    }
+
+
     public async Task UpdateDetailedStatistics(ProjectStatisticModel model, CountryStatisticModel apiModel)
     {
         model.UpdateDetailedStatistics(model, apiModel);

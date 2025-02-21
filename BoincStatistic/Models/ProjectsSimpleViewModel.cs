@@ -1,4 +1,6 @@
-﻿namespace BoincStatistic.Models;
+﻿using BoincStatistic.Database.ProjectStatistic;
+
+namespace BoincStatistic.Models;
 
 public class ProjectsSimpleViewModel
 {
@@ -8,6 +10,10 @@ public class ProjectsSimpleViewModel
     public string TotalCredit { get; set; }
     
     public string Category { get; set; }
+    
+    public ScrappingStatus Status { get; set; }
+    
+    public DateTimeOffset UpdatedAt { get; set; }
     
     public bool HasMoreThanZeroCreditDay { get; set; }
 }

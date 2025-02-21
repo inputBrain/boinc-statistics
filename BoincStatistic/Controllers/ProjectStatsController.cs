@@ -50,6 +50,8 @@ public class ProjectStatsController : Controller
                 ProjectStatsUrl = project.ProjectStatisticUrl,
                 TotalCredit = project.TotalCredit,
                 Category = project.ProjectCategory,
+                Status = project.Status,
+                UpdatedAt = project.UpdatedAt,
                 HasMoreThanZeroCreditDay = isAllCreditDayZero
             });
         }

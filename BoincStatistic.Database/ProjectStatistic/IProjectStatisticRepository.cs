@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using BoincStatistic.Database.CountryStatistic;
@@ -14,7 +15,8 @@ public interface IProjectStatisticRepository
     
     Task<bool> UpdateBulk(ImmutableArray<ProjectStatisticModel> models);
 
-
+    Task UpdateUpdateAt(ProjectStatisticModel model, DateTimeOffset updatedAt);
+    
     public Task UpdateDetailedStatistics(ProjectStatisticModel model, CountryStatisticModel apiModel);
     
     public Task<ProjectStatisticModel> GetOneByName(string projectName);
