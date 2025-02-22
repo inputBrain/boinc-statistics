@@ -16,4 +16,11 @@ public class ProjectsSimpleViewModel
     public DateTimeOffset UpdatedAt { get; set; }
     
     public bool HasMoreThanZeroCreditDay { get; set; }
+
+
+    public DateTimeOffset GetKyivTime()
+    {
+        var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
+        return TimeZoneInfo.ConvertTime(UpdatedAt, userTimeZone);
+    }
 }

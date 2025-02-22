@@ -39,7 +39,7 @@
                         }
                         <span class="badge @statusClass">@project.Status</span>
                     </td>
-                    <td>@project.UpdatedAt.ToString("dd-MMM-yy hh:mm")</td>
+                    <td>@project.GetKyivTime().ToString("dd-MMM-yy HH:mm")</td>
                 </tr>
                 }
                 </tbody>

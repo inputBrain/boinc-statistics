@@ -68,7 +68,7 @@ public partial class BoincStatsService : BackgroundService
         var random = new Random();
         var htmlDocument = new HtmlDocument();
         const int pageSize = 100;
-        const int maxPages = 3;
+        const int maxPages = 2;
         var regex = MyRegex();
 
         var preparedNewCountries = new List<CountryStatisticModel>();
@@ -226,8 +226,7 @@ public partial class BoincStatsService : BackgroundService
 
                 await projectStatisticRepository.SetProjectStatus(project, ScrappingStatus.Completed);
                 
-                var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
-                await projectStatisticRepository.UpdateUpdateAt(project, kievTime);
+                await projectStatisticRepository.UpdateUpdateAt(project, DateTime.UtcNow);
                 
                 _logger.LogInformation("\nProject {ProjectName} marked as Completed\n", project.ProjectName);
             }
