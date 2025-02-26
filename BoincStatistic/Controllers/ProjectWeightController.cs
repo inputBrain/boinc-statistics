@@ -91,6 +91,11 @@ public class ProjectWeightController : Controller
                 daysToWinAsString = foundDaysToWinWord;
             }
 
+            if (isAllCreditDayZero)
+            {
+                daysToWinAsString = "0";
+            }
+
             projectOverviewList.Add(new ProjectWeightViewModel {
                 ProjectName = project.ProjectName,
                 ProjectStatsUrl = project.ProjectStatisticUrl,

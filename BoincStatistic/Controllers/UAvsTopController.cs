@@ -93,6 +93,11 @@ public class UAvsTopController : Controller
                 daysToWinAsString = foundDaysToWinWord;
             }
 
+            if (isAllCreditDayZero)
+            {
+                daysToWinAsString = "0";
+            }
+            
             projectOverviewList.Add(new ProjectWeightViewModel {
                 Country = topCountryStats.CountryName,
                 ProjectName = project.ProjectName,
