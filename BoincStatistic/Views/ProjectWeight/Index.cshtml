@@ -1,4 +1,4 @@
-﻿@model List<ProjectWeightViewModel>
+﻿@model CountryVSCountryViewModel
 @{
     ViewData["Title"] = "UA vs RU";
 }
@@ -24,7 +24,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var project in Model)
+                @foreach (var project in Model.Collection)
                 {
                     <tr>
                         <td style="@(project.HasMoreThanZeroCreditDay ? "background-color: #F57D6F;" : "") cursor: pointer;"
@@ -48,6 +48,42 @@
                         </td>
                     </tr>
                 }
+                </tbody>
+                <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b>Total:</b></td>
+                        <td>@Model.TotalSumModel.TotalCreditUA</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>@Model.TotalSumModel.TotalAvarageUA</td>
+                        <td>@Model.TotalSumModel.TotalAvarageRU</td>
+                        <td>@Model.TotalSumModel.TotalTaskHours</td>
+                        <td></td>
+                        <td>@Model.TotalSumModel.TotalMWtPerHourCpu</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
                 </tbody>
             </table>
         </div>

@@ -20,7 +20,16 @@ public class ProjectWeightController : Controller
     [Route("ua-vs-ru")]
     public async Task<IActionResult> Index()
     {
-        var projectOverviewList = new List<ProjectWeightViewModel>();
+        decimal totalUACredit = 0;
+        decimal totalRUCredit = 0;
+        decimal totalUAAvg = 0;
+        decimal totalRUAvg = 0;
+        decimal totalUAWeight = 0;
+        decimal totalRUWeight = 0;
+        decimal totalMwt = 0;
+        decimal totalDevices = 0;
+        
+        var projectOverviewList = new CountryVSCountryViewModel();
 
         var projectList = await _projectStatisticRepository.ListAll();
 
@@ -50,13 +59,23 @@ public class ProjectWeightController : Controller
 
             var uaCredit = decimal.Parse(ukraineStats.TotalCredit.Replace(",", ""));
             var ruCredit = decimal.Parse(russiaStats.TotalCredit.Replace(",", ""));
+
+            totalUACredit += uaCredit;
+            totalRUCredit += ruCredit;
+            
             var totalCredit = decimal.Parse(project.TotalCredit.Replace(",", ""));
 
             var uaAverage = decimal.Parse(ukraineStats.CreditAvarage.Replace(",", ""));
             var ruAverage = decimal.Parse(russiaStats.CreditAvarage.Replace(",", ""));
 
+            totalUAAvg += uaAverage;
+            totalRUAvg += ruAverage;
+
             var uaWeight = Math.Round((uaCredit / totalCredit) * 100, 2);
             var ruWeight = Math.Round((ruCredit / totalCredit) * 100, 2);
+
+            totalUAWeight += uaWeight;
+            totalRUWeight += ruWeight;
 
             var creditDifference = ruCredit - uaCredit;
 
@@ -79,11 +98,15 @@ public class ProjectWeightController : Controller
             
             var mwth = Math.Ceiling(taskHours * mwthMultiplier / 1000000 * 100) / 100;
 
+            totalMwt += mwth;
 
             var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : 0;
             // var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : Math.Round(creditDifference / (uaAverage - ruAverage), 0);
 
             var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
+
+            totalDevices += devicesToOvercome;
+            
             var daysToWinAsString = daysToWin.ToString(CultureInfo.InvariantCulture);
 
             if (string.IsNullOrEmpty(foundDaysToWinWord) == false)
@@ -96,7 +119,7 @@ public class ProjectWeightController : Controller
                 daysToWinAsString = "0";
             }
 
-            projectOverviewList.Add(new ProjectWeightViewModel {
+            projectOverviewList.Collection.Add(new ProjectWeightViewModel {
                 ProjectName = project.ProjectName,
                 ProjectStatsUrl = project.ProjectStatisticUrl,
                 CountryStatsUrl = project.CountryStatisticUrl,
@@ -117,6 +140,17 @@ public class ProjectWeightController : Controller
             });
         }
 
+        projectOverviewList.TotalSumModel = new TotalSumModel
+        {
+            TotalUaWeight = (double) totalUAWeight,
+            TotalRuWeight = (double) totalRUWeight,
+            TotalCreditDifference = (double) totalRUWeight,
+            TotalCreditUA = totalUACredit.ToString(CultureInfo.InvariantCulture),
+            TotalCreditRU = totalRUCredit.ToString(CultureInfo.InvariantCulture),
+            TotalAvarageUA = totalUAAvg.ToString(CultureInfo.InvariantCulture),
+            TotalAvarageRU = totalRUAvg.ToString(CultureInfo.InvariantCulture),
+        };
+        
         return View(projectOverviewList);
     }
     
