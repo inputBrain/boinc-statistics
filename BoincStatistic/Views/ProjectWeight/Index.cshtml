@@ -1,90 +1,257 @@
 ﻿@model CountryVSCountryViewModel
 @{
-    ViewData["Title"] = "UA vs RU";
+ViewData["Title"] = "UA vs RU";
 }
-    <div class="col-md-9">
-        <div class="container mt-5">
-            <table class="table table-hover" id="newsTable">
-                <thead>
-                <tr>
-                    <th>Project</th>
-                    <th>UA Credit</th>
-                    <th>RU Credit</th>
-                    <th>UA Weight (%)</th>
-                    <th>RU Weight (%)</th>
-                    <th>Credit Difference</th>
-                    <th>UA Average</th>
-                    <th>RU Average</th>
-                    <th>Task Hours</th>
-                    <th>Years</th>
-                    <th>MWt/h</th>
-                    <th>Devices to Overcome</th>
-                    <th>Type</th>
-                    <th>Days To Win</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var project in Model.Collection)
-                {
-                    <tr>
-                        <td style="@(project.HasMoreThanZeroCreditDay ? "background-color: #F57D6F;" : "") cursor: pointer;"
-                            onclick="window.open('@project.CountryStatsUrl', '_blank')">
-                            @project.ProjectName
-                        </td>
-                        <td>@project.CreditUA</td>
-                        <td>@project.CreditRU</td>
-                        <td>@project.UaWeight</td>
-                        <td>@project.RuWeight</td>
-                        <td>@project.CreditDifference</td>
-                        <td>@project.AvarageUA</td>
-                        <td>@project.AvarageRU</td>
-                        <td>@project.TaskHours</td>
-                        <td>@project.YearsDifference</td>
-                        <td>@project.MWtPerHourCpu</td>
-                        <td>@project.DevicesToOvercome</td>
-                        <td>@project.ProjectType</td>
-                        <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "background-color: #e6ffe6;text-align: center;" : "")">
-                            @project.DaysToWin
-                        </td>
-                    </tr>
-                }
-                </tbody>
-                <thead>
-                <tr>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><b>Total:</b></td>
-                        <td>@Model.TotalSumModel.TotalCreditUA</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>@Model.TotalSumModel.TotalAvarageUA</td>
-                        <td>@Model.TotalSumModel.TotalAvarageRU</td>
-                        <td>@Model.TotalSumModel.TotalTaskHours</td>
-                        <td></td>
-                        <td>@Model.TotalSumModel.TotalMWtPerHourCpu</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </tbody>
-            </table>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Inter Font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+
+    <!-- Alpine.js for interactions -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- DataTables Core + Tailwind Styling -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <style>
+        /* Custom Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+
+        .positive-value {
+            color: #10b981;
+        }
+
+        .negative-value {
+            color: #ef4444;
+        }
+
+        .crypto-table th {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .crypto-table th:hover {
+            background-color: #f3f4f6;
+        }
+
+        .crypto-table th.sorting:after {
+            content: "↕";
+            position: absolute;
+            right: 8px;
+            opacity: 0.3;
+        }
+
+        .crypto-table th.sorting_asc:after {
+            content: "↑";
+            position: absolute;
+            right: 8px;
+            opacity: 0.8;
+        }
+
+        .crypto-table th.sorting_desc:after {
+            content: "↓";
+            position: absolute;
+            right: 8px;
+            opacity: 0.8;
+        }
+
+        .dt-search {
+            margin-bottom: 1rem;
+        }
+
+        .dt-search input {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            width: 100%;
+            max-width: 20rem;
+        }
+
+        /* Override DataTables default styling */
+        table.dataTable {
+            border-collapse: collapse !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+<div class="max-w-full px-4 py-8 mx-auto sm:px-6 lg:px-8">
+    <div class="flex flex-col">
+        <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                <div class="shadow-lg rounded-lg overflow-hidden border border-gray-200">
+                    <table id="projectTable" class="min-w-full divide-y divide-gray-200 crypto-table">
+                        <thead class="bg-gray-800 text-white">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                Project
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                                UA Credit
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                                RU Credit
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                                UA Weight (%)
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                                RU Weight (%)
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                                Credit Difference
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                                UA Average
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                                RU Average
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                                Task Hours
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                                Years
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                                MWt/h
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                                Devices
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                                Days To Win
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach (var project in Model.Collection)
+                        {
+                        <tr class="hover:bg-gray-50 transition-colors duration-150 cursor-pointer" onclick="window.open('@project.CountryStatsUrl', '_blank')">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")">
+                                @project.ProjectName
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" data-order="@project.CreditUA.Replace(",", "")">
+                                @project.CreditUA
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" data-order="@project.CreditRU.Replace(",", "")">
+                                @project.CreditRU
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                @project.UaWeight
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                @project.RuWeight
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm @(project.CreditDifference < 0 ? "text-green-600 font-medium" : "text-red-600 font-medium") text-right">
+                                @(project.CreditDifference < 0 ? "+" : "")@project.CreditDifference
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" data-order="@project.AvarageUA.Replace(",", "")">
+                                @project.AvarageUA
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" data-order="@project.AvarageRU.Replace(",", "")">
+                                @project.AvarageRU
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                @project.TaskHours
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                @project.YearsDifference
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                @project.MWtPerHourCpu
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                @project.DevicesToOvercome
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(project.ProjectType == "GPU" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800")">
+                                                @project.ProjectType
+                                            </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-100 text-green-800 font-semibold" : "text-gray-500")">
+                                @project.DaysToWin
+                            </td>
+                        </tr>
+                        }
+                        </tbody>
+                        <tfoot class="bg-gray-100">
+                        <tr class="border-t-2 border-gray-300 font-semibold text-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">Total:</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalCreditUA</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalCreditRU</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalUaWeight</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalRuWeight</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalCreditDifference</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalAvarageUA</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalAvarageRU</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalTaskHours</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalMWtPerHourCpu</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right"></td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#projectTable').DataTable({
+            "order": [], // Remove default ordering
+            "paging": false, // Disable pagination
+            "info": false, // Hide "Showing X of Y entries" text
+            "searching": true, // Enable search
+            "columnDefs": [
+                { "orderable": true, "targets": "_all" }, // Make all columns sortable
+                {
+                    "type": "html",
+                    "targets": 0 // Project name column has HTML content
+                },
+                {
+                    "type": "num",
+                    "targets": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] // Numeric columns
+                }
+            ],
+            "language": {
+                "search": "Search projects:",
+                "searchPlaceholder": "Filter table..."
+            },
+            "dom": '<"dt-search"f>rt<"dt-info"i><"dt-pagination"p>',
+            "footerCallback": function(row, data, start, end, display) {
+                // This ensures the footer remains visible during filtering
+                $(this.api().column(0).footer()).html('Total:');
+            },
+            "initComplete": function() {
+                // Style the search box
+                $('.dt-search input').addClass('focus:ring-2 focus:ring-blue-500 focus:outline-none');
+
+                // Place search in a better position
+                $('.dt-search').addClass('ml-auto mb-4');
+            }
+        });
+    });
+</script>
+</body>
+</html>
