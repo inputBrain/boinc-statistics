@@ -55,13 +55,13 @@ body {
     right: 0;
     top: 0;
     bottom: 0;
-    width: 30px;
+    width: 40px;
     background: linear-gradient(to right, rgba(255,255,255,0), rgba(0,0,0,0.1));
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.3s ease;
+    z-index: 20;
 }
-
 .table-container:hover .table-scroll-indicator {
     opacity: 1;
 }
@@ -137,4 +137,39 @@ body {
 /* Override DataTables default styling */
 table.dataTable {
     border-collapse: collapse !important;
+}
+
+.crypto-table thead th {
+    height: 4.5rem; /* Примерно 3 строки текста */
+    vertical-align: middle;
+    white-space: normal; /* Разрешить перенос текста */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px; /* Максимальная ширина для предотвращения слишком широких заголовков */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Стили для контейнера таблицы */
+.table-responsive-container {
+    width: 100%;
+    overflow-x: auto;
+    position: relative;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Стили для самой таблицы внутри контейнера */
+.table-responsive-container table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+
+.table-responsive-container:hover .table-scroll-indicator {
+    opacity: 1;
 }
