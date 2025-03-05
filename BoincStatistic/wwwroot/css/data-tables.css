@@ -1,17 +1,10 @@
-﻿
+﻿/* DataTables with Tailwind CSS */
 body {
     font-family: 'Inter', sans-serif;
     background-color: #f9fafb;
 }
 
-.positive-value {
-    color: #10b981;
-}
-
-.negative-value {
-    color: #ef4444;
-}
-
+/* Table Base Styling */
 .crypto-table th {
     position: relative;
     cursor: pointer;
@@ -21,6 +14,7 @@ body {
     background-color: #f3f4f6;
 }
 
+/* Sorting Indicators */
 .crypto-table th.sorting:after {
     content: "↕";
     position: absolute;
@@ -42,6 +36,7 @@ body {
     opacity: 0.8;
 }
 
+/* Search Box Styling */
 .dt-search {
     margin-bottom: 1rem;
 }
@@ -69,6 +64,36 @@ body {
 
 .table-container:hover .table-scroll-indicator {
     opacity: 1;
+}
+
+/* Status Badge Styling */
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+}
+
+.status-completed {
+    background-color: #10b981;
+    color: white;
+}
+
+.status-in-process {
+    background-color: #f59e0b;
+    color: #78350f;
+}
+
+.status-in-waiting {
+    background-color: #94a3b8;
+    color: white;
+}
+
+.status-unknown {
+    background-color: #e5e7eb;
+    color: #374151;
 }
 
 /* Custom breakpoints for columns */

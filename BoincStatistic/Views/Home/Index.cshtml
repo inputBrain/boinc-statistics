@@ -1,44 +1,115 @@
 ﻿@{
-    ViewData["Title"] = "Home";
+ViewData["Title"] = "Home";
 }
 @model BoincStatsViewModel
+@await Html.PartialAsync("_TableReferences")
 
-    <div class="col-md-9">
-        <div class="container mt-5">
-            <table class="table table-hover" id="newsTable">
-                <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Country</th>
-                    <th>Total Credit</th>
-                    <th>Credit Day</th>
-                    <th>Credit Week</th>
-                    <th>Credit Month</th>
-                    <th>Average Credit</th>
-                    <th>Credit User</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model.BoincStats)
-                {
+
+<div class="max-w-full px-2 sm:px-4 py-8 mx-auto lg:px-8">
+    <div class="flex flex-col">
+        <div class="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">BOINC Country Statistics</h2>
+            <div class="dt-search w-full sm:w-auto"></div>
+        </div>
+
+        <!-- Responsive notice for small screens -->
+        <div class="md:hidden bg-blue-50 text-blue-800 p-3 rounded-lg mb-4 text-sm">
+            <p>Swipe horizontally to see all columns or rotate your device to landscape orientation.</p>
+        </div>
+
+        <div class="relative overflow-hidden shadow-lg rounded-lg border border-gray-200">
+            <div class="overflow-x-auto table-container relative">
+                <div class="table-scroll-indicator"></div>
+                <table id="boincStatsTable" class="min-w-full divide-y divide-gray-200 crypto-table">
+                    <thead class="bg-gray-800 text-white">
                     <tr>
-                        <td>@item.Rank</td>
-                        <td>@item.CountryName</td>
-                        <td>@item.TotalCredit</td>
-                        <td>@item.CreditDay</td>
-                        <td>@item.CreditWeek</td>
-                        <td>@item.CreditMonth</td>
-                        <td>@item.CreditAvarage</td>
-                        <td>@item.CreditUser</td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-outline-info">Info</button>
-                            </div>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                            Rank
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Country
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total Credit
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-medium">
+                            Credit Day
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-medium">
+                            Credit Week
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-medium">
+                            Credit Month
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
+                            Average Credit
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
+                            Credit User
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach (var item in Model.BoincStats)
+                    {
+                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-center" data-label="Rank">
+                            @item.Rank
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-label="Country">
+                            @item.CountryName
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" data-order="@item.TotalCredit.Replace(",", "")" data-label="Total Credit">
+                            @item.TotalCredit
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-medium" data-order="@item.CreditDay.Replace(",", "")" data-label="Credit Day">
+                            @item.CreditDay
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-medium" data-order="@item.CreditWeek.Replace(",", "")" data-label="Credit Week">
+                            @item.CreditWeek
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-medium" data-order="@item.CreditMonth.Replace(",", "")" data-label="Credit Month">
+                            @item.CreditMonth
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-order="@item.CreditAvarage.Replace(",", "")" data-label="Average Credit">
+                            @item.CreditAvarage
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-order="@item.CreditUser.Replace(",", "")" data-label="Credit User">
+                            @item.CreditUser
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-center" data-label="Actions">
+                            <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-indigo-50 text-indigo-700 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                Info
+                            </button>
                         </td>
                     </tr>
-                }
-                </tbody>
-            </table>
+                    }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        initializeDataTable('boincStatsTable', {
+            columnDefs: [
+                {
+                    "type": "html",
+                    "targets": [0, 8] // Rank and Actions columns have HTML
+                },
+                {
+                    "type": "num",
+                    "targets": [2, 3, 4, 5, 6, 7] // Numeric credit columns
+                }
+            ]
+        });
+    });
+</script>

@@ -1,166 +1,23 @@
 ﻿@{
-ViewData["Title"] = "Projects";
+    ViewData["Title"] = "Projects";
 }
 @using BoincStatistic.Database.ProjectStatistic
 @model List<ProjectsSimpleViewModel>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"]</title>
+@await Html.PartialAsync("_TableReferences")
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Inter Font -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
-
-    <!-- Alpine.js for interactions -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <!-- DataTables Core + Tailwind Styling -->
-    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
-
-    <style>
-        /* Custom Styles */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f9fafb;
-        }
-
-        .crypto-table th {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .crypto-table th:hover {
-            background-color: #f3f4f6;
-        }
-
-        .crypto-table th.sorting:after {
-            content: "↕";
-            position: absolute;
-            right: 8px;
-            opacity: 0.3;
-        }
-
-        .crypto-table th.sorting_asc:after {
-            content: "↑";
-            position: absolute;
-            right: 8px;
-            opacity: 0.8;
-        }
-
-        .crypto-table th.sorting_desc:after {
-            content: "↓";
-            position: absolute;
-            right: 8px;
-            opacity: 0.8;
-        }
-
-        .dt-search {
-            margin-bottom: 1rem;
-        }
-
-        .dt-search input {
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            border: 1px solid #d1d5db;
-            width: 100%;
-            max-width: 20rem;
-        }
-
-        /* Table Responsive Styles */
-        .table-scroll-indicator {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 30px;
-            background: linear-gradient(to right, rgba(255,255,255,0), rgba(0,0,0,0.1));
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .table-container:hover .table-scroll-indicator {
-            opacity: 1;
-        }
-
-        /* Status Badge Styling */
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .status-completed {
-            background-color: #10b981;
-            color: white;
-        }
-
-        .status-in-process {
-            background-color: #f59e0b;
-            color: #78350f;
-        }
-
-        .status-in-waiting {
-            background-color: #94a3b8;
-            color: white;
-        }
-
-        .status-unknown {
-            background-color: #e5e7eb;
-            color: #374151;
-        }
-
-
-        .table-mobile-view tbody tr {
-            display: flex;
-            flex-direction: column;
-            padding: 1rem 0;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .table-mobile-view tbody td {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 1rem;
-            border: none;
-        }
-
-        .table-mobile-view tbody td:before {
-            content: attr(data-label);
-            font-weight: 600;
-        }
-
-        /* Override DataTables default styling */
-        table.dataTable {
-            border-collapse: collapse !important;
-        }
-    </style>
-</head>
-<body class="bg-gray-50">
 <div class="max-w-full px-2 sm:px-4 py-8 mx-auto lg:px-8">
     <div class="flex flex-col">
         <div class="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between">
             <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">BOINC Projects</h2>
             <div class="dt-search w-full sm:w-auto"></div>
         </div>
-
+        
         <!-- Responsive notice for small screens -->
         <div class="md:hidden bg-blue-50 text-blue-800 p-3 rounded-lg mb-4 text-sm">
             <p>Swipe horizontally to see all columns or rotate your device to landscape orientation.</p>
         </div>
-
+        
         <div class="relative overflow-hidden shadow-lg rounded-lg border border-gray-200">
             <div class="overflow-x-auto table-container relative">
                 <div class="table-scroll-indicator"></div>
@@ -223,5 +80,23 @@ ViewData["Title"] = "Projects";
     </div>
 </div>
 
-</body>
-</html>
+<script>
+    $(document).ready(function() {
+        initializeDataTable('projectTable', {
+            columnDefs: [
+                { 
+                    "type": "html", 
+                    "targets": [0, 2, 3] // Columns with HTML content
+                },
+                {
+                    "type": "num", 
+                    "targets": [1] // Numeric columns
+                },
+                {
+                    "type": "date", 
+                    "targets": [4] // Date column
+                }
+            ]
+        });
+    });
+</script>
