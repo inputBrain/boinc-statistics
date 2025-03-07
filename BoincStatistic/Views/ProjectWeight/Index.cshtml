@@ -3,15 +3,16 @@
 ViewData["Title"] = "UA vs RU";
 }
 
-@await Html.PartialAsync("_TableReferences")
-
 <div class="max-w-full px-2 sm:px-4 py-8 mx-auto lg:px-8">
     <div class="flex flex-col">
-        <div class="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">BOINC Projects: UA vs RU</h2>
-            <div class="dt-search w-full sm:w-auto"></div>
+        <div class="mb-4 flex flex-col sm:flex-row items-center sm:items-center justify-between">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">UA vs RU</h2>
         </div>
-
+        <div class="dt-search w-full sm:w-auto">
+            <input type="search" class="focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm w-full px-4 py-2 rounded-md border border-gray-300"
+                   placeholder="Search projects..."
+                   aria-label="Search projects">
+        </div>
         <!-- Responsive notice for small screens -->
         <div class="md:hidden bg-blue-50 text-blue-800 p-3 rounded-lg mb-4 text-sm">
             <p>Swipe horizontally to see all columns or rotate your device to landscape orientation.</p>
@@ -23,13 +24,13 @@ ViewData["Title"] = "UA vs RU";
                 <table id="projectTable" class="min-w-full divide-y divide-gray-200 crypto-table">
                     <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider column-priority-high">
                             Project
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
                             UA Credit
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
                             RU Credit
                         </th>
                         <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
@@ -38,31 +39,31 @@ ViewData["Title"] = "UA vs RU";
                         <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
                             RU Weight (%)
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
                             Credit Difference
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-medium">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
                             UA Average
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-medium">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
                             RU Average
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-low">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
                             Task Hours
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-low">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
                             Years
                         </th>
                         <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
                             MWt/h
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-medium">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
                             Devices
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider column-priority-high">
                             Type
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider column-priority-high">
                             Days To Win
                         </th>
                     </tr>
@@ -70,14 +71,14 @@ ViewData["Title"] = "UA vs RU";
                     <tbody class="bg-white divide-y divide-gray-200">
                     @foreach (var project in Model.Collection)
                     {
-                    <tr class="hover:bg-gray-50 transition-colors duration-150 cursor-pointer" onclick="window.open('@project.CountryStatsUrl', '_blank')">
+                    <tr class="hover:bg-gray-50 transition-colors duration-150 cursor-pointer column-priority-high" onclick="window.open('@project.CountryStatsUrl', '_blank')">
                         <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")" data-label="Project">
                             @project.ProjectName
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" data-order="@project.CreditUA.Replace(",", "")" data-label="UA Credit">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-order="@project.CreditUA.Replace(",", "")" data-label="UA Credit">
                             @project.CreditUA
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" data-order="@project.CreditRU.Replace(",", "")" data-label="RU Credit">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-order="@project.CreditRU.Replace(",", "")" data-label="RU Credit">
                             @project.CreditRU
                         </td>
                         <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-label="UA Weight (%)">
@@ -86,33 +87,33 @@ ViewData["Title"] = "UA vs RU";
                         <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-label="RU Weight (%)">
                             @project.RuWeight
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm @(project.CreditDifference < 0 ? "text-green-600 font-medium" : "text-red-600 font-medium") text-right" data-label="Credit Diff">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm column-priority-high @(project.CreditDifference < 0 ? "text-green-600 font-medium" : "text-red-600 font-medium") text-right" data-label="Credit Diff">
                             @(project.CreditDifference < 0 ? "+" : "")@project.CreditDifference
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-medium" data-order="@project.AvarageUA.Replace(",", "")" data-label="UA Average">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-order="@project.AvarageUA.Replace(",", "")" data-label="UA Average">
                             @project.AvarageUA
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-medium" data-order="@project.AvarageRU.Replace(",", "")" data-label="RU Average">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-order="@project.AvarageRU.Replace(",", "")" data-label="RU Average">
                             @project.AvarageRU
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-low" data-label="Task Hours">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-label="Task Hours">
                             @project.TaskHours
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-low" data-label="Years">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-label="Years">
                             @project.YearsDifference
                         </td>
                         <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-label="MWt/h">
                             @project.MWtPerHourCpu
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-medium" data-label="Devices">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-label="Devices">
                             @project.DevicesToOvercome
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center" data-label="Type">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center column-priority-high" data-label="Type">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(project.ProjectType == "GPU" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800")">
                                             @project.ProjectType
                                         </span>
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-100 text-green-800 font-semibold" : "text-gray-500")" data-label="Days To Win">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-center column-priority-high @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-100 text-green-800 font-semibold" : "text-gray-500")" data-label="Days To Win">
                             @project.DaysToWin
                         </td>
                     </tr>
@@ -121,19 +122,19 @@ ViewData["Title"] = "UA vs RU";
                     <tfoot class="bg-gray-100">
                     <tr class="border-t-2 border-gray-300 font-semibold text-gray-700">
                         <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm">Total:</td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalCreditUA</td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalCreditRU</td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high">@Model.TotalSumModel.TotalCreditUA</td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high">@Model.TotalSumModel.TotalCreditRU</td>
                         <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high">@Model.TotalSumModel.TotalUaWeight</td>
                         <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high">@Model.TotalSumModel.TotalRuWeight</td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right">@Model.TotalSumModel.TotalCreditDifference</td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-medium">@Model.TotalSumModel.TotalAvarageUA</td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-medium">@Model.TotalSumModel.TotalAvarageRU</td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-low">@Model.TotalSumModel.TotalTaskHours</td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-low"></td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high">@Model.TotalSumModel.TotalCreditDifference</td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high">@Model.TotalSumModel.TotalAvarageUA</td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high">@Model.TotalSumModel.TotalAvarageRU</td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high">@Model.TotalSumModel.TotalTaskHours</td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high"></td>
                         <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high">@Model.TotalSumModel.TotalMWtPerHourCpu</td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-medium"></td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right"></td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right"></td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high"></td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high"></td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right column-priority-high"></td>
                     </tr>
                     </tfoot>
                 </table>
@@ -148,11 +149,11 @@ ViewData["Title"] = "UA vs RU";
             columnDefs: [
                 {
                     "type": "html",
-                    "targets": 0 // Project name column has HTML content
+                    "targets": 0
                 },
                 {
                     "type": "num",
-                    "targets": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] // Numeric columns
+                    "targets": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
                 }
             ]
         });

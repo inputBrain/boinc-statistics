@@ -37,7 +37,6 @@
     <!-- Custom styles -->
     <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true">
     <link rel="stylesheet" href="~/css/data-tables.css" asp-append-version="true">
-    <script src="~/js/data-tables.js" asp-append-version="true"></script>
 </head>
 <body class="bg-gray-50 font-sans flex flex-col min-h-screen">
 <header class="bg-white border-b border-gray-200 shadow-sm">
@@ -94,5 +93,9 @@
 </footer>
 
 @await RenderSectionAsync("Scripts", required: false)
+
+
+<script defer src="~/js/data-tables.js" asp-append-version="true"></script>
+
 </body>
 </html>
