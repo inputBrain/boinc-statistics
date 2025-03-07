@@ -16,15 +16,15 @@
         dom: 'rt<"dt-info"i><"dt-pagination"p>',
         searching: true
     };
-    
+
     const config = { ...defaultConfig, ...options };
-    
+
     const table = $(`#${tableId}`).DataTable(config);
 
     $('.dt-search input').on('keyup', function() {
         table.search(this.value).draw();
     });
-    
+
     enhanceTableInteractions(tableId);
 
     return table;
@@ -32,9 +32,9 @@
 
 function enhanceTableInteractions(tableId) {
     $('.dt-search input').addClass('focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm');
-    
+
     $('.dt-search').addClass('w-full sm:w-64');
-    
+
     const tableContainer = $('.table-container');
 
     function checkScroll() {
@@ -44,11 +44,11 @@ function enhanceTableInteractions(tableId) {
             $('.table-scroll-indicator').removeClass('opacity-100');
         }
     }
-    
+
     setTimeout(checkScroll, 100);
-    
+
     $(window).resize(checkScroll);
-    
+
     const mediaQuery = window.matchMedia('(max-width: 768px)');
     if (mediaQuery.matches) {
         $(`#${tableId}`).addClass('table-mobile-view');
@@ -61,7 +61,7 @@ function enhanceTableInteractions(tableId) {
             $(`#${tableId}`).removeClass('table-mobile-view');
         }
     });
-    
+
     tableContainer.on('scroll', function() {
         const maxScroll = this.scrollWidth - this.clientWidth;
         const currentScroll = this.scrollLeft;

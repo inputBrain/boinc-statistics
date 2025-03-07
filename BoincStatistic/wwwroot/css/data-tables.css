@@ -50,21 +50,21 @@ body {
 }
 
 /* Table Responsive Styles */
-.table-scroll-indicator {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 40px;
-    background: linear-gradient(to right, rgba(255,255,255,0), rgba(0,0,0,0.1));
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 20;
-}
-.table-container:hover .table-scroll-indicator {
-    opacity: 1;
-}
+/*.table-scroll-indicator {*/
+/*    position: absolute;*/
+/*    right: 0;*/
+/*    top: 0;*/
+/*    bottom: 0;*/
+/*    width: 40px;*/
+/*    background: linear-gradient(to right, rgba(255,255,255,0), rgba(0,0,0,0.1));*/
+/*    pointer-events: none;*/
+/*    opacity: 0;*/
+/*    transition: opacity 0.3s ease;*/
+/*    z-index: 20;*/
+/*}*/
+/*.table-container:hover .table-scroll-indicator {*/
+/*    opacity: 1;*/
+/*}*/
 
 /* Status Badge Styling */
 .status-badge {
@@ -170,6 +170,6 @@ table.dataTable {
 }
 
 
-.table-responsive-container:hover .table-scroll-indicator {
-    opacity: 1;
-}
+/*.table-responsive-container:hover .table-scroll-indicator {*/
+/*    opacity: 1;*/
+/*}*/
