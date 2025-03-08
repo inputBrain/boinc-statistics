@@ -10,7 +10,11 @@ ViewData["Title"] = "Home";
             <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">Project: </h2>
             <div class="dt-search w-full sm:w-auto"></div>
         </div>
-
+        <div class="dt-search w-full sm:w-auto mb-4">
+            @* <input type="search" class="focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm w-64 px-4 py-2 rounded-md border border-gray-300" *@
+            @*        placeholder="Search projects..." *@
+            @*        aria-label="Search projects"> *@
+        </div>
         <!-- Responsive notice for small screens -->
         <div class="md:hidden bg-blue-50 text-blue-800 p-3 rounded-lg mb-4 text-sm">
             <p>Swipe horizontally to see all columns or rotate your device to landscape orientation.</p>
@@ -25,68 +29,68 @@ ViewData["Title"] = "Home";
                         <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Rank
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Country
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Total Credit
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Credit Day
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Credit Week
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Credit Month
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Average Credit
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Credit User
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
-                            Actions
-                        </th>
+                        @* <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider"> *@
+                        @*     Actions *@
+                        @* </th> *@
                     </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                     @foreach (var item in Model.BoincStats)
                     {
-                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <tr class="hover:bg-gray-200 transition-colors duration-300">
                         <td class="px-4 sm:px-6 py-4 text-sm font-medium text-center" data-label="Rank">
                             @item.Rank
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900" data-label="Country">
+                        <td class="px-4 sm:px-6 py-4 text-sm font-medium text-teal-950 text-center" data-label="Country">
                             @item.CountryName
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@item.TotalCredit.Replace(",", "")" data-label="Total Credit">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center" data-order="@item.TotalCredit.Replace(",", "")" data-label="Total Credit">
                             @item.TotalCredit
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@item.CreditDay.Replace(",", "")" data-label="Credit Day">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center" data-order="@item.CreditDay.Replace(",", "")" data-label="Credit Day">
                             @item.CreditDay
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@item.CreditWeek.Replace(",", "")" data-label="Credit Week">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center" data-order="@item.CreditWeek.Replace(",", "")" data-label="Credit Week">
                             @item.CreditWeek
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@item.CreditMonth.Replace(",", "")" data-label="Credit Month">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center" data-order="@item.CreditMonth.Replace(",", "")" data-label="Credit Month">
                             @item.CreditMonth
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@item.CreditAvarage.Replace(",", "")" data-label="Average Credit">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center" data-order="@item.CreditAvarage.Replace(",", "")" data-label="Average Credit">
                             @item.CreditAvarage
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@item.CreditUser.Replace(",", "")" data-label="Credit User">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center" data-order="@item.CreditUser.Replace(",", "")" data-label="Credit User">
                             @item.CreditUser
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-center" data-label="Actions">
-                            <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-indigo-50 text-indigo-700 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                </svg>
-                                Info
-                            </button>
-                        </td>
+                        @* <td class="px-4 sm:px-6 py-4 text-sm text-center" data-label="Actions"> *@
+                        @*     <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-indigo-50 text-indigo-700 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150"> *@
+                        @*         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor"> *@
+                        @*             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z" clip-rule="evenodd" /> *@
+                        @*         </svg> *@
+                        @*         Info *@
+                        @*     </button> *@
+                        @* </td> *@
                     </tr>
                     }
                     </tbody>
@@ -102,7 +106,7 @@ ViewData["Title"] = "Home";
             columnDefs: [
                 {
                     "type": "html",
-                    "targets": [0, 8]
+                    "targets": [0]
                 },
                 {
                     "type": "num",

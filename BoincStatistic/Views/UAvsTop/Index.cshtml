@@ -1,58 +1,150 @@
 ﻿@model List<ProjectWeightViewModel>
 @{
-    ViewData["Title"] = "UA vs #1";
+ViewData["Title"] = "UA vs #1";
 }
 
+<div class="max-w-full px-2 sm:px-4 py-8 mx-auto lg:px-8">
+    <div class="flex flex-col">
+        <div class="mb-4 flex flex-col sm:flex-row items-center sm:items-center justify-between">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">UA vs #1</h2>
+        </div>
+        <div class="dt-search w-full sm:w-auto mb-4">
+            <input type="search" class="focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm w-64 px-4 py-2 rounded-md border border-gray-300"
+                   placeholder="Search projects..."
+                   aria-label="Search projects">
+        </div>
+        <!-- Responsive notice for small screens -->
+        <div class="md:hidden bg-blue-50 text-blue-800 p-3 rounded-lg mb-4 text-sm">
+            <p>Swipe horizontally to see all columns or rotate your device to landscape orientation.</p>
+        </div>
 
-<div class="col-md-9">
-    <div class="container mt-5">
-        <table class="table table-hover" id="newsTable">
-            <thead>
-            <tr>
-                <th>#1</th>
-                <th>Project</th>
-                <th>UA Credit</th>
-                <th>#1 Credit</th>
-                <th>UA Weight (%)</th>
-                <th>#1 Weight (%)</th>
-                <th>Credit Difference</th>
-                <th>UA Average</th>
-                <th>#1 Average</th>
-                <th>Task Hours</th>
-                <th>Years</th>
-                <th>MWt/h</th>
-                <th>Devices to Overcome</th>
-                <th>Type</th>
-                <th>Days To Win</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var project in Model)
-            {
-            <tr>
-                <td>@project.Country</td>
-                <td style="@(project.HasMoreThanZeroCreditDay ? "background-color: #F57D6F;" : "") cursor: pointer;"
-                    onclick="window.open('@project.CountryStatsUrl', '_blank')">
-                    @project.ProjectName
-                </td>
-                <td>@project.CreditUA</td>
-                <td>@project.CreditRU</td>
-                <td>@project.UaWeight</td>
-                <td>@project.RuWeight</td>
-                <td>@project.CreditDifference</td>
-                <td>@project.AvarageUA</td>
-                <td>@project.AvarageRU</td>
-                <td>@project.TaskHours</td>
-                <td>@project.YearsDifference</td>
-                <td>@project.MWtPerHourCpu</td>
-                <td>@project.DevicesToOvercome</td>
-                <td>@project.ProjectType</td>
-                <td style="@(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "background-color: #e6ffe6;text-align: center;" : "")">
-                    @project.DaysToWin
-                </td>
-            </tr>
-            }
-            </tbody>
-        </table>
+        <div class="relative overflow-hidden shadow-lg rounded-lg border border-gray-200">
+            <div class="overflow-x-auto table-container relative">
+                <div class="table-scroll-indicator"></div>
+                <table id="projectTable" class="min-w-full divide-y divide-gray-200 crypto-table">
+                    <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Country
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Project
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            UA Credit
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            #1 Credit
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            UA Weight (%)
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            #1 Weight (%)
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Credit Difference
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            UA Average
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            #1 Average
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Task Hours
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Years
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            MWt/h
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Devices
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                            Type
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                            Days To Win
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach (var project in Model)
+                    {
+                    <tr class="hover:bg-gray-200 transition-colors duration-150">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-left">
+                            @project.Country
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 cursor-pointer @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")"
+                            onclick="window.open('@project.CountryStatsUrl', '_blank')">
+                            @project.ProjectName
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.CreditUA.Replace(",", "")">
+                            @project.CreditUA
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.CreditRU.Replace(",", "")">
+                            @project.CreditRU
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.UaWeight
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.RuWeight
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.CreditDifference
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.AvarageUA.Replace(",", "")">
+                            @project.AvarageUA
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.AvarageRU.Replace(",", "")">
+                            @project.AvarageRU
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.TaskHours
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.YearsDifference
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.MWtPerHourCpu
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.DevicesToOvercome
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(project.ProjectType == "GPU" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800")">
+                                @project.ProjectType
+                            </span>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-100 text-green-800 font-semibold" : "text-teal-950")">
+                            @project.DaysToWin
+                        </td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        initializeDataTable('projectTable', {
+            columnDefs: [
+                {
+                    "type": "html",
+                    "targets": [0, 1]
+                },
+                {
+                    "type": "num",
+                    "targets": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                }
+            ]
+        });
+    });
+</script>
