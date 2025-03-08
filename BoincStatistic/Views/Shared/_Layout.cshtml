@@ -59,7 +59,6 @@
 </header>
 
 <div class="content-wrapper flex-1 flex">
-    <!-- Cryptocurrency-style sidebar -->
     <aside class="crypto-sidebar">
         <div class="crypto-sidebar-title">Dashboard</div>
         <nav class="crypto-nav">
@@ -68,15 +67,15 @@
                 <span>Countries</span>
             </a>
             <a href="@Url.Action("Index", "ProjectStats")" class="crypto-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectStats" ? "active" : "")">
-                <i class="bi bi-grid-1x2"></i>
+                <i class="bi bi-clipboard-data"></i>
                 <span>Projects</span>
             </a>
             <a href="@Url.Action("Index", "ProjectWeight")" class="crypto-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectWeight" ? "active" : "")">
-                <i class="bi bi-arrow-left-right"></i>
+                <i class="bi bi-diagram-2"></i>
                 <span>UA vs RU</span>
             </a>
             <a href="@Url.Action("Index", "UAvsTop")" class="crypto-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UAvsTop" ? "active" : "")">
-                <i class="bi bi-bar-chart"></i>
+                <i class="bi bi-diagram-3"></i>
                 <span>UA vs #1</span>
             </a>
         </nav>

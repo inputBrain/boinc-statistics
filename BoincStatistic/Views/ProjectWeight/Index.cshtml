@@ -75,45 +75,45 @@ ViewData["Title"] = "UA vs RU";
                         <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")">
                             @project.ProjectName
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 text-right" data-order="@project.CreditUA.Replace(",", "")">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.CreditUA.Replace(",", "")">
                             @project.CreditUA
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 text-right" data-order="@project.CreditRU.Replace(",", "")">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.CreditRU.Replace(",", "")">
                             @project.CreditRU
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 text-right">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
                             @project.UaWeight
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 text-right">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
                             @project.RuWeight
                         </td>
                         <td class="px-4 sm:px-6 py-4 text-sm @(project.CreditDifference < 0 ? "text-green-600 font-medium" : "text-red-600 font-medium") text-right">
                             @(project.CreditDifference < 0 ? "+" : "")@project.CreditDifference
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 text-right" data-order="@project.AvarageUA.Replace(",", "")">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.AvarageUA.Replace(",", "")">
                             @project.AvarageUA
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 text-right" data-order="@project.AvarageRU.Replace(",", "")">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.AvarageRU.Replace(",", "")">
                             @project.AvarageRU
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 text-right">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
                             @project.TaskHours
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 text-right">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
                             @project.YearsDifference
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 text-right">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
                             @project.MWtPerHourCpu
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 text-right">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
                             @project.DevicesToOvercome
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 text-center">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(project.ProjectType == "GPU" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800")">
                                 @project.ProjectType
                             </span>
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-100 text-green-800 font-semibold" : "text-gray-500")">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-100 text-green-800 font-semibold" : "text-teal-950")">
                             @project.DaysToWin
                         </td>
                     </tr>

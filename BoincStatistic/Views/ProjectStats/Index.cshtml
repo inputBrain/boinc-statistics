@@ -8,7 +8,7 @@
 <div class="max-w-full px-2 sm:px-4 py-8 mx-auto lg:px-8">
     <div class="flex flex-col">
         <div class="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">BOINC Projects</h2>
+            <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">Projects</h2>
             <div class="dt-search w-full sm:w-auto"></div>
         </div>
         <div class="dt-search w-full sm:w-auto mb-4">
@@ -28,7 +28,7 @@
                     <thead class="bg-gray-800 text-white">
                     <tr>
                         <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            Project Name
+                            Project
                         </th>
                         <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
                             Total Credit
@@ -37,7 +37,7 @@
                             Category
                         </th>
                         <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
-                            Status
+                            Scrapping
                         </th>
                         <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Last Update
@@ -45,37 +45,37 @@
                     </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach (var project in Model)
-                    {
-                    <tr class="hover:bg-gray-50 transition-colors duration-150 cursor-pointer" onclick="window.open('@project.ProjectStatsUrl', '_blank')">
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")" data-label="Project Name">
-                            @project.ProjectName
-                        </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right bg-white dark:bg-cyan-500" data-label="Total Credit">
-                            @project.TotalCredit
-                        </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center" data-label="Category">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                            @project.Category
-                                        </span>
-                        </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-center" data-label="Status">
-                            @{
-                            var statusClass = project.Status switch
-                            {
-                            ScrappingStatus.InProcess => "status-in-process",
-                            ScrappingStatus.Completed => "status-completed",
-                            ScrappingStatus.InWaiting => "status-in-waiting",
-                            _ => "status-unknown"
-                            };
-                            }
-                            <span class="status-badge @statusClass">@project.Status</span>
-                        </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center column-priority-medium" data-label="Last Update">
-                            @project.GetKyivTime().ToString("dd-MMM-yy HH:mm")
-                        </td>
-                    </tr>
-                    }
+                        @foreach (var project in Model)
+                        {
+                            <tr class="hover:bg-gray-50 transition-colors duration-150 cursor-pointer" onclick="window.open('@project.ProjectStatsUrl', '_blank')">
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")" data-label="Project Name">
+                                    @project.ProjectName
+                                </td>
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-teal-950 text-right bg-white dark:bg-cyan-500" data-label="Total Credit">
+                                    @project.TotalCredit
+                                </td>
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-teal-950 text-center" data-label="Category">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        @project.Category
+                                    </span>
+                                </td>
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-center" data-label="Status">
+                                    @{
+                                        var statusClass = project.Status switch
+                                        {
+                                            ScrappingStatus.InProcess => "status-in-process",
+                                            ScrappingStatus.Completed => "status-completed",
+                                            ScrappingStatus.InWaiting => "status-in-waiting",
+                                            _ => "status-unknown"
+                                        };
+                                    }
+                                    <span class="status-badge @statusClass">@project.Status</span>
+                                </td>
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-teal-950 text-center column-priority-medium" data-label="Last Update">
+                                    @project.GetKyivTime().ToString("dd-MMM-yy HH:mm")
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>

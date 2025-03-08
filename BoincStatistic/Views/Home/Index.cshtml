@@ -7,7 +7,7 @@ ViewData["Title"] = "Home";
 <div class="max-w-full px-2 sm:px-4 py-8 mx-auto lg:px-8">
     <div class="flex flex-col">
         <div class="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">BOINC Country Statistics</h2>
+            <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">Project: </h2>
             <div class="dt-search w-full sm:w-auto"></div>
         </div>
 
@@ -31,19 +31,19 @@ ViewData["Title"] = "Home";
                         <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
                             Total Credit
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-medium">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
                             Credit Day
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-medium">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
                             Credit Week
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-medium">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
                             Credit Month
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
                             Average Credit
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider column-priority-high">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
                             Credit User
                         </th>
                         <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
@@ -55,31 +55,31 @@ ViewData["Title"] = "Home";
                     @foreach (var item in Model.BoincStats)
                     {
                     <tr class="hover:bg-gray-50 transition-colors duration-150">
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-center" data-label="Rank">
+                        <td class="px-4 sm:px-6 py-4 text-sm font-medium text-center" data-label="Rank">
                             @item.Rank
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-label="Country">
+                        <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900" data-label="Country">
                             @item.CountryName
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" data-order="@item.TotalCredit.Replace(",", "")" data-label="Total Credit">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@item.TotalCredit.Replace(",", "")" data-label="Total Credit">
                             @item.TotalCredit
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-medium" data-order="@item.CreditDay.Replace(",", "")" data-label="Credit Day">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right column-priority-medium" data-order="@item.CreditDay.Replace(",", "")" data-label="Credit Day">
                             @item.CreditDay
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-medium" data-order="@item.CreditWeek.Replace(",", "")" data-label="Credit Week">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right column-priority-medium" data-order="@item.CreditWeek.Replace(",", "")" data-label="Credit Week">
                             @item.CreditWeek
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-medium" data-order="@item.CreditMonth.Replace(",", "")" data-label="Credit Month">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right column-priority-medium" data-order="@item.CreditMonth.Replace(",", "")" data-label="Credit Month">
                             @item.CreditMonth
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-order="@item.CreditAvarage.Replace(",", "")" data-label="Average Credit">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right column-priority-high" data-order="@item.CreditAvarage.Replace(",", "")" data-label="Average Credit">
                             @item.CreditAvarage
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right column-priority-high" data-order="@item.CreditUser.Replace(",", "")" data-label="Credit User">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right column-priority-high" data-order="@item.CreditUser.Replace(",", "")" data-label="Credit User">
                             @item.CreditUser
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-center" data-label="Actions">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-center" data-label="Actions">
                             <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-indigo-50 text-indigo-700 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z" clip-rule="evenodd" />
@@ -102,11 +102,11 @@ ViewData["Title"] = "Home";
             columnDefs: [
                 {
                     "type": "html",
-                    "targets": [0, 8] // Rank and Actions columns have HTML
+                    "targets": [0, 8]
                 },
                 {
                     "type": "num",
-                    "targets": [2, 3, 4, 5, 6, 7] // Numeric credit columns
+                    "targets": [2, 3, 4, 5, 6, 7]
                 }
             ]
         });
