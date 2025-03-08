@@ -6,13 +6,13 @@
     <title>@ViewData["Title"] - Boinc Statistic</title>
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HKWLBG10CE"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-HKWLBG10CE');
-    </script>
+    @* <script async src="https://www.googletagmanager.com/gtag/js?id=G-HKWLBG10CE"></script> *@
+    @* <script> *@
+    @*     window.dataLayer = window.dataLayer || []; *@
+    @*     function gtag(){dataLayer.push(arguments);} *@
+    @*     gtag('js', new Date()); *@
+    @*     gtag('config', 'G-HKWLBG10CE'); *@
+    @* </script> *@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -37,18 +37,20 @@
     <!-- Custom styles -->
     <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true">
     <link rel="stylesheet" href="~/css/data-tables.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/data-tables-media.css" asp-append-version="true">
+    
 </head>
 <body class="bg-gray-50 font-sans flex flex-col min-h-screen">
-<header class="bg-white border-b border-gray-200 shadow-sm">
+<header class="bg-white border-b border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center py-3">
-            <a asp-area="" asp-controller="Home" asp-action="Index" class="text-xl font-bold text-gray-800">BOINC Statistics</a>
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="text-xl font-bold text-gray-800 dark:text-white">BOINC Statistics</a>
             <div class="hidden md:flex space-x-6">
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="text-gray-600 hover:text-gray-900">Home</a>
-                <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-gray-600 hover:text-gray-900">Privacy</a>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Home</a>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Privacy</a>
             </div>
             <button class="md:hidden focus:outline-none" type="button">
-                <svg class="h-6 w-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="h-6 w-6 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
                 </svg>
             </button>

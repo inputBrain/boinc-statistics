@@ -1,20 +1,20 @@
-﻿/* DataTables with Tailwind CSS */
-body {
+﻿body {
     font-family: 'Inter', sans-serif;
     background-color: #f9fafb;
 }
 
-/* Table Base Styling */
+
+
+/* <TODO> */
 .crypto-table th {
     position: relative;
     cursor: pointer;
 }
 
 .crypto-table th:hover {
-    background-color: #f3f4f6;
+    background-color: #25365b;
 }
 
-/* Sorting Indicators */
 .crypto-table th.sorting:after {
     content: "↕";
     position: absolute;
@@ -28,45 +28,17 @@ body {
     right: 8px;
     opacity: 0.8;
 }
+/* </TODO> */
 
-.crypto-table th.sorting_desc:after {
-    content: "↓";
-    position: absolute;
-    right: 8px;
-    opacity: 0.8;
-}
 
-/* Search Box Styling */
-.dt-search {
-    margin-bottom: 1rem;
-}
 
-.dt-search input {
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    border: 1px solid #d1d5db;
+.crypto-table {
     width: 100%;
-    max-width: 20rem;
+    table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
-/* Table Responsive Styles */
-/*.table-scroll-indicator {*/
-/*    position: absolute;*/
-/*    right: 0;*/
-/*    top: 0;*/
-/*    bottom: 0;*/
-/*    width: 40px;*/
-/*    background: linear-gradient(to right, rgba(255,255,255,0), rgba(0,0,0,0.1));*/
-/*    pointer-events: none;*/
-/*    opacity: 0;*/
-/*    transition: opacity 0.3s ease;*/
-/*    z-index: 20;*/
-/*}*/
-/*.table-container:hover .table-scroll-indicator {*/
-/*    opacity: 1;*/
-/*}*/
-
-/* Status Badge Styling */
 .status-badge {
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
@@ -96,80 +68,19 @@ body {
     color: #374151;
 }
 
-/* Custom breakpoints for columns */
-@media (max-width: 1280px) {
-    .column-priority-low {
-        display: none;
-    }
-}
 
-@media (max-width: 1024px) {
-    .column-priority-medium {
-        display: none;
-    }
-}
-
-@media (max-width: 768px) {
-    .column-priority-high {
-        display: none;
-    }
-
-    .table-mobile-view tbody tr {
-        display: flex;
-        flex-direction: column;
-        padding: 1rem 0;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .table-mobile-view tbody td {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.5rem 1rem;
-        border: none;
-    }
-
-    .table-mobile-view tbody td:before {
-        content: attr(data-label);
-        font-weight: 600;
-    }
-}
-
-/* Override DataTables default styling */
 table.dataTable {
     border-collapse: collapse !important;
 }
 
 .crypto-table thead th {
-    height: 4.5rem; /* Примерно 3 строки текста */
+    height: 4.5rem; /* Approximate 3 lines text */
     vertical-align: middle;
-    white-space: normal; /* Разрешить перенос текста */
+    white-space: normal;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 150px; /* Максимальная ширина для предотвращения слишком широких заголовков */
+    max-width: 150px;
     position: sticky;
     top: 0;
     z-index: 10;
 }
-
-/* Стили для контейнера таблицы */
-.table-responsive-container {
-    width: 100%;
-    overflow-x: auto;
-    position: relative;
-    margin-bottom: 1rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
-
-/* Стили для самой таблицы внутри контейнера */
-.table-responsive-container table {
-    width: 100%;
-    table-layout: auto;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-
-/*.table-responsive-container:hover .table-scroll-indicator {*/
-/*    opacity: 1;*/
-/*}*/

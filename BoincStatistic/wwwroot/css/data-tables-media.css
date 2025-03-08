@@ -1,0 +1,138 @@
+﻿@media (max-width: 1536px) {
+    .crypto-table {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 1366px) {
+    .crypto-table {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 1280px) {
+    .crypto-table {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .crypto-table {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .crypto-table thead {
+        display: none;
+    }
+
+    .crypto-table tfoot {
+        display: none;
+    }
+
+    .crypto-table tbody tr {
+        display: block;
+        margin-bottom: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+        background-color: white;
+    }
+
+    .crypto-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-bottom: 1px solid #f3f4f6;
+        text-align: right;
+        white-space: normal;
+    }
+
+    .crypto-table tbody td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        margin-right: 1rem;
+        text-align: left;
+    }
+
+
+    .crypto-table tbody td:first-child {
+        display: block;
+        background-color: #111827;
+        color: white;
+        font-weight: 600;
+        font-size: 1.05rem;
+        border-radius: 0.5rem 0.5rem 0 0;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .crypto-table tbody td:first-child:before {
+        display: none;
+    }
+
+
+    .crypto-table tbody td.has-status-badge {
+        display: flex;
+        justify-content: space-between;
+    }
+
+
+    .crypto-table tbody tr.hover\:bg-gray-50:hover {
+        background-color: white;
+    }
+
+
+    .crypto-table tbody td .status-badge {
+        order: 2;
+    }
+
+
+    .crypto-table tbody td.text-green-600,
+    .crypto-table tbody td.text-red-600 {
+        background-color: #f0fdf4;
+    }
+
+    .crypto-table tbody td.text-red-600 {
+        background-color: #fef2f2;
+    }
+
+
+    .crypto-table tbody td:nth-last-child(2) {
+        background-color: #f9fafb;
+    }
+
+
+    .crypto-table tbody td:last-child {
+        border-bottom: none;
+        background-color: #f9fafb;
+        border-radius: 0 0 0.5rem 0.5rem;
+    }
+
+
+    .crypto-table tbody tr.cursor-pointer {
+        cursor: default;
+    }
+
+    .crypto-table tbody tr::after {
+        content: "Project Url ↗";
+        display: block;
+        text-align: center;
+        padding: 0.75rem;
+        background-color: #f9fafb;
+        color: #2563eb;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: 0 0 0.5rem 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .crypto-table tbody td {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.875rem;
+    }
+}

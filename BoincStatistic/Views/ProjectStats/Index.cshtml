@@ -11,7 +11,11 @@
             <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">BOINC Projects</h2>
             <div class="dt-search w-full sm:w-auto"></div>
         </div>
-        
+        <div class="dt-search w-full sm:w-auto mb-4">
+            <input type="search" class="focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm w-64 px-4 py-2 rounded-md border border-gray-300"
+                   placeholder="Search projects..."
+                   aria-label="Search projects">
+        </div>
         <!-- Responsive notice for small screens -->
         <div class="md:hidden bg-blue-50 text-blue-800 p-3 rounded-lg mb-4 text-sm">
             <p>Swipe horizontally to see all columns or rotate your device to landscape orientation.</p>
@@ -35,7 +39,7 @@
                         <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Status
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider column-priority-medium">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Last Update
                         </th>
                     </tr>
@@ -47,7 +51,7 @@
                         <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")" data-label="Project Name">
                             @project.ProjectName
                         </td>
-                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" data-label="Total Credit">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right bg-white dark:bg-cyan-500" data-label="Total Credit">
                             @project.TotalCredit
                         </td>
                         <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center" data-label="Category">
@@ -85,15 +89,15 @@
             columnDefs: [
                 { 
                     "type": "html", 
-                    "targets": [0, 2, 3] // Columns with HTML content
+                    "targets": [0, 2, 3]
                 },
                 {
                     "type": "num", 
-                    "targets": [1] // Numeric columns
+                    "targets": [1]
                 },
                 {
                     "type": "date", 
-                    "targets": [4] // Date column
+                    "targets": [4]
                 }
             ]
         });
