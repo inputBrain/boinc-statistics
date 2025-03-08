@@ -27,10 +27,10 @@
                 <table id="projectTable" class="min-w-full divide-y divide-gray-200 crypto-table">
                     <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Project
                         </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                             Total Credit
                         </th>
                         <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
@@ -47,14 +47,14 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach (var project in Model)
                         {
-                            <tr class="hover:bg-gray-50 transition-colors duration-150 cursor-pointer" onclick="window.open('@project.ProjectStatsUrl', '_blank')">
-                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")" data-label="Project Name">
+                            <tr class="hover:bg-gray-200 transition-colors duration-150 cursor-pointer" onclick="window.open('@project.ProjectStatsUrl', '_blank')">
+                                <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")" data-label="Project Name">
                                     @project.ProjectName
                                 </td>
-                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-teal-950 text-right bg-white dark:bg-cyan-500" data-label="Total Credit">
+                                <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center" data-order="@project.TotalCredit.Replace(",", "")" data-label="Total Credit">
                                     @project.TotalCredit
                                 </td>
-                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-teal-950 text-center" data-label="Category">
+                                <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center" data-label="Category">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                                         @project.Category
                                     </span>

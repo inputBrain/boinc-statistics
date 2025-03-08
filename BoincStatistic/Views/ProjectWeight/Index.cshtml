@@ -87,8 +87,8 @@ ViewData["Title"] = "UA vs RU";
                         <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
                             @project.RuWeight
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm @(project.CreditDifference < 0 ? "text-green-600 font-medium" : "text-red-600 font-medium") text-right">
-                            @(project.CreditDifference < 0 ? "+" : "")@project.CreditDifference
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.CreditDifference
                         </td>
                         <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.AvarageUA.Replace(",", "")">
                             @project.AvarageUA
