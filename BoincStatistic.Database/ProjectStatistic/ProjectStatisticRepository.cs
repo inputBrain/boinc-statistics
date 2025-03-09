@@ -119,7 +119,9 @@ public class ProjectStatisticRepository : AbstractRepository<ProjectStatisticMod
             .ToListAsync();
 
         return projectList
-            .OrderBy(p => p.ProjectName == "Total without ASIC" ? 1 : 0)
+            .OrderBy(p => p.ProjectName == "Total without ASIC")
+            .ThenByDescending(x => x.Type == ProjectType.GPU)
+            .ThenBy(p => p.ProjectName)
             .ToList();
     }
     
