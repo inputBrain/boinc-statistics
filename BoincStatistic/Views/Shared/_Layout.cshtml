@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - Boinc Statistic</title>
-    
+    <title>@ViewData["Title"] - STATS</title>
+
     <link rel="apple-touch-icon" sizes="180x180" href="~/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="~/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="~/favicon-16x16.png">
@@ -44,7 +44,7 @@
     <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true">
     <link rel="stylesheet" href="~/css/data-tables.css" asp-append-version="true">
     <link rel="stylesheet" href="~/css/data-tables-media.css" asp-append-version="true">
-    
+
 </head>
 <body class="bg-gray-50 font-sans flex flex-col min-h-screen">
 <header class="bg-white border-b border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700">
@@ -57,7 +57,7 @@
             </div>
             <button class="md:hidden focus:outline-none" type="button">
                 <svg class="h-6 w-6 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
                 </svg>
             </button>
         </div>
@@ -67,23 +67,24 @@
 <div class="flex-1 flex">
     <aside class="w-16 hover:w-52 transition-all duration-300 overflow-y-auto flex-shrink-0 bg-gray-900 text-gray-100 border-r border-gray-700">
         <div class="py-6 px-3">
-            <h2 class="hidden hover:group-hover:block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4 transition-all">Dashboard</h2>
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4 whitespace-nowrap overflow-hidden transition-opacity duration-300">Dashboard</h2>
+
             <nav class="flex flex-col space-y-1.5">
-                <a href="@Url.Action("Index", "Home")" class="group flex items-center justify-center hover:justify-start py-2.5 px-3 rounded-md hover:bg-gray-800 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "bg-blue-600" : "")">
-                    <i class="bi bi-flag text-lg group-hover:mr-3"></i>
-                    <span class="hidden group-hover:inline-block ml-0">Countries</span>
+                <a href="@Url.Action("Index", "Home")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-gray-800 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "bg-blue-600" : "")">
+                    <i class="bi bi-flag text-lg min-w-[20px]"></i>
+                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300">Countries</span>
                 </a>
-                <a href="@Url.Action("Index", "ProjectStats")" class="group flex items-center justify-center hover:justify-start py-2.5 px-3 rounded-md hover:bg-gray-800 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectStats" ? "bg-blue-600" : "")">
-                    <i class="bi bi-clipboard-data text-lg group-hover:mr-3"></i>
-                    <span class="hidden group-hover:inline-block ml-0">Projects</span>
+                <a href="@Url.Action("Index", "ProjectStats")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-gray-800 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectStats" ? "bg-blue-600" : "")">
+                    <i class="bi bi-clipboard-data text-lg min-w-[20px]"></i>
+                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300">Projects</span>
                 </a>
-                <a href="@Url.Action("Index", "ProjectWeight")" class="group flex items-center justify-center hover:justify-start py-2.5 px-3 rounded-md hover:bg-gray-800 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectWeight" ? "bg-blue-600" : "")">
-                    <i class="bi bi-diagram-2 text-lg group-hover:mr-3"></i>
-                    <span class="hidden group-hover:inline-block ml-0">UA vs RU</span>
+                <a href="@Url.Action("Index", "ProjectWeight")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-gray-800 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectWeight" ? "bg-blue-600" : "")">
+                    <i class="bi bi-diagram-2 text-lg min-w-[20px]"></i>
+                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300">UA vs RU</span>
                 </a>
-                <a href="@Url.Action("Index", "UAvsTop")" class="group flex items-center justify-center hover:justify-start py-2.5 px-3 rounded-md hover:bg-gray-800 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "UAvsTop" ? "bg-blue-600" : "")">
-                    <i class="bi bi-diagram-3 text-lg group-hover:mr-3"></i>
-                    <span class="hidden group-hover:inline-block ml-0">UA vs #1</span>
+                <a href="@Url.Action("Index", "UAvsTop")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-gray-800 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "UAvsTop" ? "bg-blue-600" : "")">
+                    <i class="bi bi-diagram-3 text-lg min-w-[20px]"></i>
+                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300">UA vs #1</span>
                 </a>
             </nav>
         </div>
@@ -105,7 +106,6 @@
 
 
 <script defer src="~/js/data-tables.js" asp-append-version="true"></script>
-<script defer src="~/js/sidebar.js" asp-append-version="true"></script>
 
 </body>
 </html>
