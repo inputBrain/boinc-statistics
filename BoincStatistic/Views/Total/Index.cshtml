@@ -1,0 +1,141 @@
+﻿@model List<TotalScoreViewModel>
+@{
+ViewData["Title"] = "TOTAL";
+}
+
+<div class="max-w-full px-0 sm:px-1 py-6 mx-auto">
+    <div class="flex flex-col">
+        <div class="mb-4 flex flex-col sm:flex-row items-center sm:items-center justify-between">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">TOTAL UA and RU</h2>
+        </div>
+        <div class="dt-search w-full sm:w-auto mb-4">
+            @* <input type="text" class="focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm w-64 px-4 py-2 rounded-md border border-gray-300" *@
+            @*        placeholder="Search projects..." *@
+            @*        aria-label="Search projects"> *@
+        </div>
+        <!-- Responsive notice for small screens -->
+        <div class="md:hidden bg-blue-50 text-blue-800 p-3 rounded-lg mb-4 text-sm">
+            <p>Swipe horizontally to see all columns or rotate your device to landscape orientation.</p>
+        </div>
+
+        <div class="relative overflow-hidden shadow-lg rounded-lg border border-gray-200">
+            <div class="overflow-x-auto table-container relative">
+                <div class="table-scroll-indicator"></div>
+                <table id="projectTable" class="min-w-full divide-y divide-gray-200 crypto-table">
+                    <thead class="bg-gray-800 text-white">
+                    <tr>
+                        @* <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"> *@
+                        @*     Project *@
+                        @* </th> *@
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total UA Credit
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total RU Credit
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total UA Weight (%)
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total RU Weight (%)
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total Credit Difference
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total UA Average
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total RU Average
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total Task Hours
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total Years
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total MWt/h
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                            Total Devices
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                            Type
+                        </th>
+                        <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
+                            Total Days To Win
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach (var project in Model)
+                    {
+                    <tr class="hover:bg-gray-200 transition-colors duration-300">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.TotalCreditUA.Replace(",", "")">
+                            @project.TotalCreditUA
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.TotalCreditRU.Replace(",", "")">
+                            @project.TotalCreditRU
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.TotalUaWeight
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.TotalRuWeight
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.TotalCreditDifference
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.TotalAvarageUA.Replace(",", "")">
+                            @project.TotalAvarageUA
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.TotalAvarageRU.Replace(",", "")">
+                            @project.TotalAvarageRU
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.TotalTaskHours
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.TotalYearsDifference
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.TotalMWtPerHourCpu
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
+                            @project.TotalDevicesToOvercome
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(project.ProjectType == "GPU" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800")">
+                                @project.ProjectType
+                            </span>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.TotalDaysToWin) ? "bg-green-100 text-green-800 font-semibold" : "text-teal-950")">
+                            @project.TotalDaysToWin
+                        </td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        initializeDataTable('projectTable', {
+            columnDefs: [
+                {
+                    "type": "num",
+                    "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                }
+            ],
+            order: [],
+
+            paging: false,
+            searching: false,
+            info: false
+        });
+    });
+</script>

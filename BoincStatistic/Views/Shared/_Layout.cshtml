@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - STATS</title>
+    <title>@ViewData["Title"] - STATISTICS</title>
 
     <link rel="apple-touch-icon" sizes="180x180" href="~/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="~/favicon-32x32.png">
@@ -85,6 +85,10 @@
                 <a href="@Url.Action("Index", "UAvsTop")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-gray-800 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "UAvsTop" ? "bg-blue-600" : "")">
                     <i class="bi bi-diagram-3 text-lg min-w-[20px]"></i>
                     <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300">UA vs #1</span>
+                </a>
+                <a href="@Url.Action("Index", "Total")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-gray-800 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "Total" ? "bg-blue-600" : "")">
+                    <i class="bi bi-calculator text-lg min-w-[20px]"></i>
+                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300">Total</span>
                 </a>
             </nav>
         </div>

@@ -1,6 +1,7 @@
 using BoincStatistic.Database;
 using BoincStatistic.Database.CountryStatistic;
 using BoincStatistic.Database.ProjectStatistic;
+using BoincStatistic.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,7 @@ builder.Services.AddDbContext<PostgreSqlContext>(
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<ICalculationService, CalculationService>();
 builder.Services.AddScoped<ICountryStatisticRepository, CountryStatisticRepository>();
 builder.Services.AddScoped<IProjectStatisticRepository, ProjectStatisticRepository>();
 
