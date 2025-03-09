@@ -4,18 +4,24 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Boinc Statistic</title>
-
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="~/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/favicon-16x16.png">
+    <link rel="manifest" href="~/site.webmanifest">
     <!-- Google tag (gtag.js) -->
-    @* <script async src="https://www.googletagmanager.com/gtag/js?id=G-HKWLBG10CE"></script> *@
-    @* <script> *@
-    @*     window.dataLayer = window.dataLayer || []; *@
-    @*     function gtag(){dataLayer.push(arguments);} *@
-    @*     gtag('js', new Date()); *@
-    @*     gtag('config', 'G-HKWLBG10CE'); *@
-    @* </script> *@
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HKWLBG10CE"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-HKWLBG10CE');
+    </script>
 
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    @* <script src="https://cdn.tailwindcss.com"></script> *@
+    @* <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"> *@
+    <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true">
 
     <!-- Inter Font -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
@@ -44,7 +50,7 @@
 <header class="bg-white border-b border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center py-3">
-            <a asp-area="" asp-controller="Home" asp-action="Index" class="text-xl font-bold text-gray-800 dark:text-white">BOINC Statistics</a>
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="text-xl font-bold text-gray-800 dark:text-white">BOINC STATISTICS</a>
             <div class="hidden md:flex space-x-6">
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Home</a>
                 <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Privacy</a>
@@ -89,7 +95,7 @@
 
 <footer class="bg-white border-t border-gray-200 py-4 mt-auto">
     <div class="container mx-auto px-4 text-gray-500 text-sm">
-        &copy; 2024 - BoincStatistic - <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-blue-600 hover:text-blue-800">Privacy</a>
+        &copy; 2024 - BOINC STATISTICS - <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-blue-600 hover:text-blue-800">Privacy</a>
     </div>
 </footer>
 
