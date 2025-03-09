@@ -29,11 +29,15 @@ function enhanceTableInteractions(tableId) {
     
     populateDataLabels(tableId);
 
-    $(document).on('click', `#${tableId} tbody tr::after`, function(e) {
-        e.stopPropagation();
-        const url = $(this).closest('tr').attr('data-url');
-        if (url) {
-            window.open(url, '_blank');
+    $(document).on('click', `#${tableId} tbody tr`, function(e) {
+        const rowHeight = $(this).height();
+        const clickY = e.offsetY;
+        
+        if (clickY > rowHeight * 0.8) {
+            const url = $(this).attr('data-url');
+            if (url) {
+                window.open(url, '_blank');
+            }
         }
     });
 
