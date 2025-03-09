@@ -73,6 +73,7 @@ public class CountryStatisticRepository : AbstractRepository<CountryStatisticMod
         var targetCountries = new[] { "Ukraine", "Russian Federation" };
 
         return await DbModel
+            .Where(x => x.ProjectModel.ProjectName == "Total without ASIC")
             .Where(x => x.Rank == "1" || targetCountries.Contains(x.CountryName))
             .OrderBy(x => x.Id)
             .Take(3)
