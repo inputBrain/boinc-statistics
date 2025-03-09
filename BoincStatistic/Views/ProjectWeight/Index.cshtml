@@ -1,9 +1,9 @@
-﻿@model CountryVSCountryViewModel
+﻿@model List<ProjectWeightViewModel>
 @{
 ViewData["Title"] = "UA vs RU";
 }
 
-<div class="max-w-full px-2 sm:px-4 py-8 mx-auto lg:px-8">
+<div class="max-w-full px-0 sm:px-1 py-6 mx-auto">
     <div class="flex flex-col">
         <div class="mb-4 flex flex-col sm:flex-row items-center sm:items-center justify-between">
             <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">UA vs RU</h2>
@@ -69,7 +69,7 @@ ViewData["Title"] = "UA vs RU";
                     </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach (var project in Model.Collection)
+                    @foreach (var project in Model)
                     {
                     <tr class="hover:bg-gray-200 transition-colors duration-300">
                         <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 cursor-pointer @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")"
@@ -120,24 +120,6 @@ ViewData["Title"] = "UA vs RU";
                     </tr>
                     }
                     </tbody>
-                    <tfoot class="bg-gray-100">
-                    <tr class="border-t-2 border-gray-300 font-semibold text-gray-700">
-                        <td class="px-4 sm:px-6 py-4 text-sm">Total:</td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right">@Model.TotalSumModel.TotalCreditUA</td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right">@Model.TotalSumModel.TotalCreditRU</td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right">@Model.TotalSumModel.TotalUaWeight</td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right">@Model.TotalSumModel.TotalRuWeight</td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right">@Model.TotalSumModel.TotalCreditDifference</td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right">@Model.TotalSumModel.TotalAvarageUA</td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right">@Model.TotalSumModel.TotalAvarageRU</td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right">@Model.TotalSumModel.TotalTaskHours</td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right"></td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right">@Model.TotalSumModel.TotalMWtPerHourCpu</td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right"></td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right"></td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-right"></td>
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>

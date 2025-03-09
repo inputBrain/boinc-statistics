@@ -1,6 +1,9 @@
 ﻿body {
     font-family: 'Inter', sans-serif;
     background-color: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 
