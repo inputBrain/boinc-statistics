@@ -138,7 +138,22 @@ ViewData["Title"] = "UA vs RU";
                     "type": "num",
                     "targets": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
                 }
-            ]
+            ],
+            order: [],
+            createdRow: function(row, data, dataIndex) {
+                var projectName = $(row).find('td:first').text().trim();
+                
+                if (projectName === "Total without ASIC") {
+                    $(row).attr('data-is-total', 'true');
+                }
+            },
+            drawCallback: function() {
+                var totalRow = $('#projectTable tbody tr[data-is-total="true"]');
+                if (totalRow.length > 0) {
+                    totalRow.detach();
+                    $('#projectTable tbody').append(totalRow);
+                }
+            }
         });
     });
 </script>
