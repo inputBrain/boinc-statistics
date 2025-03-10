@@ -34,12 +34,6 @@ ViewData["Title"] = "TOTAL";
                             Total RU Credit
                         </th>
                         <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
-                            Total UA Weight (%)
-                        </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
-                            Total RU Weight (%)
-                        </th>
-                        <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
                             Total Credit Difference
                         </th>
                         <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
@@ -77,12 +71,6 @@ ViewData["Title"] = "TOTAL";
                         </td>
                         <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right" data-order="@project.TotalCreditRU.Replace(",", "")">
                             @project.TotalCreditRU
-                        </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
-                            @project.TotalUaWeight
-                        </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
-                            @project.TotalRuWeight
                         </td>
                         <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-right">
                             @project.TotalCreditDifference
@@ -128,7 +116,7 @@ ViewData["Title"] = "TOTAL";
             columnDefs: [
                 {
                     "type": "num",
-                    "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                    "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8,]
                 }
             ],
             order: [],

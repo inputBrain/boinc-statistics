@@ -131,9 +131,6 @@ public class CalculationService : ICalculationService
     {
         var totals = new TotalScoreViewModel { ProjectType = projectType };
         
-        totals.TotalUaWeight = Math.Round(projects.Sum(p => p.UaWeight), 2);
-        totals.TotalRuWeight = Math.Round(projects.Sum(p => p.RuWeight), 2);
-        totals.TotalCreditDifference = Math.Round(projects.Sum(p => p.CreditDifference), 2);
         totals.TotalTaskHours = Math.Round(projects.Sum(p => p.TaskHours), 2);
         totals.TotalYearsDifference = Math.Round(projects.Sum(p => p.YearsDifference), 2);
         totals.TotalMWtPerHourCpu = Math.Round(projects.Sum(p => p.MWtPerHourCpu), 2);
@@ -143,15 +140,32 @@ public class CalculationService : ICalculationService
         var creditRu = projects.Sum(p => decimal.Parse(p.CreditRU.Replace(",", ""), CultureInfo.InvariantCulture));
         var avarageUa = projects.Sum(p => decimal.Parse(p.AvarageUA.Replace(",", ""), CultureInfo.InvariantCulture));
         var avarageRu = projects.Sum(p => decimal.Parse(p.AvarageRU.Replace(",", ""), CultureInfo.InvariantCulture));
-    
+
 
         totals.TotalCreditUA = creditUa.ToString("N0", CultureInfo.InvariantCulture);
         totals.TotalCreditRU = creditRu.ToString("N0", CultureInfo.InvariantCulture);
         totals.TotalAvarageUA = avarageUa.ToString("N0", CultureInfo.InvariantCulture);
         totals.TotalAvarageRU = avarageRu.ToString("N0", CultureInfo.InvariantCulture);
-    
-        totals.TotalDaysToWin = totals.TotalCreditDifference < 0 ? "Won" : totals.TotalTaskHours.ToString(CultureInfo.InvariantCulture);
-    
+        
+        var totalCreditDiff = totals.TotalCreditDifference = Math.Round(projects.Sum(p => p.CreditDifference), 2);
+        
+        var daysToWin = totalCreditDiff > 0 && avarageUa > avarageRu ? Math.Round(totalCreditDiff / (double) (avarageUa - avarageRu), 0) + 1 : 0;
+
+        var foundDaysToWinWord = string.Empty;
+        if (totalCreditDiff < 0)
+        {
+            var copyDifference = totalCreditDiff / (double) avarageRu;
+            foundDaysToWinWord = _getDaysToWinCategory(copyDifference);
+        }
+        
+        var daysToWinAsString = daysToWin.ToString(CultureInfo.InvariantCulture);
+
+        if (string.IsNullOrEmpty(foundDaysToWinWord) == false)
+        {
+            daysToWinAsString = foundDaysToWinWord;
+        }
+        
+        totals.TotalDaysToWin = daysToWinAsString;
         return totals;
     }
 

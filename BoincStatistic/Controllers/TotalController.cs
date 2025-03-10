@@ -29,13 +29,13 @@ public class TotalController : Controller
             collection.Remove(totalProject);
         }
         
-        var gpuProjects = collection.Where(p => p.ProjectType == "GPU").ToList();
         var cpuProjects = collection.Where(p => p.ProjectType == "Core").ToList();
+        var gpuProjects = collection.Where(p => p.ProjectType == "GPU").ToList();
 
-        var gpuTotals = _calculationService.CalculateTotalsUaAndRuByProjectType(gpuProjects, "GPU");
         var cpuTotals = _calculationService.CalculateTotalsUaAndRuByProjectType(cpuProjects, "Core");
+        var gpuTotals = _calculationService.CalculateTotalsUaAndRuByProjectType(gpuProjects, "GPU");
     
-        var result = new List<TotalScoreViewModel> { gpuTotals, cpuTotals };
+        var result = new List<TotalScoreViewModel> { cpuTotals, gpuTotals };
 
         return View(result);
     }
