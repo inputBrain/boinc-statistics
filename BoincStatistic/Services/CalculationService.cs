@@ -178,9 +178,9 @@ public class CalculationService : ICalculationService
             return "Overcome";
         else if (roundedDaysToWin >= -365 && roundedDaysToWin <= -101)
             return "Won";
-        else if (roundedDaysToWin >= -1000 && roundedDaysToWin <= -366)
+        else if (roundedDaysToWin >= -999 && roundedDaysToWin <= -366)
             return "Ownage";
-        else if (roundedDaysToWin >= -10000 && roundedDaysToWin <= -1001)
+        else if (roundedDaysToWin >= -10000 && roundedDaysToWin <= -1000)
             return "Destroyed";
         else if (roundedDaysToWin < -10000)
             return "Annihilated";
