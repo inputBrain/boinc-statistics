@@ -172,17 +172,19 @@ public class CalculationService : ICalculationService
 
     private string _getDaysToWinCategory(double daysToWin)
     {
-        if (daysToWin >= -100 && daysToWin <= 0)
+        var roundedDaysToWin = (int)Math.Round(daysToWin);
+
+        if (roundedDaysToWin >= -100 && roundedDaysToWin <= 0)
             return "Overcome";
-        else if (daysToWin >= -365 && daysToWin <= -101)
+        else if (roundedDaysToWin >= -365 && roundedDaysToWin <= -101)
             return "Won";
-        else if (daysToWin >= -1000 && daysToWin <= -366)
+        else if (roundedDaysToWin >= -1000 && roundedDaysToWin <= -366)
             return "Ownage";
-        else if (daysToWin >= -10000 && daysToWin <= -1001)
+        else if (roundedDaysToWin >= -10000 && roundedDaysToWin <= -1001)
             return "Destroyed";
-        else if (daysToWin < -10000)
+        else if (roundedDaysToWin < -10000)
             return "Annihilated";
         else
-            return daysToWin.ToString();
+            return roundedDaysToWin.ToString();
     }
 }
