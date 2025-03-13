@@ -17,6 +17,7 @@ public class ProjectsSimpleViewModel
     
     public bool HasMoreThanZeroCreditDay { get; set; }
 
+    public int Divider { get; set; }
 
     public DateTimeOffset GetKyivTime()
     {

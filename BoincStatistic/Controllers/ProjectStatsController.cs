@@ -51,6 +51,7 @@ public class ProjectStatsController : Controller
                 TotalCredit = project.TotalCredit,
                 Category = project.ProjectCategory,
                 Status = project.Status,
+                Divider = project.Divider,
                 UpdatedAt = project.UpdatedAt,
                 HasMoreThanZeroCreditDay = isAllCreditDayZero
             });
