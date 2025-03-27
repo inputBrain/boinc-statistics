@@ -101,7 +101,7 @@ public partial class BoincStatsService : BackgroundService
             try
             {
                 await projectStatisticRepository.SetProjectStatus(project, ScrappingStatus.InProcess);
-                _logger.LogInformation($"Processing project: {project.ProjectStatisticUrl}");
+                _logger.LogInformation($"Processing project: ID: {project.Id} || Name:  {project.ProjectName}");
 
                 var html = await Client.GetStringAsync(project.ProjectStatisticUrl, cancellationToken);
                 htmlDocument.LoadHtml(html);
