@@ -70,6 +70,10 @@ public class CalculationService : ICalculationService
             var foundDaysToWinWord = string.Empty;
             if (creditDifference < 0)
             {
+                if (ruAverage == 0)
+                {
+                    ruAverage = 1;
+                }
                 var copyDifference = creditDifference / ruAverage;
                 foundDaysToWinWord = _getDaysToWinCategory((double)copyDifference);
             }
