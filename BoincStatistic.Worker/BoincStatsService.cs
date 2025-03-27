@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using BoincStatistic.Database;
 using BoincStatistic.Database.CountryStatistic;
 using BoincStatistic.Database.ProjectStatistic;
+using BoincStatistic.Worker.Configs;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -19,18 +21,24 @@ public partial class BoincStatsService : BackgroundService
 {
     private readonly ILogger<BoincStatsService> _logger;
     private readonly IServiceProvider _serviceProvider;
+
+    private readonly IConfiguration _configuration;
+    
     private static readonly HttpClient Client = new();
     
 
-    public BoincStatsService(ILogger<BoincStatsService> logger, IServiceProvider serviceProvider)
+    public BoincStatsService(ILogger<BoincStatsService> logger, IServiceProvider serviceProvider, IConfiguration configuration)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
+        _configuration = configuration;
     }
 
 
     async protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var workerConfig = _configuration.GetSection("WorkerConfig").Get<WorkerConfig>();
+
         while (!stoppingToken.IsCancellationRequested)
         {
             using var scope = _serviceProvider.CreateScope();
@@ -38,7 +46,16 @@ public partial class BoincStatsService : BackgroundService
             
             var countryStatisticRepository = context.Db.CountryStatisticRepository;
             var projectStatisticRepository = context.Db.ProjectStatisticRepository;
-            
+
+
+            if (workerConfig!.IsDeveloperMode)
+            {
+                await _processScrapping(countryStatisticRepository,projectStatisticRepository, stoppingToken, workerConfig!.IsDeveloperMode);
+                
+                _logger.LogWarning("\n [[[ DEV MODE ]]] Scrapping has been done. \n [[[ DEV MODE ]]] Please, modify appsettings.json and set IsDeveloperMode as false.\n");
+
+                Environment.Exit(0);
+            }
             
             var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
             var nextRunTime = kievTime.Date.AddHours(5);
@@ -62,7 +79,8 @@ public partial class BoincStatsService : BackgroundService
     private async Task _processScrapping(
         ICountryStatisticRepository countryStatisticRepository,
         IProjectStatisticRepository projectStatisticRepository,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        bool isDeveloperMode = false
     )
     {
         var random = new Random();
@@ -203,11 +221,18 @@ public partial class BoincStatsService : BackgroundService
                         }
                     }
                     
-                    // 7 -12 min
-                    var paginationDelay = random.Next(7 * 60 * 1000, 12 * 60 * 1000);
-                    _logger.LogInformation($"Paginated page = Waiting for {paginationDelay / 1000 / 60} minutes before processing the next page...");
-                    await Task.Delay(paginationDelay, cancellationToken);
-                    // await Task.Delay(3_000, cancellationToken);
+                    if (isDeveloperMode == false)
+                    {
+                        // 7 -12 min
+                        var paginationDelay = random.Next(7 * 60 * 1000, 12 * 60 * 1000);
+                        _logger.LogInformation($"Paginated page = Waiting for {paginationDelay / 1000 / 60} minutes before processing the next page...");
+                        await Task.Delay(paginationDelay, cancellationToken);
+                    }
+                    
+                    if (isDeveloperMode)
+                    {
+                        await Task.Delay(3_000, cancellationToken);
+                    }
                     
                 }
                 if (preparedNewCountries.Any())
@@ -234,14 +259,19 @@ public partial class BoincStatsService : BackgroundService
             {
                 _logger.LogError(ex, "Error processing project: {Url}", project.ProjectStatisticUrl);
             }
-
-            //51 min - 1.20 h
-            var delay = random.Next(51 * 60 * 1000, 80 * 60 * 1000); 
-            _logger.LogInformation($"Waiting for {delay / 1000 / 60} minutes before processing the next project...");
-            await Task.Delay(delay, cancellationToken);
-            // await Task.Delay(15_000, cancellationToken);
-
-
+            
+            if (isDeveloperMode == false)
+            {
+                //51 min - 1.20 h
+                var delay = random.Next(51 * 60 * 1000, 80 * 60 * 1000); 
+                _logger.LogInformation($"Waiting for {delay / 1000 / 60} minutes before processing the next project...");
+                await Task.Delay(delay, cancellationToken);
+            }
+                    
+            if (isDeveloperMode)
+            {
+                await Task.Delay(15_000, cancellationToken);
+            }
         }
 
         _logger.LogInformation("Scraping completed.");
