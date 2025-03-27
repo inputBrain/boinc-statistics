@@ -51,7 +51,7 @@
                         @foreach (var project in Model)
                         {
                             <tr class="hover:bg-gray-200 transition-colors duration-300">
-                                <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 cursor-pointer @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")"
+                                <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 cursor-pointer @(project.HasMoreThanZeroCreditDay ? "bg-red-200" : "")"
                                     onclick="window.open('@project.ProjectStatsUrl', '_blank')">
                                     @project.ProjectName
                                 </td>

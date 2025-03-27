@@ -72,7 +72,7 @@ ViewData["Title"] = "UA vs RU";
                     @foreach (var project in Model)
                     {
                     <tr class="hover:bg-gray-200 transition-colors duration-300">
-                        <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 cursor-pointer @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")"
+                        <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 cursor-pointer @(project.HasMoreThanZeroCreditDay ? "bg-red-200" : "")"
                             onclick="window.open('@project.CountryStatsUrl', '_blank')">
                             @project.ProjectName
                         </td>
@@ -114,7 +114,7 @@ ViewData["Title"] = "UA vs RU";
                                 @project.ProjectType
                             </span>
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-100 text-green-800 font-semibold" : "text-teal-950")">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-200 text-green-800 font-semibold" : "text-teal-950")">
                             @project.DaysToWin
                         </td>
                     </tr>
@@ -136,7 +136,7 @@ ViewData["Title"] = "UA vs RU";
                 },
                 {
                     "type": "num",
-                    "targets": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                    "targets": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13]
                 }
             ],
             order: [],

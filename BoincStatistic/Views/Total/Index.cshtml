@@ -98,7 +98,7 @@ ViewData["Title"] = "TOTAL";
                                 @project.ProjectType
                             </span>
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.TotalDaysToWin) ? "bg-green-100 text-green-800 font-semibold" : "text-teal-950")">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.TotalDaysToWin) ? "bg-green-200 text-green-800 font-semibold" : "text-teal-950")">
                             @project.TotalDaysToWin
                         </td>
                     </tr>

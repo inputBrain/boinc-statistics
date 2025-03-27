@@ -78,7 +78,7 @@ ViewData["Title"] = "UA vs #1";
                         <td class="px-2 sm:px-6 py-1 text-sm text-teal-950 text-left">
                             @project.Country
                         </td>
-                        <td class="px-2 py-1 text-sm text-center font-medium text-teal-950 cursor-pointer @(project.HasMoreThanZeroCreditDay ? "bg-red-100" : "")"
+                        <td class="px-2 py-1 text-sm text-center font-medium text-teal-950 cursor-pointer @(project.HasMoreThanZeroCreditDay ? "bg-red-200" : "")"
                             onclick="window.open('@project.CountryStatsUrl', '_blank')">
                             @project.ProjectName
                         </td>
@@ -120,7 +120,7 @@ ViewData["Title"] = "UA vs #1";
                                 @project.ProjectType
                             </span>
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-100 text-green-800 font-semibold" : "text-teal-950")">
+                        <td class="px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-200 text-green-800 font-semibold" : "text-teal-950")">
                             @project.DaysToWin
                         </td>
                     </tr>
