@@ -95,7 +95,7 @@ public class ProjectStatisticRepository : AbstractRepository<ProjectStatisticMod
 
     public async Task SetToAllProjectsInWaitingStatus()
     {
-        await DbModel.ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, ScrappingStatus.InWaiting));
+        await DbModel.Where(x => x.IsScrappingActive == true).ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, ScrappingStatus.InWaiting));
     }
 
 
@@ -114,6 +114,7 @@ public class ProjectStatisticRepository : AbstractRepository<ProjectStatisticMod
     public async Task<List<ProjectStatisticModel>> ListAll()
     {
         var projectList = await DbModel
+            .Where(x => x.IsScrappingActive == true)
             .Include(x => x.CountryStatistics)
             .AsSplitQuery()
             .ToListAsync();
@@ -129,6 +130,7 @@ public class ProjectStatisticRepository : AbstractRepository<ProjectStatisticMod
     public async Task<ImmutableArray<ProjectStatisticModel>> List()
     {
         var collection =await DbModel
+            .Where(x => x.IsScrappingActive == true)
             .OrderBy(b => b.Id)
             .Include(x => x.CountryStatistics)
             .AsSplitQuery()
