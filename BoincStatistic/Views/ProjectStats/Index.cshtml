@@ -58,8 +58,8 @@
                                 <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center" data-order="@project.TotalCredit.Replace(",", "")" data-label="Total Credit">
                                     @project.TotalCredit
                                 </td>
-                                <td class="px-4 sm:px-6 py-4 text-sm text-teal-950 text-center" data-label="Category">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                <td class="px-4 py-4 sm:px-6  text-sm text-teal-950 text-center" data-label="Category">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(project.ProjectType == "GPU" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800")">
                                         @project.Category
                                     </span>
                                 </td>

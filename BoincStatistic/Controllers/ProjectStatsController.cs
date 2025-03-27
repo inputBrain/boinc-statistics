@@ -26,7 +26,7 @@ public class ProjectStatsController : Controller
     {
         var viewCollection = new List<ProjectsSimpleViewModel>();
     
-        var collection = await _projectStatisticRepository.List();
+        var collection = await _projectStatisticRepository.ListAll();
 
         foreach (var project in collection)
         {
@@ -48,10 +48,11 @@ public class ProjectStatsController : Controller
             {
                 ProjectName = project.ProjectName,
                 ProjectStatsUrl = project.ProjectStatisticUrl,
-                TotalCredit = project.TotalCredit,
-                Category = project.ProjectCategory,
+                TotalCredit = project.TotalCredit ?? "0",
+                Category = project.ProjectCategory ?? "0",
                 Status = project.Status,
                 Divider = project.Divider,
+                ProjectType = project.Type == ProjectType.GPU ? "GPU" : "Core",
                 UpdatedAt = project.UpdatedAt,
                 HasMoreThanZeroCreditDay = isAllCreditDayZero
             });
