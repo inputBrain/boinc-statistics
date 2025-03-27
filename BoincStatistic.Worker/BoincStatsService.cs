@@ -92,7 +92,7 @@ public partial class BoincStatsService : BackgroundService
         var preparedNewCountries = new List<CountryStatisticModel>();
         var preparedCountriesToUpdate = new List<CountryStatisticModel>();
 
-        var collection = await projectStatisticRepository.List();
+        var collection = await projectStatisticRepository.ListAll();
 
         await projectStatisticRepository.SetToAllProjectsInWaitingStatus();
 
