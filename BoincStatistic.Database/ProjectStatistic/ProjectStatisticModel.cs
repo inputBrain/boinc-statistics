@@ -15,6 +15,8 @@ public class ProjectStatisticModel : AbstractModel
     
     public string ProjectName { get; set; }
     
+    public string? DisplayName { get; set; }
+    
     public string ProjectStatisticUrl { get; set; }
 
     public string CountryStatisticUrl { get; set; }

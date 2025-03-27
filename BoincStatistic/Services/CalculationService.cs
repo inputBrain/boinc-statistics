@@ -107,7 +107,7 @@ public class CalculationService : ICalculationService
 
             projectOverviewList.Add(new ProjectWeightViewModel {
                 Country = rank != null ? countrySecondByDefaultRu.CountryName : "",
-                ProjectName = project.ProjectName,
+                ProjectName = project.DisplayName ?? project.ProjectName,
                 ProjectStatsUrl = project.ProjectStatisticUrl,
                 CountryStatsUrl = project.CountryStatisticUrl,
                 UaWeight = (double)uaWeight,

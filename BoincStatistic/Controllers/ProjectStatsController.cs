@@ -46,7 +46,7 @@ public class ProjectStatsController : Controller
 
             viewCollection.Add(new ProjectsSimpleViewModel
             {
-                ProjectName = project.ProjectName,
+                ProjectName = project.DisplayName ?? project.ProjectName,
                 ProjectStatsUrl = project.ProjectStatisticUrl,
                 TotalCredit = project.TotalCredit ?? "0",
                 Category = project.ProjectCategory ?? "0",
