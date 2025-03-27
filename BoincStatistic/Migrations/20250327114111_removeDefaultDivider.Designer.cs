@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BoincStatistic.Migrations
 {
     [DbContext(typeof(PostgreSqlContext))]
-    [Migration("20250202100417_projectsSeed")]
-    partial class projectsSeed
+    [Migration("20250327114111_removeDefaultDivider")]
+    partial class removeDefaultDivider
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -89,9 +89,6 @@ namespace BoincStatistic.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DefaultDivider")
-                        .HasColumnType("integer");
 
                     b.Property<int>("Divider")
                         .HasColumnType("integer");

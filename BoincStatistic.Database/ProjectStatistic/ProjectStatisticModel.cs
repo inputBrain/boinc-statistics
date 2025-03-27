@@ -26,8 +26,6 @@ public class ProjectStatisticModel : AbstractModel
     public ProjectType Type { get; set; }
     
     public int Divider { get; set; }
-    
-    public int DefaultDivider { get; set; }
 
     public ScrappingStatus Status { get; set; }
 
@@ -36,6 +34,8 @@ public class ProjectStatisticModel : AbstractModel
     public DateTimeOffset UpdatedAt { get; set; }
     
     public List<CountryStatisticModel> CountryStatistics { get; set; }
+    
+    public bool IsScrappingActive { get; set; }
 
 
     public static ProjectStatisticModel CreateModel(string projectName, string projectCategory, string totalCredit)
