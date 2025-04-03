@@ -68,6 +68,7 @@ public class CalculationService : ICalculationService
             var creditDifference = ruCredit - uaCredit;
 
             var foundDaysToWinWord = string.Empty;
+            var daysToWinWithMinus = string.Empty;
             if (creditDifference < 0)
             {
                 if (ruAverage == 0)
@@ -75,6 +76,8 @@ public class CalculationService : ICalculationService
                     ruAverage = 1;
                 }
                 var copyDifference = creditDifference / ruAverage;
+                
+                daysToWinWithMinus = Math.Round(creditDifference / ruAverage, 1).ToString(CultureInfo.InvariantCulture);
                 foundDaysToWinWord = _getDaysToWinCategory((double)copyDifference);
             }
             
@@ -89,7 +92,6 @@ public class CalculationService : ICalculationService
             var mwth = Math.Ceiling(taskHours * mwthMultiplier / 1000000 * 100) / 100;
             
             var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : 0;
-            // var daysToWin = creditDifference > 0 && uaAverage > ruAverage ? Math.Round(creditDifference / (uaAverage - ruAverage), 0) + 1 : Math.Round(creditDifference / (uaAverage - ruAverage), 0);
 
             var devicesToOvercome = Math.Round((ruAverage - uaAverage) / (creditsPerHour * 24), 0) + 1;
 
@@ -123,7 +125,8 @@ public class CalculationService : ICalculationService
                 DevicesToOvercome = (double)devicesToOvercome,
                 DaysToWin = daysToWinAsString,
                 ProjectType = projectType == ProjectType.GPU ? "GPU" : "Core",
-                HasMoreThanZeroCreditDay = isAllCreditDayZero
+                HasMoreThanZeroCreditDay = isAllCreditDayZero,
+                DaysToWinWithMinus = daysToWinWithMinus
             });
         }
 

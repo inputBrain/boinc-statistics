@@ -114,8 +114,14 @@ ViewData["Title"] = "UA vs RU";
                                 @project.ProjectType
                             </span>
                         </td>
-                        <td class="px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-200 text-green-800 font-semibold" : "text-teal-950")">
+                        <td class="relative px-4 sm:px-6 py-4 text-sm text-center @(new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin) ? "bg-green-200 text-green-800 font-semibold group" : "text-teal-950")">
                             @project.DaysToWin
+                            @if (new[] {"Overcome", "Won", "Ownage", "Destroyed", "Annihilated"}.Contains(project.DaysToWin))
+                            {
+                                <div class="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs px-4 py-2 rounded-lg shadow-lg">
+                                    @project.DaysToWinWithMinus
+                                </div>
+                            }
                         </td>
                     </tr>
                     }
