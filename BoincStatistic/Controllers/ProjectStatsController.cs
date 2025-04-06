@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-using BoincStatistic.Database.CountryStatistic;
-using BoincStatistic.Database.ProjectStatistic;
+﻿using BoincStatistic.Database.ProjectStatistic;
 using BoincStatistic.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,13 +10,10 @@ public class ProjectStatsController : Controller
 
     private readonly IProjectStatisticRepository _projectStatisticRepository;
 
-    private readonly ICountryStatisticRepository _countryStatistic;
-
-    public ProjectStatsController(ILogger<ProjectStatsController> logger, IProjectStatisticRepository projectStatisticRepository, ICountryStatisticRepository countryStatistic)
+    public ProjectStatsController(ILogger<ProjectStatsController> logger, IProjectStatisticRepository projectStatisticRepository)
     {
         _logger = logger;
         _projectStatisticRepository = projectStatisticRepository;
-        _countryStatistic = countryStatistic;
     }
     
     [Route("projects")]
@@ -30,20 +25,6 @@ public class ProjectStatsController : Controller
 
         foreach (var project in collection)
         {
-            var totalCount = 0;
-            var creditDayZeroCount = 0;
-
-            foreach (var stat in project.CountryStatistics)
-            {
-                totalCount++;
-                if (stat.CreditDay == "0")
-                {
-                    creditDayZeroCount++;
-                }
-            }
-
-            var isAllCreditDayZero = totalCount == creditDayZeroCount;
-
             viewCollection.Add(new ProjectsSimpleViewModel
             {
                 ProjectName = project.DisplayName ?? project.ProjectName,
@@ -54,7 +35,7 @@ public class ProjectStatsController : Controller
                 Divider = project.Divider,
                 ProjectType = project.Type == ProjectType.GPU ? "GPU" : "Core",
                 UpdatedAt = project.UpdatedAt,
-                HasMoreThanZeroCreditDay = isAllCreditDayZero
+                IsCreditDayZero = project.IsCreditDayZero
             });
         }
 
