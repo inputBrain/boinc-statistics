@@ -22,7 +22,7 @@ public class ProjectWeightViewModel
     
     public string ProjectType { get; set; } 
     
-    public bool HasMoreThanZeroCreditDay { get; set; }
+    public bool IsCreditDayZero { get; set; }
     
     public string DaysToWinWithMinus { get; set; } 
 

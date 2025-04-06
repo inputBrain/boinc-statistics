@@ -23,22 +23,6 @@ public class CalculationService : ICalculationService
 
         foreach (var project in projectList)
         {
-            var totalCount = 0;
-            var creditDayZeroCount = 0;
-
-            foreach (var stat in project.CountryStatistics)
-            {
-                totalCount++;
-                if (stat.CreditDay == "0")
-                {
-                    creditDayZeroCount++;
-                }
-            }
-
-            var isAllCreditDayZero = totalCount == creditDayZeroCount;
-            
-            
-            
             var countryFirstByDefaultUa = project.CountryStatistics.FirstOrDefault(x => x.CountryName == firstCountryName);
 
             var countrySecondByDefaultRu = project.CountryStatistics.FirstOrDefault(x => x.CountryName == secondCountryName);
@@ -102,7 +86,7 @@ public class CalculationService : ICalculationService
                 daysToWinAsString = foundDaysToWinWord;
             }
 
-            if (isAllCreditDayZero)
+            if (project.IsCreditDayZero)
             {
                 daysToWinAsString = "0";
             }
@@ -125,7 +109,7 @@ public class CalculationService : ICalculationService
                 DevicesToOvercome = (double)devicesToOvercome,
                 DaysToWin = daysToWinAsString,
                 ProjectType = projectType == ProjectType.GPU ? "GPU" : "Core",
-                HasMoreThanZeroCreditDay = isAllCreditDayZero,
+                IsCreditDayZero = project.IsCreditDayZero,
                 DaysToWinWithMinus = daysToWinWithMinus
             });
         }

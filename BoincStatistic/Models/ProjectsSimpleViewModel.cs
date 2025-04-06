@@ -15,7 +15,7 @@ public class ProjectsSimpleViewModel
     
     public DateTimeOffset UpdatedAt { get; set; }
     
-    public bool HasMoreThanZeroCreditDay { get; set; }
+    public bool IsCreditDayZero { get; set; }
 
     public int Divider { get; set; }
     
