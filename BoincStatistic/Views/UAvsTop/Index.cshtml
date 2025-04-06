@@ -78,7 +78,7 @@ ViewData["Title"] = "UA vs #1";
                         <td class="px-2 sm:px-6 py-1 text-sm text-teal-950 text-left">
                             @project.Country
                         </td>
-                        <td class="px-2 py-1 text-sm text-center font-medium text-teal-950 cursor-pointer @(project.HasMoreThanZeroCreditDay ? "bg-red-200" : "")"
+                        <td class="px-2 py-1 text-sm text-center font-medium text-teal-950 cursor-pointer @(project.IsCreditDayZero ? "bg-red-200" : "")"
                             onclick="window.open('@project.CountryStatsUrl', '_blank')">
                             @project.ProjectName
                         </td>
