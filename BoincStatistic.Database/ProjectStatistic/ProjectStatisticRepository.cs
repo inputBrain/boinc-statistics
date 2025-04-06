@@ -14,9 +14,9 @@ public class ProjectStatisticRepository : AbstractRepository<ProjectStatisticMod
     }
 
 
-    public async Task UpdateModel(ProjectStatisticModel model, string totalCredit)
+    public async Task UpdateModel(ProjectStatisticModel model, string totalCredit, bool isCreditDayZero)
     {
-        model.UpdateTotalStatsModel(model, totalCredit);
+        model.UpdateTotalStatsModel(model, totalCredit, isCreditDayZero);
         await UpdateModelAsync(model);
     }
 

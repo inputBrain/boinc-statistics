@@ -126,11 +126,14 @@ public partial class BoincStatsService : BackgroundService
                     if (columns == null || (columns[0]?.InnerText != "Total credit"))
                         continue;
 
-                    var matchTotalCredit = regex.Match(columns[1]?.InnerText.Trim() ?? "0");
+                    var totalCreditColumn = columns[1]?.InnerText.Trim() ?? "0";
+                    var matchTotalCredit = regex.Match(totalCreditColumn);
 
-                    if (!ProjectStatisticModel.IsSameTotalStatsModel(project, matchTotalCredit.Value))
+                    var isCreditDayZero = totalCreditColumn.Contains("+ 0 since then");
+
+                    if (!ProjectStatisticModel.IsSameTotalStatsModel(project, matchTotalCredit.Value, isCreditDayZero))
                     {
-                        await projectStatisticRepository.UpdateModel(project, matchTotalCredit.Value);
+                        await projectStatisticRepository.UpdateModel(project, matchTotalCredit.Value, isCreditDayZero);
                     }
                 }
 
