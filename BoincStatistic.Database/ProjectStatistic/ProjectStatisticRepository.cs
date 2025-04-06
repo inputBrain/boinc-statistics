@@ -33,14 +33,8 @@ public class ProjectStatisticRepository : AbstractRepository<ProjectStatisticMod
         model.Status = scrappingStatus;
         await UpdateModelAsync(model);
     }
-
-
-    public async Task SetToAllProjectsInWaitingStatus()
-    {
-        await DbModel.Where(x => x.IsScrappingActive == true).ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, ScrappingStatus.InWaiting));
-    }
-
-
+    
+    
     public async Task<List<ProjectStatisticModel>> ListAll()
     {
         var projectList = await DbModel

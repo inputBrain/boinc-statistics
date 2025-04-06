@@ -3,6 +3,5 @@
 public enum ScrappingStatus
 {
     InProcess = 1,
-    InWaiting,
-    Completed
+    Completed = 2
 }

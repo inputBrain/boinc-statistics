@@ -15,8 +15,6 @@ public interface IProjectStatisticRepository
 
     Task SetProjectStatus(ProjectStatisticModel model, ScrappingStatus scrappingStatus);
 
-    Task SetToAllProjectsInWaitingStatus();
-
     Task<List<ProjectStatisticModel>> ListAll();
     
 }

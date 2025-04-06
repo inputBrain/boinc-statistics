@@ -57,20 +57,6 @@ public partial class BoincStatsService : BackgroundService
                 Environment.Exit(0);
             }
             
-            var kievTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
-            var nextRunTime = kievTime.Date.AddHours(5);
-            
-            if (kievTime.Hour >= 5)
-            {
-                nextRunTime = nextRunTime.AddDays(1);
-            }
-            
-            var delay = nextRunTime - kievTime;
-            
-            _logger.LogInformation($"\n ----- Scrapping completed. Next run time will be at: {nextRunTime:HH:mm:ss}. On: ( {nextRunTime:D} )----- \n");
-            
-            await Task.Delay(delay, stoppingToken);
-            
             await _processScrapping(countryStatisticRepository,projectStatisticRepository, stoppingToken);
         }
     }
@@ -93,8 +79,6 @@ public partial class BoincStatsService : BackgroundService
         var preparedCountriesToUpdate = new List<CountryStatisticModel>();
 
         var collection = await projectStatisticRepository.ListAll();
-
-        await projectStatisticRepository.SetToAllProjectsInWaitingStatus();
 
         foreach (var project in collection)
         {
@@ -252,11 +236,8 @@ public partial class BoincStatsService : BackgroundService
                     preparedCountriesToUpdate.Clear();
                 }
 
-                await projectStatisticRepository.SetProjectStatus(project, ScrappingStatus.Completed);
                 
                 await projectStatisticRepository.UpdateUpdateAt(project, DateTime.UtcNow);
-                
-                _logger.LogInformation("\nProject {ProjectName} marked as Completed\n", project.ProjectName);
             }
             catch (Exception ex)
             {
@@ -275,6 +256,10 @@ public partial class BoincStatsService : BackgroundService
             {
                 await Task.Delay(15_000, cancellationToken);
             }
+            
+            await projectStatisticRepository.SetProjectStatus(project, ScrappingStatus.Completed);
+            _logger.LogInformation("\nProject {ProjectName} marked as Completed\n", project.ProjectName);
+
         }
 
         _logger.LogInformation("Scraping completed.");
