@@ -86,7 +86,9 @@ public class CalculationService : ICalculationService
                 daysToWinAsString = foundDaysToWinWord;
             }
 
-            if (project.IsCreditDayZero)
+            var isFirstCountryHasMoreThen0CreditDay = project.CountryStatistics.First(x => x.Rank == "1").CreditDay == "0";
+            
+            if (isFirstCountryHasMoreThen0CreditDay)
             {
                 daysToWinAsString = "0";
             }
@@ -109,7 +111,7 @@ public class CalculationService : ICalculationService
                 DevicesToOvercome = (double)devicesToOvercome,
                 DaysToWin = daysToWinAsString,
                 ProjectType = projectType == ProjectType.GPU ? "GPU" : "Core",
-                IsCreditDayZero = project.IsCreditDayZero,
+                IsCreditDayZero = isFirstCountryHasMoreThen0CreditDay,
                 DaysToWinWithMinus = daysToWinWithMinus
             });
         }
