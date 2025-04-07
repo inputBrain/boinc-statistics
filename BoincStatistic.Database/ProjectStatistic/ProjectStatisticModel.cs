@@ -32,6 +32,8 @@ public class ProjectStatisticModel : AbstractModel
     public ScrappingStatus Status { get; set; }
 
     public bool IsScrappingActive { get; set; }
+    
+    public bool IsCreditDayZero { get; set; }
 
     public List<CountryStatisticModel> CountryStatistics { get; set; }
 
@@ -53,15 +55,17 @@ public class ProjectStatisticModel : AbstractModel
     }
 
 
-    public static bool IsSameTotalStatsModel(ProjectStatisticModel model, string totalCredit)
+    public static bool IsSameTotalStatsModel(ProjectStatisticModel model, string totalCredit,  bool isCreditDayZero)
     {
-        return model.TotalCredit == totalCredit;
+        return model.TotalCredit == totalCredit &&
+               model.IsCreditDayZero == isCreditDayZero;
     }
 
 
-    public void UpdateTotalStatsModel(ProjectStatisticModel model, string totalCredit)
+    public void UpdateTotalStatsModel(ProjectStatisticModel model, string totalCredit,  bool isCreditDayZero)
     {
         model.TotalCredit = totalCredit;
+        model.IsCreditDayZero = isCreditDayZero;
     }
 
 

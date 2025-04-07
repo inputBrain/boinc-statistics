@@ -69,7 +69,7 @@ namespace BoincStatistic.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("DetailedProjectStats");
+                    b.ToTable("DetailedProjectStats", (string)null);
                 });
 
             modelBuilder.Entity("BoincStatistic.Database.ProjectStatistic.ProjectStatisticModel", b =>
@@ -92,6 +92,9 @@ namespace BoincStatistic.Migrations
 
                     b.Property<int>("Divider")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsCreditDayZero")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsScrappingActive")
                         .HasColumnType("boolean");
@@ -121,7 +124,7 @@ namespace BoincStatistic.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectStats");
+                    b.ToTable("ProjectStats", (string)null);
                 });
 
             modelBuilder.Entity("BoincStatistic.Database.CountryStatistic.CountryStatisticModel", b =>
