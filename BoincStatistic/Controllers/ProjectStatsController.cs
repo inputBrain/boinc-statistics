@@ -23,9 +23,18 @@ public class ProjectStatsController : Controller
     
         var collection = await _projectStatisticRepository.ListAll();
 
+        
         foreach (var project in collection)
         {
-            var isFirstCountryHasMoreThen0CreditDay = project.CountryStatistics.First(x => x.CountryName == "Ukraine").CreditDay == "0";
+            var isProjectNotWorking = false;
+
+            var hasUkraineCreditDayZero = project.CountryStatistics.First(x => x.CountryName == "Ukraine").CreditDay == "0";
+            var isSinceThenZero = project.IsCreditDayZero;
+
+            if (hasUkraineCreditDayZero && isSinceThenZero)
+            {
+                isProjectNotWorking = true;
+            }
             
             viewCollection.Add(new ProjectsSimpleViewModel
             {
@@ -37,7 +46,7 @@ public class ProjectStatsController : Controller
                 Divider = project.Divider,
                 ProjectType = project.Type == ProjectType.GPU ? "GPU" : "Core",
                 UpdatedAt = project.UpdatedAt,
-                IsCreditDayZero = isFirstCountryHasMoreThen0CreditDay
+                IsCreditDayZero = isProjectNotWorking
             });
         }
 
