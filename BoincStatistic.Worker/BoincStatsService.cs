@@ -115,6 +115,8 @@ public partial class BoincStatsService : BackgroundService
 
                     var isCreditDayZero = totalCreditColumn.Contains("+ 0 since then");
 
+                    _logger.LogInformation("Total credit column:  {Column}", totalCreditColumn);
+
                     if (!ProjectStatisticModel.IsSameTotalStatsModel(project, matchTotalCredit.Value, isCreditDayZero))
                     {
                         await projectStatisticRepository.UpdateModel(project, matchTotalCredit.Value, isCreditDayZero);
