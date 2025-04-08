@@ -25,7 +25,7 @@ public class ProjectStatsController : Controller
 
         foreach (var project in collection)
         {
-            // var isFirstCountryHasMoreThen0CreditDay = project.CountryStatistics.First(x => x.Rank == "1").CreditDay == "0";
+            var isFirstCountryHasMoreThen0CreditDay = project.CountryStatistics.First(x => x.CountryName == "Ukraine").CreditDay == "0";
             
             viewCollection.Add(new ProjectsSimpleViewModel
             {
@@ -37,7 +37,7 @@ public class ProjectStatsController : Controller
                 Divider = project.Divider,
                 ProjectType = project.Type == ProjectType.GPU ? "GPU" : "Core",
                 UpdatedAt = project.UpdatedAt,
-                IsCreditDayZero = project.IsCreditDayZero
+                IsCreditDayZero = isFirstCountryHasMoreThen0CreditDay
             });
         }
 

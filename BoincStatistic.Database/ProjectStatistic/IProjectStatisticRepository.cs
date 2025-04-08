@@ -8,7 +8,7 @@ namespace BoincStatistic.Database.ProjectStatistic;
 
 public interface IProjectStatisticRepository
 {
-    public Task UpdateModel(ProjectStatisticModel model, string totalCredit, bool isCreditDayZero);
+    public Task UpdateModel(ProjectStatisticModel model, string totalCredit);
 
     Task UpdateUpdateAt(ProjectStatisticModel model, DateTimeOffset updatedAt);
     
