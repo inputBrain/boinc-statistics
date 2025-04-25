@@ -46,7 +46,7 @@
     <link rel="stylesheet" href="~/css/data-tables-media.css" asp-append-version="true">
 
 </head>
-<body class="bg-gray-50 font-sans flex flex-col min-h-screen">
+<body class="flex min-h-screen bg-gray-100 text-gray-900">
 <header class="bg-gray-800 border-b border-gray-700 shadow-sm">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center py-3">
@@ -65,38 +65,34 @@
 </header>
 
 <div class="flex-1 flex">
-    <aside class="w-16 overflow-y-auto bg-gray-900 text-gray-100 border-r border-blue-500">
-        <div class="py-6 px-3">
-            @* <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4 whitespace-nowrap overflow-hidden transition-opacity duration-300">Dashboard</h2> *@
+    <aside class="w-17 overflow-y-auto bg-gray-900 text-gray-100 border-r border-blue-500">
 
-            <nav class="space-y-4">
-                <a href="@Url.Action("Index", "Home")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "bg-blue-600" : "")">
+            <nav class="space-y-4 relative group py-6 px-3">
+                <a href="@Url.Action("Index", "Home")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all duration-400 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "bg-blue-600" : "")">
                     <i class="bi bi-flag text-lg min-w-[20px]"></i>
-                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300">Countries</span>
+                    <span class="ml-3 whitespace-nowrap overflow-hidden">Countries</span>
                 </a>
-                <a href="@Url.Action("Index", "ProjectStats")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectStats" ? "bg-blue-600" : "")">
+                <a href="@Url.Action("Index", "ProjectStats")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all duration-400 @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectStats" ? "bg-blue-600" : "")">
                     <i class="bi bi-clipboard-data text-lg min-w-[20px]"></i>
-                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300">Projects</span>
+                    <span class="ml-3 whitespace-nowrap overflow-hidden">Projects</span>
                 </a>
-                <a href="@Url.Action("Index", "ProjectWeight")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectWeight" ? "bg-blue-600" : "")">
+                <a href="@Url.Action("Index", "ProjectWeight")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all duration-400 @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProjectWeight" ? "bg-blue-600" : "")">
                     <i class="bi bi-diagram-2 text-lg min-w-[20px]"></i>
-                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300">UA vs RU</span>
+                    <span class="ml-3 whitespace-nowrap overflow-hidden">UA vs RU</span>
                 </a>
-                <a href="@Url.Action("Index", "UAvsTop")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "UAvsTop" ? "bg-blue-600" : "")">
+                <a href="@Url.Action("Index", "UAvsTop")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all duration-400 @(ViewContext.RouteData.Values["controller"]?.ToString() == "UAvsTop" ? "bg-blue-600" : "")">
                     <i class="bi bi-diagram-3 text-lg min-w-[20px]"></i>
-                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300">UA vs #1</span>
+                    <span class="ml-3 whitespace-nowrap overflow-hidden">UA vs #1</span>
                 </a>
-                <a href="@Url.Action("Index", "Total")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "Total" ? "bg-blue-600" : "")">
+                <a href="@Url.Action("Index", "Total")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all duration-400 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Total" ? "bg-blue-600" : "")">
                     <i class="bi bi-calculator text-lg min-w-[20px]"></i>
-                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300">Total</span>
+                    <span class="ml-3 whitespace-nowrap overflow-hidden">Total</span>
                 </a>
             </nav>
-            
-        </div>
     </aside>
 
     <!-- Main content area -->
-    <main class="main-content">
+    <main class="flex-1 p-6 overflow-auto">
         @RenderBody()
     </main>
 </div>
@@ -104,7 +100,8 @@
 <footer class="bg-gray-800 border-b border-gray-700 shadow-sm mt-auto py-4">
     <div class="container mx-auto px-4 text-gray-500 text-sm">
         <span class="text-white">
-            © 2024 - <span id="copyright">
+            © 2024 -
+            <span id="copyright">
                 <script>
                     document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()));
                 </script>

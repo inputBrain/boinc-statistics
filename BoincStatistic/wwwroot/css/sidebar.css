@@ -48,9 +48,3 @@
     margin-right: 0.75rem;
     font-size: 1rem;
 }
-
-.main-content {
-    flex: 1;
-    padding: 1.5rem;
-    overflow-x: auto;
-}
