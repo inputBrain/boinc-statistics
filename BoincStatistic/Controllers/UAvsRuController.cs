@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BoincStatistic.Controllers;
 
-public class ProjectWeightController : Controller
+public class UAvsRuController : Controller
 {
-    private readonly ILogger<ProjectWeightController> _logger;
+    private readonly ILogger<UAvsRuController> _logger;
     private readonly ICalculationService _calculationService;
     
-    public ProjectWeightController(ILogger<ProjectWeightController> logger, ICalculationService calculationService)
+    public UAvsRuController(ILogger<UAvsRuController> logger, ICalculationService calculationService)
     {
         _logger = logger;
         _calculationService = calculationService;

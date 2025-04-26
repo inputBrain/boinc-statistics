@@ -8,6 +8,7 @@
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     --color-red-200: oklch(88.5% 0.062 18.334);
+    --color-red-500: oklch(63.7% 0.237 25.331);
     --color-green-200: oklch(92.5% 0.084 155.995);
     --color-green-800: oklch(44.8% 0.119 151.328);
     --color-teal-950: oklch(27.7% 0.046 192.524);
@@ -33,6 +34,7 @@
     --color-gray-900: oklch(21% 0.034 264.665);
     --color-white: #fff;
     --spacing: 0.25rem;
+    --container-sm: 24rem;
     --text-xs: 0.75rem;
     --text-xs--line-height: calc(1 / 0.75);
     --text-sm: 0.875rem;
@@ -41,6 +43,8 @@
     --text-lg--line-height: calc(1.75 / 1.125);
     --text-xl: 1.25rem;
     --text-xl--line-height: calc(1.75 / 1.25);
+    --text-2xl: 1.5rem;
+    --text-2xl--line-height: calc(2 / 1.5);
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
@@ -217,12 +221,6 @@
   .static {
     position: static;
   }
-  .sticky {
-    position: sticky;
-  }
-  .top-0 {
-    top: calc(var(--spacing) * 0);
-  }
   .bottom-full {
     bottom: 100%;
   }
@@ -318,9 +316,6 @@
   }
   .h-100 {
     height: calc(var(--spacing) * 100);
-  }
-  .h-screen {
-    height: 100vh;
   }
   .min-h-screen {
     min-height: 100vh;
