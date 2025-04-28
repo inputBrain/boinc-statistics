@@ -76,7 +76,7 @@
                     <i class="bi bi-clipboard-data text-lg min-w-[20px]"></i>
                     <span class="ml-3 whitespace-nowrap overflow-hidden">Projects</span>
                 </a>
-                <a href="@Url.Action("Index", "UAvsRu")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all duration-400 @(ViewContext.RouteData.Values["controller"]?.ToString() == "UAvsRU" ? "bg-blue-600" : "")">
+                <a href="@Url.Action("Index", "UAvsRu")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all duration-400 @(ViewContext.RouteData.Values["controller"]?.ToString() == "UAvsRu" ? "bg-blue-600" : "")">
                     <i class="bi bi-diagram-2 text-lg min-w-[20px]"></i>
                     <span class="ml-3 whitespace-nowrap overflow-hidden">UA vs RU</span>
                 </a>
@@ -107,7 +107,7 @@
                 </script>
             </span>
             BOINC STATISTICS. All rights reserved.
-            <a class="text-blue-400" href="@Url.Action("Privacy")">Privacy Policy</a>
+            <a class="text-blue-400" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
         </span>
     </div>
 </footer>
