@@ -96,10 +96,10 @@ public class CalculationService : ICalculationService
                 isProjectNotWorking = true;
             }
             
-            // if (isProjectNotWorking)
-            // {
-            //     daysToWinAsString = "0";
-            // }
+            if (isProjectNotWorking && string.IsNullOrEmpty(foundDaysToWinWord))
+            {
+                daysToWinAsString = "0";
+            }
 
             projectOverviewList.Add(new ProjectWeightViewModel {
                 Country = rank != null ? countrySecondByDefaultRu.CountryName : "",
