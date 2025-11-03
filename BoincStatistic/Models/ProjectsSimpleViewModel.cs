@@ -24,7 +24,19 @@ public class ProjectsSimpleViewModel
 
     public DateTimeOffset GetKyivTime()
     {
-        var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
+        var userTimeZone = GetKyivTimeZone();
         return TimeZoneInfo.ConvertTime(UpdatedAt, userTimeZone);
+    }
+
+    private static TimeZoneInfo GetKyivTimeZone()
+    {
+        try
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById("Europe/Kiev");
+        }
     }
 }
