@@ -65,7 +65,7 @@
 </header>
 
 <div class="flex-1 flex">
-    <aside class="w-17 overflow-y-auto bg-gray-900 text-gray-100 border-r border-blue-500">
+    <aside class="w-17 sticky top-0 h-screen overflow-y-auto bg-gray-900 text-gray-100 border-r border-blue-500">
 
             <nav class="space-y-4 relative group py-6 px-3">
                 <a href="@Url.Action("Index", "Home")" class="group flex items-center py-2.5 px-3 rounded-md hover:bg-blue-400 transition-all duration-400 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "bg-blue-600" : "")">
