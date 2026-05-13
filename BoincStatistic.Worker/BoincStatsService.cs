@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,11 +23,13 @@ public partial class BoincStatsService : BackgroundService
 {
     private readonly ILogger<BoincStatsService> _logger;
     private readonly IServiceProvider _serviceProvider;
-
     private readonly IConfiguration _configuration;
-    
+
     private static readonly HttpClient Client = new();
-    
+
+    private const int Skip = 16;
+    private const int Wait_time = 1_000;
+
 
     public BoincStatsService(ILogger<BoincStatsService> logger, IServiceProvider serviceProvider, IConfiguration configuration)
     {
@@ -39,26 +43,77 @@ public partial class BoincStatsService : BackgroundService
     {
         var workerConfig = _configuration.GetSection("WorkerConfig").Get<WorkerConfig>();
 
+        //await _waitUntilScheduledStart(stoppingToken);
+
         while (!stoppingToken.IsCancellationRequested)
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
-            
+
             var countryStatisticRepository = context.Db.CountryStatisticRepository;
             var projectStatisticRepository = context.Db.ProjectStatisticRepository;
 
 
             if (workerConfig!.IsDeveloperMode)
             {
-                await _processScrapping(countryStatisticRepository,projectStatisticRepository, stoppingToken, workerConfig!.IsDeveloperMode);
-                
+                await _processScrapping(countryStatisticRepository, projectStatisticRepository, stoppingToken, workerConfig!.IsDeveloperMode, workerConfig.FlareSolverrUrl);
+
                 _logger.LogWarning("\n [[[ DEV MODE ]]] Scrapping has been done. \n [[[ DEV MODE ]]] Please, modify appsettings.json and set IsDeveloperMode as false.\n");
 
                 Environment.Exit(0);
             }
-            
-            await _processScrapping(countryStatisticRepository,projectStatisticRepository, stoppingToken);
+
+            await _processScrapping(countryStatisticRepository, projectStatisticRepository, stoppingToken, flareSolverrUrl: workerConfig.FlareSolverrUrl);
         }
+    }
+
+
+    private async Task _waitUntilScheduledStart(CancellationToken cancellationToken)
+    {
+        const int targetHourKyiv = 8;
+
+        var kyivTimeZone = _getKyivTimeZone();
+        var nowUtc = DateTime.UtcNow;
+        var nowKyiv = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, kyivTimeZone);
+
+        var nextRunKyiv = new DateTime(nowKyiv.Year, nowKyiv.Month, nowKyiv.Day, targetHourKyiv, 0, 0, DateTimeKind.Unspecified);
+        if (nowKyiv >= nextRunKyiv)
+        {
+            nextRunKyiv = nextRunKyiv.AddDays(1);
+        }
+
+        var nextRunUtc = TimeZoneInfo.ConvertTimeToUtc(nextRunKyiv, kyivTimeZone);
+        var delay = nextRunUtc - nowUtc;
+
+        _logger.LogInformation(
+            "Worker scheduled to start at {NextRunKyiv:yyyy-MM-dd HH:mm:ss} Kyiv time. Delay: {Hours:D2}h {Minutes:D2}m {Seconds:D2}s ({TotalSeconds} sec total).",
+            nextRunKyiv,
+            (int)delay.TotalHours,
+            delay.Minutes,
+            delay.Seconds,
+            (long)delay.TotalSeconds
+        );
+
+        await Task.Delay(delay, cancellationToken);
+
+        _logger.LogInformation("Scheduled start time reached ({NextRunKyiv:yyyy-MM-dd HH:mm:ss} Kyiv). Starting worker...", nextRunKyiv);
+    }
+
+
+    private static TimeZoneInfo _getKyivTimeZone()
+    {
+        string[] candidateIds = ["Europe/Kyiv", "Europe/Kiev", "FLE Standard Time"];
+        foreach (var id in candidateIds)
+        {
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(id);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+            }
+        }
+        throw new TimeZoneNotFoundException("Unable to resolve Kyiv timezone (tried: Europe/Kyiv, Europe/Kiev, FLE Standard Time).");
     }
 
 
@@ -66,7 +121,8 @@ public partial class BoincStatsService : BackgroundService
         ICountryStatisticRepository countryStatisticRepository,
         IProjectStatisticRepository projectStatisticRepository,
         CancellationToken cancellationToken,
-        bool isDeveloperMode = false
+        bool isDeveloperMode = false,
+        string flareSolverrUrl = "http://localhost:8191/v1"
     )
     {
         var random = new Random();
@@ -80,14 +136,14 @@ public partial class BoincStatsService : BackgroundService
 
         var collection = await projectStatisticRepository.ListAll();
 
-        foreach (var project in collection)
+        foreach (var project in collection.Skip(Skip))
         {
             try
             {
                 await projectStatisticRepository.SetProjectStatus(project, ScrappingStatus.InProcess);
                 _logger.LogInformation($"Processing project: ID: {project.Id} || Name:  {project.ProjectName}");
 
-                var html = await Client.GetStringAsync(project.ProjectStatisticUrl, cancellationToken);
+                var html = await FetchPageAsync(flareSolverrUrl, project.ProjectStatisticUrl, cancellationToken);
                 htmlDocument.LoadHtml(html);
 
                 var table = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='tablescroller']//table[@id='tblStats']");
@@ -132,9 +188,9 @@ public partial class BoincStatsService : BackgroundService
                     string htmlDetailedPage;
                     try
                     {
-                        htmlDetailedPage = await Client.GetStringAsync(url, cancellationToken);
+                        htmlDetailedPage = await FetchPageAsync(flareSolverrUrl, url, cancellationToken);
                     }
-                    catch (HttpRequestException ex)
+                    catch (Exception ex)
                     {
                         _logger.LogError(ex, "Failed to fetch detailed page: {Url}", url);
                         continue;
@@ -209,7 +265,7 @@ public partial class BoincStatsService : BackgroundService
                             preparedCountriesToUpdate.Add(foundCountry);
                         }
                     }
-                    
+
                     if (isDeveloperMode == false)
                     {
                         // 7 -12 min
@@ -217,12 +273,12 @@ public partial class BoincStatsService : BackgroundService
                         _logger.LogInformation($"Paginated page = Waiting for {paginationDelay / 1000 / 60} minutes before processing the next page...");
                         await Task.Delay(paginationDelay, cancellationToken);
                     }
-                    
+
                     if (isDeveloperMode)
                     {
-                        await Task.Delay(3_000, cancellationToken);
+                        await Task.Delay(Wait_time, cancellationToken);
                     }
-                    
+
                 }
                 if (preparedNewCountries.Any())
                 {
@@ -238,34 +294,63 @@ public partial class BoincStatsService : BackgroundService
                     preparedCountriesToUpdate.Clear();
                 }
 
-                
                 await projectStatisticRepository.UpdateUpdateAt(project, DateTime.UtcNow);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing project: {Url}", project.ProjectStatisticUrl);
             }
-            
+
             if (isDeveloperMode == false)
             {
                 //51 min - 1.20 h
-                var delay = random.Next(51 * 60 * 1000, 80 * 60 * 1000); 
+                var delay = random.Next(51 * 60 * 1000, 80 * 60 * 1000);
                 _logger.LogInformation($"Waiting for {delay / 1000 / 60} minutes before processing the next project...");
                 await Task.Delay(delay, cancellationToken);
             }
-                    
+
             if (isDeveloperMode)
             {
-                await Task.Delay(15_000, cancellationToken);
+                await Task.Delay(Wait_time, cancellationToken);
             }
-            
+
             await projectStatisticRepository.SetProjectStatus(project, ScrappingStatus.Completed);
             _logger.LogInformation("\nProject {ProjectName} marked as Completed\n", project.ProjectName);
-
         }
 
         _logger.LogInformation("Scraping completed.");
     }
+
+
+    private static async Task<string> FetchPageAsync(string flareSolverrUrl, string targetUrl, CancellationToken cancellationToken)
+    {
+        var response = await Client.PostAsJsonAsync(flareSolverrUrl, new
+        {
+            cmd = "request.get",
+            url = targetUrl,
+            maxTimeout = 60000
+        }, cancellationToken);
+
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<FlareSolverrResponse>(cancellationToken: cancellationToken);
+
+        return result?.Solution?.Response ?? string.Empty;
+    }
+
+
+    private class FlareSolverrResponse
+    {
+        [JsonPropertyName("solution")]
+        public FlareSolverrSolution? Solution { get; set; }
+    }
+
+    private class FlareSolverrSolution
+    {
+        [JsonPropertyName("response")]
+        public string? Response { get; set; }
+    }
+
 
     [GeneratedRegex(@"^\d{1,3}(,\d{3})*")]
     private static partial Regex MyRegex();
