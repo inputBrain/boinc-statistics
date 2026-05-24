@@ -1,0 +1,12 @@
+SOCKSPort 0.0.0.0:9050
+ControlPort 0.0.0.0:9051
+HashedControlPassword __HASHED_PASSWORD__
+CookieAuthentication 0
+DataDirectory /var/lib/tor
+
+# Allow stream isolation by SOCKS user/password — different creds = different circuit
+SOCKSPolicy accept 0.0.0.0/0
+
+# Faster circuit rotation tolerance
+MaxCircuitDirtiness 600
+NewCircuitPeriod 30

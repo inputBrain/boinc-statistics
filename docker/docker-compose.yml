@@ -1,0 +1,44 @@
+name: boinc-parser
+
+services:
+  tor:
+    build:
+      context: ./tor
+      dockerfile: Dockerfile
+    container_name: boinc-parser-tor
+    restart: unless-stopped
+    environment:
+      TOR_CONTROL_PASSWORD: "${TOR_CONTROL_PASSWORD:?TOR_CONTROL_PASSWORD must be set in .env}"
+    ports:
+      - "9050:9050"
+      - "9051:9051"
+    networks:
+      - boinc-parser-net
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/127.0.0.1/9050"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 60s
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: boinc-parser-flaresolverr
+    restart: unless-stopped
+    environment:
+      LOG_LEVEL: info
+      LOG_HTML: "false"
+      CAPTCHA_SOLVER: "none"
+      TZ: Europe/Kyiv
+    ports:
+      - "8191:8191"
+    networks:
+      - boinc-parser-net
+    depends_on:
+      tor:
+        condition: service_healthy
+
+networks:
+  boinc-parser-net:
+    name: boinc-parser-net
+    driver: bridge

@@ -1,7 +1,7 @@
-﻿using System;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,11 +9,12 @@ using BoincStatistic.Database;
 using BoincStatistic.Database.CountryStatistic;
 using BoincStatistic.Database.ProjectStatistic;
 using BoincStatistic.Worker.Configs;
+using BoincStatistic.Worker.Scraping;
 using HtmlAgilityPack;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace BoincStatistic.Worker;
 
@@ -21,251 +22,417 @@ public partial class BoincStatsService : BackgroundService
 {
     private readonly ILogger<BoincStatsService> _logger;
     private readonly IServiceProvider _serviceProvider;
+    private readonly WorkerConfig _config;
 
-    private readonly IConfiguration _configuration;
-    
-    private static readonly HttpClient Client = new();
-    
 
-    public BoincStatsService(ILogger<BoincStatsService> logger, IServiceProvider serviceProvider, IConfiguration configuration)
+    public BoincStatsService(
+        ILogger<BoincStatsService> logger,
+        IServiceProvider serviceProvider,
+        IOptions<WorkerConfig> options)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
-        _configuration = configuration;
+        _config = options.Value;
     }
 
 
     async protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var workerConfig = _configuration.GetSection("WorkerConfig").Get<WorkerConfig>();
-
         while (!stoppingToken.IsCancellationRequested)
         {
-            using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
-            
-            var countryStatisticRepository = context.Db.CountryStatisticRepository;
-            var projectStatisticRepository = context.Db.ProjectStatisticRepository;
-
-
-            if (workerConfig!.IsDeveloperMode)
+            if (!_config.IsDeveloperMode && _config.Schedule.Enabled)
             {
-                await _processScrapping(countryStatisticRepository,projectStatisticRepository, stoppingToken, workerConfig!.IsDeveloperMode);
-                
-                _logger.LogWarning("\n [[[ DEV MODE ]]] Scrapping has been done. \n [[[ DEV MODE ]]] Please, modify appsettings.json and set IsDeveloperMode as false.\n");
+                await _waitUntilScheduledStartAsync(stoppingToken);
+            }
 
+            await _processScrappingAsync(stoppingToken);
+
+            if (_config.IsDeveloperMode)
+            {
+                _logger.LogWarning("\n [[[ DEV MODE ]]] Scrapping done. Set IsDeveloperMode=false to run scheduled mode.\n");
                 Environment.Exit(0);
             }
-            
-            await _processScrapping(countryStatisticRepository,projectStatisticRepository, stoppingToken);
         }
     }
 
 
-    private async Task _processScrapping(
-        ICountryStatisticRepository countryStatisticRepository,
-        IProjectStatisticRepository projectStatisticRepository,
-        CancellationToken cancellationToken,
-        bool isDeveloperMode = false
-    )
+    private async Task _waitUntilScheduledStartAsync(CancellationToken cancellationToken)
     {
-        var random = new Random();
-        var htmlDocument = new HtmlDocument();
-        const int pageSize = 100;
-        const int maxPages = 2;
-        var regex = MyRegex();
+        var times = _parseScheduleTimes();
+        if (times.Count == 0)
+        {
+            _logger.LogWarning("Schedule.Enabled=true but RunAtKyivTimes is empty. Running immediately.");
+            return;
+        }
 
-        var preparedNewCountries = new List<CountryStatisticModel>();
-        var preparedCountriesToUpdate = new List<CountryStatisticModel>();
+        var tz = _getScheduleTimeZone();
+        var nextRunUtc = _calculateNextRunUtc(times, tz);
+        var delay = nextRunUtc - DateTime.UtcNow;
 
-        var collection = await projectStatisticRepository.ListAll();
+        if (delay <= TimeSpan.Zero)
+        {
+            return;
+        }
 
-        foreach (var project in collection)
+        var nextRunLocal = TimeZoneInfo.ConvertTimeFromUtc(nextRunUtc, tz);
+
+        _logger.LogInformation(
+            "Next scheduled run: {Time} ({Tz}). Waiting {H:D2}h {M:D2}m {S:D2}s.",
+            nextRunLocal.ToString("yyyy-MM-dd HH:mm:ss"),
+            tz.Id,
+            (int)delay.TotalHours, delay.Minutes, delay.Seconds);
+
+        await Task.Delay(delay, cancellationToken);
+
+        _logger.LogInformation("Scheduled start time reached ({Time} {Tz}). Starting scrape...",
+            nextRunLocal.ToString("yyyy-MM-dd HH:mm:ss"), tz.Id);
+    }
+
+
+    private List<TimeOnly> _parseScheduleTimes()
+    {
+        var result = new List<TimeOnly>();
+        foreach (var raw in _config.Schedule.RunAtKyivTimes)
+        {
+            if (TimeOnly.TryParseExact(raw, "HH:mm", out var t))
+            {
+                result.Add(t);
+            }
+            else
+            {
+                _logger.LogWarning("Schedule.RunAtKyivTimes: cannot parse \"{Raw}\" (expected HH:mm). Skipped.", raw);
+            }
+        }
+        return result.OrderBy(t => t).ToList();
+    }
+
+
+    private static DateTime _calculateNextRunUtc(IReadOnlyList<TimeOnly> sortedTimes, TimeZoneInfo tz)
+    {
+        var nowLocal = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+        var today = DateOnly.FromDateTime(nowLocal);
+
+        foreach (var t in sortedTimes)
+        {
+            var candidate = today.ToDateTime(t, DateTimeKind.Unspecified);
+            if (candidate > nowLocal)
+            {
+                return TimeZoneInfo.ConvertTimeToUtc(candidate, tz);
+            }
+        }
+
+        var tomorrowFirst = today.AddDays(1).ToDateTime(sortedTimes[0], DateTimeKind.Unspecified);
+        return TimeZoneInfo.ConvertTimeToUtc(tomorrowFirst, tz);
+    }
+
+
+    private TimeZoneInfo _getScheduleTimeZone()
+    {
+        var configured = _config.Schedule.TimeZone;
+        string[] candidates =
+        [
+            configured,
+            "Europe/Kyiv",
+            "Europe/Kiev",
+            "FLE Standard Time"
+        ];
+
+        foreach (var id in candidates)
         {
             try
             {
-                await projectStatisticRepository.SetProjectStatus(project, ScrappingStatus.InProcess);
-                _logger.LogInformation($"Processing project: ID: {project.Id} || Name:  {project.ProjectName}");
+                return TimeZoneInfo.FindSystemTimeZoneById(id);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+            }
+        }
+        throw new TimeZoneNotFoundException(
+            $"Unable to resolve Kyiv timezone (tried: {string.Join(", ", candidates)}).");
+    }
 
-                var html = await Client.GetStringAsync(project.ProjectStatisticUrl, cancellationToken);
-                htmlDocument.LoadHtml(html);
 
-                var table = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='tablescroller']//table[@id='tblStats']");
-                if (table == null)
-                {
-                    _logger.LogWarning("No table found, skipping project: {Url}", project.ProjectStatisticUrl);
-                    continue;
-                }
+    private async Task _processScrappingAsync(CancellationToken cancellationToken)
+    {
+        List<ProjectStatisticModel> projects;
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
+            projects = await context.Db.ProjectStatisticRepository.ListAll();
+        }
 
-                var rows = table.SelectNodes(".//tr");
-                if (rows == null || rows.Count == 0)
-                {
-                    _logger.LogWarning("No rows found, skipping project: {Url}", project.ProjectStatisticUrl);
-                    continue;
-                }
+        var toProcess = projects.Skip(_config.SkipFirstN).ToList();
+        var total = toProcess.Count;
+        var done = 0;
+        var okCount = 0;
+        var errorCount = 0;
 
-                foreach (var row in rows)
-                {
-                    var columns = row.SelectNodes(".//td");
-                    if (columns == null || (columns[0]?.InnerText != "Total credit"))
-                        continue;
+        _logger.LogInformation("Starting scrape of {Total} projects (projects×pages = {P}×{Pg})",
+            total, _config.Parallelism.Projects, _config.Parallelism.Pages);
 
-                    var totalCreditColumn = columns[1]?.InnerText.Trim() ?? "0";
-                    var matchTotalCredit = regex.Match(totalCreditColumn);
+        var options = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = _config.Parallelism.Projects,
+            CancellationToken = cancellationToken
+        };
 
-                    var isCreditDayZero = totalCreditColumn.Contains("+ 0 since then");
+        await Parallel.ForEachAsync(toProcess, options, async (project, ct) =>
+        {
+            var index = Interlocked.Increment(ref done);
+            var ctx = $"[{project.ProjectName}] {index}/{total}";
 
-                    _logger.LogInformation("Total credit column:  {Column}", totalCreditColumn);
+            try
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var fetcher = scope.ServiceProvider.GetRequiredService<IResilientFetcher>();
+                var context = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
 
-                    if (!ProjectStatisticModel.IsSameTotalStatsModel(project, matchTotalCredit.Value, isCreditDayZero))
-                    {
-                        await projectStatisticRepository.UpdateModel(project, matchTotalCredit.Value, isCreditDayZero);
-                    }
-                }
+                await _processSingleProjectAsync(project, fetcher, context, ctx, ct);
 
-                for (var page = 0; page < maxPages; page++)
-                {
-                    var offset = page * pageSize;
-                    var url = $"{project.CountryStatisticUrl}/0/{offset}";
-                    _logger.LogInformation($"Processing detailed page: {url}");
-
-                    string htmlDetailedPage;
-                    try
-                    {
-                        htmlDetailedPage = await Client.GetStringAsync(url, cancellationToken);
-                    }
-                    catch (HttpRequestException ex)
-                    {
-                        _logger.LogError(ex, "Failed to fetch detailed page: {Url}", url);
-                        continue;
-                    }
-
-                    htmlDocument.LoadHtml(htmlDetailedPage);
-
-                    var tableDetailedPage = htmlDocument.DocumentNode.SelectSingleNode("//table[@id='tblStats']/tbody");
-                    if (tableDetailedPage == null)
-                    {
-                        _logger.LogWarning("No detailed table found at {Url}, skipping.", url);
-                        continue;
-                    }
-
-                    var trs = tableDetailedPage.SelectNodes(".//tr");
-                    if (trs == null || trs.Count == 0)
-                    {
-                        _logger.LogWarning("No rows in detailed stats for {Url}, stopping pagination.", url);
-                        break;
-                    }
-
-                    foreach (var tr in trs)
-                    {
-                        var projectColumns = tr.SelectNodes(".//td");
-                        if (projectColumns == null || projectColumns.Count < 14)
-                            continue;
-
-                        var apiModel = new CountryStatisticModel
-                        {
-                            ProjectId = project.Id,
-                            Rank = projectColumns[3]?.InnerText.Trim() ?? "0",
-                            CountryName = projectColumns[4]?.InnerText.Trim() ?? "Unknown",
-                            TotalCredit = projectColumns[5]?.InnerText.Trim() ?? "0",
-                            CreditDay = projectColumns[6]?.InnerText.Trim() ?? "0",
-                            CreditWeek = projectColumns[7]?.InnerText.Trim() ?? "0",
-                            CreditMonth = projectColumns[8]?.InnerText.Trim() ?? "0",
-                            CreditAvarage = projectColumns[9]?.InnerText.Trim() ?? "0",
-                            CreditUser = projectColumns[11]?.InnerText.Trim() ?? "0"
-                        };
-
-                        var foundCountry = project.CountryStatistics.FirstOrDefault(x => x.CountryName.Equals(apiModel.CountryName, StringComparison.CurrentCultureIgnoreCase));
-
-                        if (foundCountry == null)
-                        {
-                            var newCountry = CountryStatisticModel.CreateModel(
-                                apiModel.ProjectId,
-                                apiModel.Rank,
-                                apiModel.CountryName,
-                                apiModel.TotalCredit,
-                                apiModel.CreditDay,
-                                apiModel.CreditWeek,
-                                apiModel.CreditMonth,
-                                apiModel.CreditAvarage,
-                                apiModel.CreditUser
-                            );
-
-                            preparedNewCountries.Add(newCountry);
-                        }
-                        else if (!ProjectStatisticModel.IsSameDetailedStatistic(project, apiModel))
-                        {
-                            foundCountry.Update(
-                                foundCountry,
-                                apiModel.Rank,
-                                apiModel.CountryName,
-                                apiModel.TotalCredit,
-                                apiModel.CreditDay,
-                                apiModel.CreditWeek,
-                                apiModel.CreditMonth,
-                                apiModel.CreditAvarage,
-                                apiModel.CreditUser
-                            );
-                            preparedCountriesToUpdate.Add(foundCountry);
-                        }
-                    }
-                    
-                    if (isDeveloperMode == false)
-                    {
-                        // 7 -12 min
-                        var paginationDelay = random.Next(7 * 60 * 1000, 12 * 60 * 1000);
-                        _logger.LogInformation($"Paginated page = Waiting for {paginationDelay / 1000 / 60} minutes before processing the next page...");
-                        await Task.Delay(paginationDelay, cancellationToken);
-                    }
-                    
-                    if (isDeveloperMode)
-                    {
-                        await Task.Delay(3_000, cancellationToken);
-                    }
-                    
-                }
-                if (preparedNewCountries.Any())
-                {
-                    await countryStatisticRepository.CreateBulk([..preparedNewCountries]);
-                    _logger.LogInformation("Added {Count} new country records.", preparedNewCountries.Count);
-                    preparedNewCountries.Clear();
-                }
-
-                if (preparedCountriesToUpdate.Any())
-                {
-                    await countryStatisticRepository.UpdateBulk([..preparedCountriesToUpdate]);
-                    _logger.LogInformation("Updated {Count} country records.", preparedCountriesToUpdate.Count);
-                    preparedCountriesToUpdate.Clear();
-                }
-
-                
-                await projectStatisticRepository.UpdateUpdateAt(project, DateTime.UtcNow);
+                Interlocked.Increment(ref okCount);
+                _logger.LogInformation("{Ctx} - OK", ctx);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (BlockedAfterAllRetriesException ex)
+            {
+                Interlocked.Increment(ref errorCount);
+                _logger.LogError("{Ctx} - ERROR: blocked after {Attempts} attempts. Last: {Reason}",
+                    ctx, ex.Attempts, ex.LastReason);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing project: {Url}", project.ProjectStatisticUrl);
+                Interlocked.Increment(ref errorCount);
+                _logger.LogError(ex, "{Ctx} - ERROR: {Type}: {Message}",
+                    ctx, ex.GetType().Name, ex.Message);
             }
-            
-            if (isDeveloperMode == false)
-            {
-                //51 min - 1.20 h
-                var delay = random.Next(51 * 60 * 1000, 80 * 60 * 1000); 
-                _logger.LogInformation($"Waiting for {delay / 1000 / 60} minutes before processing the next project...");
-                await Task.Delay(delay, cancellationToken);
-            }
-                    
-            if (isDeveloperMode)
-            {
-                await Task.Delay(15_000, cancellationToken);
-            }
-            
-            await projectStatisticRepository.SetProjectStatus(project, ScrappingStatus.Completed);
-            _logger.LogInformation("\nProject {ProjectName} marked as Completed\n", project.ProjectName);
 
+            if (!_config.IsDeveloperMode)
+            {
+                var delay = Random.Shared.Next(_config.Delay.BetweenProjectsMinMs, _config.Delay.BetweenProjectsMaxMs);
+                await Task.Delay(delay, ct);
+            }
+            else
+            {
+                await Task.Delay(_config.Delay.DevModeMs, ct);
+            }
+        });
+
+        _logger.LogInformation("Scraping summary: OK={Ok}, ERROR={Err}, Total={Total}", okCount, errorCount, total);
+    }
+
+
+    private async Task _processSingleProjectAsync(
+        ProjectStatisticModel project,
+        IResilientFetcher fetcher,
+        PostgreSqlContext context,
+        string ctx,
+        CancellationToken cancellationToken)
+    {
+        var projectRepo = context.Db.ProjectStatisticRepository;
+        var countryRepo = context.Db.CountryStatisticRepository;
+
+        await projectRepo.SetProjectStatus(project, ScrappingStatus.InProcess);
+        _logger.LogInformation("{Ctx} starting (ID {Id})", ctx, project.Id);
+
+        await _scrapeTotalsAsync(project, projectRepo, fetcher, ctx, cancellationToken);
+
+        var maxPages = _config.Scraping.MaxPages;
+        var pageDegree = Math.Max(1, Math.Min(maxPages, _config.Parallelism.Pages));
+        var allRows = new ConcurrentBag<CountryStatisticModel>();
+
+        await Parallel.ForEachAsync(
+            Enumerable.Range(0, maxPages),
+            new ParallelOptions { MaxDegreeOfParallelism = pageDegree, CancellationToken = cancellationToken },
+            async (page, ct) =>
+            {
+                try
+                {
+                    var rows = await _scrapeCountryPageAsync(project, page, fetcher, ctx, ct);
+                    foreach (var row in rows)
+                    {
+                        allRows.Add(row);
+                    }
+                }
+                catch (BlockedAfterAllRetriesException ex)
+                {
+                    _logger.LogError("{Ctx} page {Page} - blocked, skipping. Last: {Reason}", ctx, page + 1, ex.LastReason);
+                }
+            });
+
+        _mergeCountryStats(project, allRows, out var newCountries, out var updatedCountries);
+
+        if (newCountries.Count > 0)
+        {
+            await countryRepo.CreateBulk([..newCountries]);
+            _logger.LogInformation("{Ctx} added {Count} new countries", ctx, newCountries.Count);
         }
 
-        _logger.LogInformation("Scraping completed.");
+        if (updatedCountries.Count > 0)
+        {
+            await countryRepo.UpdateBulk([..updatedCountries]);
+            _logger.LogInformation("{Ctx} updated {Count} countries", ctx, updatedCountries.Count);
+        }
+
+        await projectRepo.UpdateUpdateAt(project, DateTime.UtcNow);
+        await projectRepo.SetProjectStatus(project, ScrappingStatus.Completed);
     }
+
+
+    private async Task _scrapeTotalsAsync(
+        ProjectStatisticModel project,
+        IProjectStatisticRepository projectRepo,
+        IResilientFetcher fetcher,
+        string ctx,
+        CancellationToken cancellationToken)
+    {
+        var html = await fetcher.FetchAsync(project.ProjectStatisticUrl, ctx, cancellationToken);
+
+        var doc = new HtmlDocument();
+        doc.LoadHtml(html);
+
+        var table = doc.DocumentNode.SelectSingleNode("//div[@class='tablescroller']//table[@id='tblStats']");
+        if (table == null)
+        {
+            _logger.LogWarning("{Ctx} no totals table at {Url}", ctx, project.ProjectStatisticUrl);
+            return;
+        }
+
+        var rows = table.SelectNodes(".//tr");
+        if (rows == null)
+        {
+            return;
+        }
+
+        var regex = MyRegex();
+        foreach (var row in rows)
+        {
+            var columns = row.SelectNodes(".//td");
+            if (columns == null || columns[0]?.InnerText != "Total credit")
+            {
+                continue;
+            }
+
+            var totalCreditColumn = columns[1]?.InnerText.Trim() ?? "0";
+            var matchTotalCredit = regex.Match(totalCreditColumn);
+            var isCreditDayZero = totalCreditColumn.Contains("+ 0 since then");
+
+            _logger.LogInformation("{Ctx} total credit: {Column}", ctx, totalCreditColumn);
+
+            if (!ProjectStatisticModel.IsSameTotalStatsModel(project, matchTotalCredit.Value, isCreditDayZero))
+            {
+                await projectRepo.UpdateModel(project, matchTotalCredit.Value, isCreditDayZero);
+            }
+        }
+    }
+
+
+    private async Task<List<CountryStatisticModel>> _scrapeCountryPageAsync(
+        ProjectStatisticModel project,
+        int page,
+        IResilientFetcher fetcher,
+        string projectCtx,
+        CancellationToken cancellationToken)
+    {
+        var pageSize = _config.Scraping.PageSize;
+        var offset = page * pageSize;
+        var url = $"{project.CountryStatisticUrl}/0/{offset}";
+        var ctx = $"{projectCtx} page {page + 1}";
+
+        _logger.LogInformation("{Ctx} fetching {Url}", ctx, url);
+
+        var html = await fetcher.FetchAsync(url, ctx, cancellationToken);
+
+        var doc = new HtmlDocument();
+        doc.LoadHtml(html);
+
+        var table = doc.DocumentNode.SelectSingleNode("//table[@id='tblStats']/tbody");
+        if (table == null)
+        {
+            _logger.LogWarning("{Ctx} no detailed table", ctx);
+            return new List<CountryStatisticModel>();
+        }
+
+        var trs = table.SelectNodes(".//tr");
+        if (trs == null || trs.Count == 0)
+        {
+            _logger.LogWarning("{Ctx} no rows", ctx);
+            return new List<CountryStatisticModel>();
+        }
+
+        var result = new List<CountryStatisticModel>(trs.Count);
+        foreach (var tr in trs)
+        {
+            var columns = tr.SelectNodes(".//td");
+            if (columns == null || columns.Count < 14)
+            {
+                continue;
+            }
+
+            result.Add(new CountryStatisticModel
+            {
+                ProjectId = project.Id,
+                Rank = columns[3]?.InnerText.Trim() ?? "0",
+                CountryName = columns[4]?.InnerText.Trim() ?? "Unknown",
+                TotalCredit = columns[5]?.InnerText.Trim() ?? "0",
+                CreditDay = columns[6]?.InnerText.Trim() ?? "0",
+                CreditWeek = columns[7]?.InnerText.Trim() ?? "0",
+                CreditMonth = columns[8]?.InnerText.Trim() ?? "0",
+                CreditAvarage = columns[9]?.InnerText.Trim() ?? "0",
+                CreditUser = columns[11]?.InnerText.Trim() ?? "0"
+            });
+        }
+
+        return result;
+    }
+
+
+    private static void _mergeCountryStats(
+        ProjectStatisticModel project,
+        IEnumerable<CountryStatisticModel> apiRows,
+        out List<CountryStatisticModel> newCountries,
+        out List<CountryStatisticModel> updatedCountries)
+    {
+        newCountries = new List<CountryStatisticModel>();
+        updatedCountries = new List<CountryStatisticModel>();
+
+        foreach (var apiModel in apiRows)
+        {
+            var foundCountry = project.CountryStatistics.FirstOrDefault(
+                x => x.CountryName.Equals(apiModel.CountryName, StringComparison.CurrentCultureIgnoreCase));
+
+            if (foundCountry == null)
+            {
+                newCountries.Add(CountryStatisticModel.CreateModel(
+                    apiModel.ProjectId,
+                    apiModel.Rank,
+                    apiModel.CountryName,
+                    apiModel.TotalCredit,
+                    apiModel.CreditDay,
+                    apiModel.CreditWeek,
+                    apiModel.CreditMonth,
+                    apiModel.CreditAvarage,
+                    apiModel.CreditUser));
+            }
+            else if (!ProjectStatisticModel.IsSameDetailedStatistic(project, apiModel))
+            {
+                foundCountry.Update(
+                    foundCountry,
+                    apiModel.Rank,
+                    apiModel.CountryName,
+                    apiModel.TotalCredit,
+                    apiModel.CreditDay,
+                    apiModel.CreditWeek,
+                    apiModel.CreditMonth,
+                    apiModel.CreditAvarage,
+                    apiModel.CreditUser);
+                updatedCountries.Add(foundCountry);
+            }
+        }
+    }
+
 
     [GeneratedRegex(@"^\d{1,3}(,\d{3})*")]
     private static partial Regex MyRegex();
