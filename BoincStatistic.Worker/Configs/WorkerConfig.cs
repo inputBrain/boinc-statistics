@@ -9,6 +9,7 @@ public class WorkerConfig
     public TorConfig Tor { get; set; } = new();
     public RetryConfig Retry { get; set; } = new();
     public ParallelismConfig Parallelism { get; set; } = new();
+    public ScrapingConfig Scraping { get; set; } = new();
     public DelayConfig Delay { get; set; } = new();
 }
 
@@ -37,13 +38,18 @@ public class RetryConfig
 
 public class ParallelismConfig
 {
-    public int MaxDegree { get; set; } = 4;
+    public int Projects { get; set; } = 4;
+    public int Pages { get; set; } = 2;
+}
+
+public class ScrapingConfig
+{
+    public int MaxPages { get; set; } = 2;
+    public int PageSize { get; set; } = 100;
 }
 
 public class DelayConfig
 {
-    public int BetweenPagesMinMs { get; set; } = 5_000;
-    public int BetweenPagesMaxMs { get; set; } = 15_000;
     public int BetweenProjectsMinMs { get; set; } = 30_000;
     public int BetweenProjectsMaxMs { get; set; } = 60_000;
     public int DevModeMs { get; set; } = 1_000;

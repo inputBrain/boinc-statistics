@@ -15,6 +15,7 @@ public class TorControlClient : ITorControlClient
     private readonly TorConfig _config;
     private readonly ILogger<TorControlClient> _logger;
     private readonly SemaphoreSlim _rotationLock = new(1, 1);
+    private DateTime _lastRotationAt = DateTime.MinValue;
 
 
     public TorControlClient(IOptions<WorkerConfig> options, ILogger<TorControlClient> logger)
@@ -26,7 +27,47 @@ public class TorControlClient : ITorControlClient
 
     public async Task<bool> RotateIdentityAsync(CancellationToken cancellationToken)
     {
+        var waitWindow = TimeSpan.FromSeconds(_config.WaitAfterNewnymSec);
+        DateTime lastRotation;
+
         await _rotationLock.WaitAsync(cancellationToken);
+        try
+        {
+            var since = DateTime.UtcNow - _lastRotationAt;
+            if (since < waitWindow)
+            {
+                _logger.LogInformation("Tor rotation debounced (last NEWNYM was {Sec}s ago, window {Window}s)",
+                    (int)since.TotalSeconds, _config.WaitAfterNewnymSec);
+                lastRotation = _lastRotationAt;
+            }
+            else
+            {
+                var ok = await _sendNewnymAsync(cancellationToken);
+                if (!ok)
+                {
+                    return false;
+                }
+                _lastRotationAt = DateTime.UtcNow;
+                lastRotation = _lastRotationAt;
+                _logger.LogInformation("Tor identity rotated (NEWNYM)");
+            }
+        }
+        finally
+        {
+            _rotationLock.Release();
+        }
+
+        var remaining = waitWindow - (DateTime.UtcNow - lastRotation);
+        if (remaining > TimeSpan.Zero)
+        {
+            await Task.Delay(remaining, cancellationToken);
+        }
+        return true;
+    }
+
+
+    private async Task<bool> _sendNewnymAsync(CancellationToken cancellationToken)
+    {
         try
         {
             using var tcpClient = new TcpClient();
@@ -53,19 +94,12 @@ public class TorControlClient : ITorControlClient
             }
 
             await writer.WriteLineAsync("QUIT");
-
-            _logger.LogInformation("Tor identity rotated (NEWNYM). Waiting {Sec}s for new circuit...", _config.WaitAfterNewnymSec);
-            await Task.Delay(TimeSpan.FromSeconds(_config.WaitAfterNewnymSec), cancellationToken);
             return true;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Tor NEWNYM rotation crashed on {Host}:{Port}", _config.ControlHost, _config.ControlPort);
             return false;
-        }
-        finally
-        {
-            _rotationLock.Release();
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -65,12 +66,12 @@ public partial class BoincStatsService : BackgroundService
         var okCount = 0;
         var errorCount = 0;
 
-        _logger.LogInformation("Starting scrape of {Total} projects with degree of parallelism = {Degree}",
-            total, _config.Parallelism.MaxDegree);
+        _logger.LogInformation("Starting scrape of {Total} projects (projects×pages = {P}×{Pg})",
+            total, _config.Parallelism.Projects, _config.Parallelism.Pages);
 
         var options = new ParallelOptions
         {
-            MaxDegreeOfParallelism = _config.Parallelism.MaxDegree,
+            MaxDegreeOfParallelism = _config.Parallelism.Projects,
             CancellationToken = cancellationToken
         };
 
@@ -129,167 +130,206 @@ public partial class BoincStatsService : BackgroundService
         string ctx,
         CancellationToken cancellationToken)
     {
-        const int pageSize = 100;
-        const int maxPages = 2;
-        var regex = MyRegex();
-        var htmlDocument = new HtmlDocument();
-
         var projectRepo = context.Db.ProjectStatisticRepository;
         var countryRepo = context.Db.CountryStatisticRepository;
 
         await projectRepo.SetProjectStatus(project, ScrappingStatus.InProcess);
         _logger.LogInformation("{Ctx} starting (ID {Id})", ctx, project.Id);
 
-        var html = await fetcher.FetchAsync(project.ProjectStatisticUrl, ctx, cancellationToken);
-        htmlDocument.LoadHtml(html);
+        await _scrapeTotalsAsync(project, projectRepo, fetcher, ctx, cancellationToken);
 
-        var table = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='tablescroller']//table[@id='tblStats']");
-        if (table != null)
-        {
-            var rows = table.SelectNodes(".//tr");
-            if (rows != null)
+        var maxPages = _config.Scraping.MaxPages;
+        var pageDegree = Math.Max(1, Math.Min(maxPages, _config.Parallelism.Pages));
+        var allRows = new ConcurrentBag<CountryStatisticModel>();
+
+        await Parallel.ForEachAsync(
+            Enumerable.Range(0, maxPages),
+            new ParallelOptions { MaxDegreeOfParallelism = pageDegree, CancellationToken = cancellationToken },
+            async (page, ct) =>
             {
-                foreach (var row in rows)
+                try
                 {
-                    var columns = row.SelectNodes(".//td");
-                    if (columns == null || columns[0]?.InnerText != "Total credit")
+                    var rows = await _scrapeCountryPageAsync(project, page, fetcher, ctx, ct);
+                    foreach (var row in rows)
                     {
-                        continue;
-                    }
-
-                    var totalCreditColumn = columns[1]?.InnerText.Trim() ?? "0";
-                    var matchTotalCredit = regex.Match(totalCreditColumn);
-                    var isCreditDayZero = totalCreditColumn.Contains("+ 0 since then");
-
-                    _logger.LogInformation("{Ctx} total credit: {Column}", ctx, totalCreditColumn);
-
-                    if (!ProjectStatisticModel.IsSameTotalStatsModel(project, matchTotalCredit.Value, isCreditDayZero))
-                    {
-                        await projectRepo.UpdateModel(project, matchTotalCredit.Value, isCreditDayZero);
+                        allRows.Add(row);
                     }
                 }
-            }
-        }
-        else
-        {
-            _logger.LogWarning("{Ctx} no totals table at {Url}", ctx, project.ProjectStatisticUrl);
-        }
-
-        var preparedNewCountries = new List<CountryStatisticModel>();
-        var preparedCountriesToUpdate = new List<CountryStatisticModel>();
-
-        for (var page = 0; page < maxPages; page++)
-        {
-            var offset = page * pageSize;
-            var url = $"{project.CountryStatisticUrl}/0/{offset}";
-            _logger.LogInformation("{Ctx} page {Page}/{Max}: {Url}", ctx, page + 1, maxPages, url);
-
-            string detailedHtml;
-            try
-            {
-                detailedHtml = await fetcher.FetchAsync(url, $"{ctx} page {page + 1}", cancellationToken);
-            }
-            catch (BlockedAfterAllRetriesException ex)
-            {
-                _logger.LogError("{Ctx} page {Page} - blocked, skipping page. {Reason}", ctx, page + 1, ex.LastReason);
-                continue;
-            }
-
-            htmlDocument.LoadHtml(detailedHtml);
-
-            var detailedTable = htmlDocument.DocumentNode.SelectSingleNode("//table[@id='tblStats']/tbody");
-            if (detailedTable == null)
-            {
-                _logger.LogWarning("{Ctx} no detailed table at {Url}", ctx, url);
-                continue;
-            }
-
-            var trs = detailedTable.SelectNodes(".//tr");
-            if (trs == null || trs.Count == 0)
-            {
-                _logger.LogWarning("{Ctx} no rows at {Url}, stopping pagination", ctx, url);
-                break;
-            }
-
-            foreach (var tr in trs)
-            {
-                var projectColumns = tr.SelectNodes(".//td");
-                if (projectColumns == null || projectColumns.Count < 14)
+                catch (BlockedAfterAllRetriesException ex)
                 {
-                    continue;
+                    _logger.LogError("{Ctx} page {Page} - blocked, skipping. Last: {Reason}", ctx, page + 1, ex.LastReason);
                 }
+            });
 
-                var apiModel = new CountryStatisticModel
-                {
-                    ProjectId = project.Id,
-                    Rank = projectColumns[3]?.InnerText.Trim() ?? "0",
-                    CountryName = projectColumns[4]?.InnerText.Trim() ?? "Unknown",
-                    TotalCredit = projectColumns[5]?.InnerText.Trim() ?? "0",
-                    CreditDay = projectColumns[6]?.InnerText.Trim() ?? "0",
-                    CreditWeek = projectColumns[7]?.InnerText.Trim() ?? "0",
-                    CreditMonth = projectColumns[8]?.InnerText.Trim() ?? "0",
-                    CreditAvarage = projectColumns[9]?.InnerText.Trim() ?? "0",
-                    CreditUser = projectColumns[11]?.InnerText.Trim() ?? "0"
-                };
+        _mergeCountryStats(project, allRows, out var newCountries, out var updatedCountries);
 
-                var foundCountry = project.CountryStatistics.FirstOrDefault(
-                    x => x.CountryName.Equals(apiModel.CountryName, StringComparison.CurrentCultureIgnoreCase));
-
-                if (foundCountry == null)
-                {
-                    var newCountry = CountryStatisticModel.CreateModel(
-                        apiModel.ProjectId,
-                        apiModel.Rank,
-                        apiModel.CountryName,
-                        apiModel.TotalCredit,
-                        apiModel.CreditDay,
-                        apiModel.CreditWeek,
-                        apiModel.CreditMonth,
-                        apiModel.CreditAvarage,
-                        apiModel.CreditUser
-                    );
-                    preparedNewCountries.Add(newCountry);
-                }
-                else if (!ProjectStatisticModel.IsSameDetailedStatistic(project, apiModel))
-                {
-                    foundCountry.Update(
-                        foundCountry,
-                        apiModel.Rank,
-                        apiModel.CountryName,
-                        apiModel.TotalCredit,
-                        apiModel.CreditDay,
-                        apiModel.CreditWeek,
-                        apiModel.CreditMonth,
-                        apiModel.CreditAvarage,
-                        apiModel.CreditUser
-                    );
-                    preparedCountriesToUpdate.Add(foundCountry);
-                }
-            }
-
-            if (page < maxPages - 1)
-            {
-                var pageDelay = _config.IsDeveloperMode
-                    ? _config.Delay.DevModeMs
-                    : Random.Shared.Next(_config.Delay.BetweenPagesMinMs, _config.Delay.BetweenPagesMaxMs);
-                await Task.Delay(pageDelay, cancellationToken);
-            }
+        if (newCountries.Count > 0)
+        {
+            await countryRepo.CreateBulk([..newCountries]);
+            _logger.LogInformation("{Ctx} added {Count} new countries", ctx, newCountries.Count);
         }
 
-        if (preparedNewCountries.Count > 0)
+        if (updatedCountries.Count > 0)
         {
-            await countryRepo.CreateBulk([..preparedNewCountries]);
-            _logger.LogInformation("{Ctx} added {Count} new countries", ctx, preparedNewCountries.Count);
-        }
-
-        if (preparedCountriesToUpdate.Count > 0)
-        {
-            await countryRepo.UpdateBulk([..preparedCountriesToUpdate]);
-            _logger.LogInformation("{Ctx} updated {Count} countries", ctx, preparedCountriesToUpdate.Count);
+            await countryRepo.UpdateBulk([..updatedCountries]);
+            _logger.LogInformation("{Ctx} updated {Count} countries", ctx, updatedCountries.Count);
         }
 
         await projectRepo.UpdateUpdateAt(project, DateTime.UtcNow);
         await projectRepo.SetProjectStatus(project, ScrappingStatus.Completed);
+    }
+
+
+    private async Task _scrapeTotalsAsync(
+        ProjectStatisticModel project,
+        IProjectStatisticRepository projectRepo,
+        IResilientFetcher fetcher,
+        string ctx,
+        CancellationToken cancellationToken)
+    {
+        var html = await fetcher.FetchAsync(project.ProjectStatisticUrl, ctx, cancellationToken);
+
+        var doc = new HtmlDocument();
+        doc.LoadHtml(html);
+
+        var table = doc.DocumentNode.SelectSingleNode("//div[@class='tablescroller']//table[@id='tblStats']");
+        if (table == null)
+        {
+            _logger.LogWarning("{Ctx} no totals table at {Url}", ctx, project.ProjectStatisticUrl);
+            return;
+        }
+
+        var rows = table.SelectNodes(".//tr");
+        if (rows == null)
+        {
+            return;
+        }
+
+        var regex = MyRegex();
+        foreach (var row in rows)
+        {
+            var columns = row.SelectNodes(".//td");
+            if (columns == null || columns[0]?.InnerText != "Total credit")
+            {
+                continue;
+            }
+
+            var totalCreditColumn = columns[1]?.InnerText.Trim() ?? "0";
+            var matchTotalCredit = regex.Match(totalCreditColumn);
+            var isCreditDayZero = totalCreditColumn.Contains("+ 0 since then");
+
+            _logger.LogInformation("{Ctx} total credit: {Column}", ctx, totalCreditColumn);
+
+            if (!ProjectStatisticModel.IsSameTotalStatsModel(project, matchTotalCredit.Value, isCreditDayZero))
+            {
+                await projectRepo.UpdateModel(project, matchTotalCredit.Value, isCreditDayZero);
+            }
+        }
+    }
+
+
+    private async Task<List<CountryStatisticModel>> _scrapeCountryPageAsync(
+        ProjectStatisticModel project,
+        int page,
+        IResilientFetcher fetcher,
+        string projectCtx,
+        CancellationToken cancellationToken)
+    {
+        var pageSize = _config.Scraping.PageSize;
+        var offset = page * pageSize;
+        var url = $"{project.CountryStatisticUrl}/0/{offset}";
+        var ctx = $"{projectCtx} page {page + 1}";
+
+        _logger.LogInformation("{Ctx} fetching {Url}", ctx, url);
+
+        var html = await fetcher.FetchAsync(url, ctx, cancellationToken);
+
+        var doc = new HtmlDocument();
+        doc.LoadHtml(html);
+
+        var table = doc.DocumentNode.SelectSingleNode("//table[@id='tblStats']/tbody");
+        if (table == null)
+        {
+            _logger.LogWarning("{Ctx} no detailed table", ctx);
+            return new List<CountryStatisticModel>();
+        }
+
+        var trs = table.SelectNodes(".//tr");
+        if (trs == null || trs.Count == 0)
+        {
+            _logger.LogWarning("{Ctx} no rows", ctx);
+            return new List<CountryStatisticModel>();
+        }
+
+        var result = new List<CountryStatisticModel>(trs.Count);
+        foreach (var tr in trs)
+        {
+            var columns = tr.SelectNodes(".//td");
+            if (columns == null || columns.Count < 14)
+            {
+                continue;
+            }
+
+            result.Add(new CountryStatisticModel
+            {
+                ProjectId = project.Id,
+                Rank = columns[3]?.InnerText.Trim() ?? "0",
+                CountryName = columns[4]?.InnerText.Trim() ?? "Unknown",
+                TotalCredit = columns[5]?.InnerText.Trim() ?? "0",
+                CreditDay = columns[6]?.InnerText.Trim() ?? "0",
+                CreditWeek = columns[7]?.InnerText.Trim() ?? "0",
+                CreditMonth = columns[8]?.InnerText.Trim() ?? "0",
+                CreditAvarage = columns[9]?.InnerText.Trim() ?? "0",
+                CreditUser = columns[11]?.InnerText.Trim() ?? "0"
+            });
+        }
+
+        return result;
+    }
+
+
+    private static void _mergeCountryStats(
+        ProjectStatisticModel project,
+        IEnumerable<CountryStatisticModel> apiRows,
+        out List<CountryStatisticModel> newCountries,
+        out List<CountryStatisticModel> updatedCountries)
+    {
+        newCountries = new List<CountryStatisticModel>();
+        updatedCountries = new List<CountryStatisticModel>();
+
+        foreach (var apiModel in apiRows)
+        {
+            var foundCountry = project.CountryStatistics.FirstOrDefault(
+                x => x.CountryName.Equals(apiModel.CountryName, StringComparison.CurrentCultureIgnoreCase));
+
+            if (foundCountry == null)
+            {
+                newCountries.Add(CountryStatisticModel.CreateModel(
+                    apiModel.ProjectId,
+                    apiModel.Rank,
+                    apiModel.CountryName,
+                    apiModel.TotalCredit,
+                    apiModel.CreditDay,
+                    apiModel.CreditWeek,
+                    apiModel.CreditMonth,
+                    apiModel.CreditAvarage,
+                    apiModel.CreditUser));
+            }
+            else if (!ProjectStatisticModel.IsSameDetailedStatistic(project, apiModel))
+            {
+                foundCountry.Update(
+                    foundCountry,
+                    apiModel.Rank,
+                    apiModel.CountryName,
+                    apiModel.TotalCredit,
+                    apiModel.CreditDay,
+                    apiModel.CreditWeek,
+                    apiModel.CreditMonth,
+                    apiModel.CreditAvarage,
+                    apiModel.CreditUser);
+                updatedCountries.Add(foundCountry);
+            }
+        }
     }
 
 
