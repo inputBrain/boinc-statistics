@@ -40,6 +40,11 @@ public partial class BoincStatsService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            if (!_config.IsDeveloperMode && _config.Schedule.Enabled)
+            {
+                await _waitUntilScheduledStartAsync(stoppingToken);
+            }
+
             await _processScrappingAsync(stoppingToken);
 
             if (_config.IsDeveloperMode)
@@ -48,6 +53,102 @@ public partial class BoincStatsService : BackgroundService
                 Environment.Exit(0);
             }
         }
+    }
+
+
+    private async Task _waitUntilScheduledStartAsync(CancellationToken cancellationToken)
+    {
+        var times = _parseScheduleTimes();
+        if (times.Count == 0)
+        {
+            _logger.LogWarning("Schedule.Enabled=true but RunAtKyivTimes is empty. Running immediately.");
+            return;
+        }
+
+        var tz = _getScheduleTimeZone();
+        var nextRunUtc = _calculateNextRunUtc(times, tz);
+        var delay = nextRunUtc - DateTime.UtcNow;
+
+        if (delay <= TimeSpan.Zero)
+        {
+            return;
+        }
+
+        var nextRunLocal = TimeZoneInfo.ConvertTimeFromUtc(nextRunUtc, tz);
+
+        _logger.LogInformation(
+            "Next scheduled run: {Time} ({Tz}). Waiting {H:D2}h {M:D2}m {S:D2}s.",
+            nextRunLocal.ToString("yyyy-MM-dd HH:mm:ss"),
+            tz.Id,
+            (int)delay.TotalHours, delay.Minutes, delay.Seconds);
+
+        await Task.Delay(delay, cancellationToken);
+
+        _logger.LogInformation("Scheduled start time reached ({Time} {Tz}). Starting scrape...",
+            nextRunLocal.ToString("yyyy-MM-dd HH:mm:ss"), tz.Id);
+    }
+
+
+    private List<TimeOnly> _parseScheduleTimes()
+    {
+        var result = new List<TimeOnly>();
+        foreach (var raw in _config.Schedule.RunAtKyivTimes)
+        {
+            if (TimeOnly.TryParseExact(raw, "HH:mm", out var t))
+            {
+                result.Add(t);
+            }
+            else
+            {
+                _logger.LogWarning("Schedule.RunAtKyivTimes: cannot parse \"{Raw}\" (expected HH:mm). Skipped.", raw);
+            }
+        }
+        return result.OrderBy(t => t).ToList();
+    }
+
+
+    private static DateTime _calculateNextRunUtc(IReadOnlyList<TimeOnly> sortedTimes, TimeZoneInfo tz)
+    {
+        var nowLocal = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+        var today = DateOnly.FromDateTime(nowLocal);
+
+        foreach (var t in sortedTimes)
+        {
+            var candidate = today.ToDateTime(t, DateTimeKind.Unspecified);
+            if (candidate > nowLocal)
+            {
+                return TimeZoneInfo.ConvertTimeToUtc(candidate, tz);
+            }
+        }
+
+        var tomorrowFirst = today.AddDays(1).ToDateTime(sortedTimes[0], DateTimeKind.Unspecified);
+        return TimeZoneInfo.ConvertTimeToUtc(tomorrowFirst, tz);
+    }
+
+
+    private TimeZoneInfo _getScheduleTimeZone()
+    {
+        var configured = _config.Schedule.TimeZone;
+        string[] candidates =
+        [
+            configured,
+            "Europe/Kyiv",
+            "Europe/Kiev",
+            "FLE Standard Time"
+        ];
+
+        foreach (var id in candidates)
+        {
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(id);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+            }
+        }
+        throw new TimeZoneNotFoundException(
+            $"Unable to resolve Kyiv timezone (tried: {string.Join(", ", candidates)}).");
     }
 
 

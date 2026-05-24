@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace BoincStatistic.Worker.Configs;
 
 public class WorkerConfig
@@ -11,6 +13,14 @@ public class WorkerConfig
     public ParallelismConfig Parallelism { get; set; } = new();
     public ScrapingConfig Scraping { get; set; } = new();
     public DelayConfig Delay { get; set; } = new();
+    public ScheduleConfig Schedule { get; set; } = new();
+}
+
+public class ScheduleConfig
+{
+    public bool Enabled { get; set; } = false;
+    public string TimeZone { get; set; } = "Europe/Kyiv";
+    public List<string> RunAtKyivTimes { get; set; } = new() { "08:00", "15:00" };
 }
 
 public class FlareSolverrConfig
