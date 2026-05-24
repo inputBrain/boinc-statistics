@@ -26,7 +26,8 @@ public class ScheduleConfig
 public class FlareSolverrConfig
 {
     public string Url { get; set; } = "http://localhost:8191/v1";
-    public int MaxTimeoutMs { get; set; } = 90_000;
+    public int MaxTimeoutMs { get; set; } = 240_000;
+    public int HttpTimeoutMs { get; set; } = 300_000;
 }
 
 public class TorConfig

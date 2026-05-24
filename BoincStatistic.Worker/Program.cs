@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(
@@ -29,7 +30,11 @@ IHost host = Host.CreateDefaultBuilder(args)
             ));
 
             services.AddSingleton<ITorControlClient, TorControlClient>();
-            services.AddHttpClient<IResilientFetcher, FlareSolverrFetcher>();
+            services.AddHttpClient<IResilientFetcher, FlareSolverrFetcher>((sp, client) =>
+            {
+                var cfg = sp.GetRequiredService<IOptions<WorkerConfig>>().Value;
+                client.Timeout = TimeSpan.FromMilliseconds(cfg.FlareSolverr.HttpTimeoutMs);
+            });
 
             services.AddHostedService<BoincStatsService>();
         })
