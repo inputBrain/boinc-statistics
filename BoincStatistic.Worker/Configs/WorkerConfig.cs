@@ -20,7 +20,7 @@ public class ScheduleConfig
 {
     public bool Enabled { get; set; } = false;
     public string TimeZone { get; set; } = "Europe/Kyiv";
-    public List<string> RunAtKyivTimes { get; set; } = new() { "08:00", "15:00" };
+    public List<string> RunAtKyivTimes { get; set; } = new();
 }
 
 public class FlareSolverrConfig
